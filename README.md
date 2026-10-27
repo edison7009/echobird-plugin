@@ -4,7 +4,7 @@
 
 Plugin specifications, a development template and the reviewed plugin index for EchoBird.
 
-**Status:** the manifest and API are a draft (`0.1-draft`). EchoBird does not yet implement this plugin runtime. The template can be previewed in a browser; it does not establish compatibility with a released desktop client. The public index starts empty.
+**Status:** the page API remains experimental (`0.1-draft`). Installation and the page host are being integrated into an unreleased EchoBird development build. Existing released clients without this runtime cannot install plugins. [Reversi](plugins/reversi/README.md) is the first complete plugin and author example.
 
 ## Regions
 
@@ -20,6 +20,8 @@ Both repositories publish the same `index.json`, plugin identities and versions.
 - [Plugin manifest specification](docs/plugin-spec.md)
 - [Registry and index specification](docs/registry-spec.md)
 - [Hello Plugin template](templates/hello-plugin/README.md)
+- [Reversi source and installation](plugins/reversi/README.md)
+- [Page host API types](sdk/echobird.d.ts)
 - [Submit or update a plugin](CONTRIBUTING.md)
 - [Regional synchronization](docs/mirroring.md)
 

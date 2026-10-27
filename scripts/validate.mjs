@@ -23,14 +23,27 @@ ajv.addFormat("public-https", (value) => {
     return false;
   }
 });
+export function portablePath(value) {
+  return (
+    value.length > 0 &&
+    value.length <= 240 &&
+    value.split("/").every((part) => {
+      const stem = part.split(".")[0];
+      return (
+        part &&
+        part !== "." &&
+        part !== ".." &&
+        !/[\\\s\x00-\x1f:<>"|?*%#]/u.test(part) &&
+        !/[. ]$/u.test(part) &&
+        !/^(?:con|prn|aux|nul|com[0-9]|lpt[0-9])$/iu.test(stem)
+      );
+    })
+  );
+}
+ajv.addFormat("relative-asset", portablePath);
 ajv.addFormat(
   "relative-html",
-  (value) =>
-    !value.includes("\\") &&
-    !value.includes(":") &&
-    !value.startsWith("/") &&
-    value.split("/").every((part) => part && part !== "." && part !== "..") &&
-    value.endsWith(".html"),
+  (value) => portablePath(value) && value.endsWith(".html"),
 );
 
 export function readJson(filename) {
@@ -136,6 +149,7 @@ if (
       validateLocalManifest(
         path.join(root, "templates/hello-plugin/package.json"),
       );
+      validateLocalManifest(path.join(root, "plugins/reversi/package.json"));
       validateEntry(readJson(path.join(root, "examples/registry-entry.json")));
       validateIndex(readJson(path.join(root, "index.json")));
       console.log(

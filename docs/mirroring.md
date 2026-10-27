@@ -27,6 +27,8 @@ Configure `origin` as GitHub and `gitcode` as the China repository. Git credenti
 
 ## Distribution limits
 
-Git synchronization copies the main branch's Git files and history. It does not mirror Issues, Pull Requests, platform settings, Git tags or release attachments. Initial repository setup contains no released plugin packages. Future plugin releases need their regional artifacts uploaded separately, verified against the shared checksum, and reviewed before adding download URLs to the index. Tag and release synchronization is outside this initial workflow.
+Git synchronization copies the main branch's Git files and history, including first-party versioned ZIPs stored in `packages/`. It does not mirror Issues, Pull Requests, platform settings, Git tags or release attachments. Packages hosted as external Release attachments need separate regional upload and checksum verification. Tag and Release synchronization remains outside this workflow.
+
+The China index is available through `https://api.gitcode.com/api/v5/repos/edison7009/echobird-plugin/raw/index.json`. The same public raw-file endpoint serves versioned files under `packages/`; no client credential is embedded. The client verifies the shared archive SHA-256 before extraction.
 
 Two successful branch pushes establish repository synchronization; they do not prove China-region download speed, regional package availability or client plugin loading.

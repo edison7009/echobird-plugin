@@ -4,7 +4,7 @@
 
 这里维护 EchoBird 插件规范、开发模板和已审核插件索引。
 
-**当前状态：** 清单和接口处于 `0.1-draft` 草案阶段，EchoBird 客户端尚未实现插件运行时。模板可以在浏览器单独预览，不代表已支持桌面客户端安装。官方索引当前为空，不收录演示插件。
+**当前状态：** 页面接口仍为实验性 `0.1-draft`，安装与页面运行时正在未发布的 EchoBird 开发版中接入。没有该运行时的已发布客户端无法安装插件。[黑白棋](plugins/reversi/README.md) 是首个完整插件，也可作为开发示例；“项目”中的内置演示独立保留。
 
 ## 中国区与国际区
 
@@ -18,6 +18,7 @@
 ## 开发与提交
 
 1. 复制 [Hello Plugin 模板](templates/hello-plugin/README.md)，在自己的 Git 仓库开发。
+   也可以参考完整的 [黑白棋源码](plugins/reversi/README.md) 和 [宿主接口类型](sdk/echobird.d.ts)。
 2. 按 [插件规范](docs/plugin-spec.md) 修改清单；源码可托管在 GitHub、CNB、GitCode 或其他公共 Git 平台。
 3. 按 [索引规范](docs/registry-spec.md) 准备固定提交、发布包、双区域下载地址及校验值。
 4. 通过 [投稿说明](CONTRIBUTING.md) 提交 PR 或 Issue，首次审核后收录。

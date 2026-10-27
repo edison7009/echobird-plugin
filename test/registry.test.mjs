@@ -34,9 +34,13 @@ test("the template has a valid manifest and a local page", () => {
   );
 });
 
-test("the public index is empty and contains no demonstration entries", () => {
-  assert.deepEqual(loadRegistry(), []);
-  assert.deepEqual(readJson(path.join(root, "index.json")), buildIndex([]));
+test("the public index contains only reviewed records and no placeholder examples", () => {
+  const entries = loadRegistry();
+  assert.ok(entries.every((entry) => !entry.id.startsWith("example.")));
+  assert.deepEqual(
+    readJson(path.join(root, "index.json")),
+    buildIndex(entries),
+  );
 });
 
 test("the record example is structurally valid without publishing it", () => {

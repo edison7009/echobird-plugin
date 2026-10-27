@@ -23,6 +23,7 @@
     "license": { "type": "string", "minLength": 1, "maxLength": 100 },
     "repository": { "type": "string", "format": "public-https" },
     "private": { "type": "boolean" },
+    "icon": { "type": "string", "format": "relative-asset", "maxLength": 240 },
     "echobird": {
       "type": "object",
       "additionalProperties": false,
@@ -48,8 +49,7 @@
           "uniqueItems": true,
           "items": {
             "type": "string",
-            "pattern": "^[a-z][a-z0-9]*(\\.[a-z][a-z0-9]*)*$",
-            "maxLength": 80
+            "enum": ["model.request"]
           }
         },
         "contributes": {

@@ -20,4 +20,6 @@ The generated index has `schemaVersion: 1`, `name: "EchoBird Plugin Hub"` and `p
 
 Generation reads only reviewed JSON records. Templates, examples and Issues are not discovery inputs. CI checks that the committed index matches generation; it does not silently commit new catalog content.
 
-The same index bytes are distributed from both official repositories. Future clients select the archive URL for their chosen region and compare the final package hash before loading. Region selection, installation, archive extraction and plugin execution are not implemented in this repository.
+The same index bytes are distributed from both official repositories. The development client selects the archive URL for the user's region, compares the package hash before extraction, and compares the extracted manifest with this reviewed record. Plugin code runs only after explicit launch. The client implementation lives in EchoBird; this repository supplies packages and metadata.
+
+First-party versioned ZIPs live in `packages/` and are mirrored with Git. Build Reversi with `npm run pack:reversi`. Commit its source and final archive first, then record that immutable source commit, archive digest and regional URLs in a registry change. Never replace an existing version's archive. GitCode's public raw-file API is used for file bytes; its ordinary repository page is not a package endpoint. These archives require no separate Release-attachment mirroring.
