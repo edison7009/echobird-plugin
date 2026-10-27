@@ -25,3 +25,5 @@ The same index bytes are distributed from both official repositories. The develo
 First-party versioned ZIPs live in `packages/` and are mirrored with Git. Build Reversi with `npm run pack:reversi`. Commit its source and final archive first, then record that immutable source commit, archive digest and regional URLs in a registry change. Never replace an existing version's archive. GitCode's public raw-file API is used for file bytes; its ordinary repository page is not a package endpoint. These archives require no separate Release-attachment mirroring.
 
 Optional registry `icons` supplies `international` and `china` public HTTPS image URLs for discovery before installation. Use versioned assets and the same original icon in both regions. Installed plugins use their local manifest icon. Omit the field when no icon is available; the client uses its generic fallback.
+
+For raw-file hosts that return `application/octet-stream` with `nosniff`, publish PNG or WebP discovery previews rendered from the original icon. SVG previews require an image MIME type. The installed package may retain its original SVG icon.

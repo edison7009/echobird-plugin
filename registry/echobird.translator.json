@@ -39,7 +39,7 @@
     }
   ],
   "icons": {
-    "international": "https://raw.githubusercontent.com/edison7009/echobird-plugin/da21e0ffbe7c1a8bd1755ef9fc9b7ac50e1dc300/packages/icons/translator-1.0.0.svg",
-    "china": "https://api.gitcode.com/api/v5/repos/edison7009/echobird-plugin/raw/packages/icons/translator-1.0.0.svg"
+    "international": "https://raw.githubusercontent.com/edison7009/echobird-plugin/907f520eae6cf22bf2ff7f223441e4cb4b853439/packages/icons/translator-1.0.0.png",
+    "china": "https://api.gitcode.com/api/v5/repos/edison7009/echobird-plugin/raw/packages/icons/translator-1.0.0.png"
   }
 }
