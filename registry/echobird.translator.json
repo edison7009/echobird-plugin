@@ -1,0 +1,45 @@
+{
+  "$schema": "https://raw.githubusercontent.com/edison7009/echobird-plugin/main/schemas/registry-entry.schema.json",
+  "id": "echobird.translator",
+  "repository": "https://github.com/edison7009/echobird-plugin",
+  "releases": [
+    {
+      "manifest": {
+        "$schema": "https://raw.githubusercontent.com/edison7009/echobird-plugin/main/schemas/plugin-manifest.schema.json",
+        "name": "translator",
+        "publisher": "echobird",
+        "version": "1.0.0",
+        "displayName": "AI 翻译 · Translate",
+        "description": "使用选定的 AI 模型翻译文本。Translate text with your selected AI model.",
+        "license": "MIT",
+        "repository": "https://github.com/edison7009/echobird-plugin",
+        "icon": "ui/icon.svg",
+        "echobird": {
+          "manifestVersion": 1,
+          "apiVersion": "0.1-draft",
+          "platforms": ["windows", "macos", "linux"],
+          "permissions": ["model.request", "clipboard.write"],
+          "contributes": {
+            "pages": [
+              {
+                "id": "translate",
+                "title": "AI 翻译 · Translate",
+                "entry": "ui/index.html"
+              }
+            ]
+          }
+        }
+      },
+      "commit": "da21e0ffbe7c1a8bd1755ef9fc9b7ac50e1dc300",
+      "sha256": "a580adce3fad79d74bc9828ee5f1fa93aa60694ce8ccceadca8ca8da019db3e2",
+      "downloads": {
+        "international": "https://raw.githubusercontent.com/edison7009/echobird-plugin/da21e0ffbe7c1a8bd1755ef9fc9b7ac50e1dc300/packages/echobird.translator-1.0.0.zip",
+        "china": "https://api.gitcode.com/api/v5/repos/edison7009/echobird-plugin/raw/packages/echobird.translator-1.0.0.zip"
+      }
+    }
+  ],
+  "icons": {
+    "international": "https://raw.githubusercontent.com/edison7009/echobird-plugin/da21e0ffbe7c1a8bd1755ef9fc9b7ac50e1dc300/packages/icons/translator-1.0.0.svg",
+    "china": "https://api.gitcode.com/api/v5/repos/edison7009/echobird-plugin/raw/packages/icons/translator-1.0.0.svg"
+  }
+}
