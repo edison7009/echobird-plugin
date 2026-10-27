@@ -4,7 +4,7 @@
 
 Plugin specifications, a development template and the reviewed plugin index for EchoBird.
 
-**Status:** the page API remains experimental (`0.1-draft`). Installation and the page host are being integrated into an unreleased EchoBird development build. Existing released clients without this runtime cannot install plugins. [Reversi](plugins/reversi/README.md) is the first complete plugin and author example.
+**Status:** the page API remains experimental (`0.1-draft`). Installation and the page host are being integrated into an unreleased EchoBird development build. Existing released clients without this runtime cannot install plugins. [Reversi](plugins/reversi/README.md) and [AI Translate](plugins/translator/README.md) are complete plugins and author examples.
 
 ## Regions
 
@@ -41,3 +41,5 @@ GitHub CI checks formatting, JSON Schemas, the template, deterministic output an
 Authors may add the repository topic `echobird-plugin` for discovery. A topic does not grant a publisher identity or publish a plugin in this Hub. Publisher ownership and the first listing require review.
 
 Repository tooling and the template use the [MIT license](LICENSE). Plugins retain their own declared licenses.
+
+- [AI Translate source and installation](plugins/translator/README.md)

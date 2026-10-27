@@ -37,3 +37,5 @@ npm run check
 修改 `registry/` 后运行 `npm run build:index`，将生成的 `index.json` 与记录一起提交。校验不会安装插件依赖、执行插件脚本或访问投稿中的服务器。CI 在 Windows、macOS、Linux 检查同一套文件，`main` 全部通过后单向同步到 GitCode。
 
 参见 [同步说明](docs/mirroring.md)。本仓库工具和模板使用 [MIT 许可证](LICENSE)，第三方插件保留各自许可证。
+
+- [AI 翻译源码与安装](plugins/translator/README.md)

@@ -1,0 +1,33 @@
+{
+  "$schema": "https://raw.githubusercontent.com/edison7009/echobird-plugin/main/schemas/plugin-manifest.schema.json",
+  "name": "translator",
+  "publisher": "echobird",
+  "version": "1.0.0",
+  "displayName": "AI 翻译 · Translate",
+  "description": "使用选定的 AI 模型翻译文本。Translate text with your selected AI model.",
+  "license": "MIT",
+  "repository": "https://github.com/edison7009/echobird-plugin",
+  "icon": "ui/icon.svg",
+  "echobird": {
+    "manifestVersion": 1,
+    "apiVersion": "0.1-draft",
+    "platforms": [
+      "windows",
+      "macos",
+      "linux"
+    ],
+    "permissions": [
+      "model.request",
+      "clipboard.write"
+    ],
+    "contributes": {
+      "pages": [
+        {
+          "id": "translate",
+          "title": "AI 翻译 · Translate",
+          "entry": "ui/index.html"
+        }
+      ]
+    }
+  }
+}

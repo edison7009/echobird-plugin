@@ -150,6 +150,7 @@ if (
         path.join(root, "templates/hello-plugin/package.json"),
       );
       validateLocalManifest(path.join(root, "plugins/reversi/package.json"));
+      validateLocalManifest(path.join(root, "plugins/translator/package.json"));
       validateEntry(readJson(path.join(root, "examples/registry-entry.json")));
       validateIndex(readJson(path.join(root, "index.json")));
       console.log(

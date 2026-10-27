@@ -25,6 +25,19 @@ import {
 const example = readJson(path.join(root, "examples/registry-entry.json"));
 const copy = () => structuredClone(example);
 
+test("discovery icons require both public HTTPS regional URLs", () => {
+  const entry = copy();
+  entry.icons = {
+    international: "https://example.com/icon.svg",
+    china: "https://example.cn/icon.svg",
+  };
+  assert.doesNotThrow(() => validateEntry(entry));
+  entry.icons.china = "file:///private/icon.svg";
+  assert.throws(() => validateEntry(entry));
+  delete entry.icons.china;
+  assert.throws(() => validateEntry(entry));
+});
+
 test("the template has a valid manifest and a local page", () => {
   assert.equal(
     validateLocalManifest(

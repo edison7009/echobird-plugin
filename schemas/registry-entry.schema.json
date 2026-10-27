@@ -12,6 +12,15 @@
       "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*\\.[a-z0-9]+(?:-[a-z0-9]+)*$"
     },
     "repository": { "type": "string", "format": "public-https" },
+    "icons": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["international", "china"],
+      "properties": {
+        "international": { "type": "string", "format": "public-https" },
+        "china": { "type": "string", "format": "public-https" }
+      }
+    },
     "releases": {
       "type": "array",
       "minItems": 1,

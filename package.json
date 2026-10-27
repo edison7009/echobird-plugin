@@ -16,7 +16,8 @@
     "pack:reversi": "node scripts/package-plugin.mjs plugins/reversi",
     "index:check": "node scripts/build-index.mjs --check",
     "test": "node --test",
-    "check": "npm run format:check && npm run validate && npm run index:check && npm test"
+    "check": "npm run format:check && npm run validate && npm run index:check && npm test",
+    "pack:translator": "node scripts/package-plugin.mjs plugins/translator"
   },
   "devDependencies": {
     "ajv": "8.20.0",
