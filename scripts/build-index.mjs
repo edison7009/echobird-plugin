@@ -2,6 +2,7 @@ import { readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
 import semver from "semver";
+import { format } from "prettier";
 import {
   loadRegistry,
   root,
@@ -35,7 +36,9 @@ if (
     const args = process.argv.slice(2);
     if (args.length > 1 || (args.length === 1 && args[0] !== "--check"))
       throw new Error("Usage: node scripts/build-index.mjs [--check]");
-    const output = JSON.stringify(buildIndex(loadRegistry()), null, 2) + "\n";
+    const output = await format(JSON.stringify(buildIndex(loadRegistry())), {
+      parser: "json",
+    });
     const filename = path.join(root, "index.json");
     if (args[0] === "--check") {
       if (readFileSync(filename, "utf8") !== output)

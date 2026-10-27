@@ -2,5 +2,47 @@
   "$schema": "https://raw.githubusercontent.com/edison7009/echobird-plugin/main/schemas/index.schema.json",
   "schemaVersion": 1,
   "name": "EchoBird Plugin Hub",
-  "plugins": []
+  "plugins": [
+    {
+      "$schema": "https://raw.githubusercontent.com/edison7009/echobird-plugin/main/schemas/registry-entry.schema.json",
+      "id": "echobird.reversi",
+      "repository": "https://github.com/edison7009/echobird-plugin",
+      "releases": [
+        {
+          "manifest": {
+            "$schema": "https://raw.githubusercontent.com/edison7009/echobird-plugin/main/schemas/plugin-manifest.schema.json",
+            "name": "reversi",
+            "publisher": "echobird",
+            "version": "1.0.0",
+            "displayName": "黑白棋 · Reversi",
+            "description": "与选定的 AI 模型对弈。Play Reversi with your selected AI model.",
+            "license": "MIT",
+            "repository": "https://github.com/edison7009/echobird-plugin",
+            "icon": "ui/icon.svg",
+            "echobird": {
+              "manifestVersion": 1,
+              "apiVersion": "0.1-draft",
+              "platforms": ["windows", "macos", "linux"],
+              "permissions": ["model.request"],
+              "contributes": {
+                "pages": [
+                  {
+                    "id": "game",
+                    "title": "黑白棋 · Reversi",
+                    "entry": "ui/index.html"
+                  }
+                ]
+              }
+            }
+          },
+          "commit": "1db647d859c941244fdc73a7c7eddc109730e057",
+          "sha256": "fc629de0971cd77139ec708808b2c1919983ef56b21106bbe9c48d7c26a4cf0d",
+          "downloads": {
+            "international": "https://raw.githubusercontent.com/edison7009/echobird-plugin/1db647d859c941244fdc73a7c7eddc109730e057/packages/echobird.reversi-1.0.0.zip",
+            "china": "https://api.gitcode.com/api/v5/repos/edison7009/echobird-plugin/raw/packages/echobird.reversi-1.0.0.zip"
+          }
+        }
+      ]
+    }
+  ]
 }
