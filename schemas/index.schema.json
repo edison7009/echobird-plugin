@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/edison7009/echobird-plugin/main/schemas/index.schema.json",
+  "title": "EchoBird Plugin Hub index",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "name", "plugins"],
+  "properties": {
+    "$schema": { "type": "string" },
+    "schemaVersion": { "const": 1 },
+    "name": { "const": "EchoBird Plugin Hub" },
+    "plugins": {
+      "type": "array",
+      "items": { "$ref": "registry-entry.schema.json" }
+    }
+  }
+}

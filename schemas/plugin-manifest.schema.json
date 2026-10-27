@@ -1,0 +1,91 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/edison7009/echobird-plugin/main/schemas/plugin-manifest.schema.json",
+  "title": "EchoBird plugin manifest draft 1",
+  "type": "object",
+  "required": [
+    "name",
+    "publisher",
+    "version",
+    "displayName",
+    "description",
+    "license",
+    "repository",
+    "echobird"
+  ],
+  "properties": {
+    "$schema": { "type": "string" },
+    "name": { "$ref": "#/$defs/identifier" },
+    "publisher": { "$ref": "#/$defs/identifier" },
+    "version": { "type": "string", "format": "semver" },
+    "displayName": { "type": "string", "minLength": 1, "maxLength": 80 },
+    "description": { "type": "string", "minLength": 1, "maxLength": 240 },
+    "license": { "type": "string", "minLength": 1, "maxLength": 100 },
+    "repository": { "type": "string", "format": "public-https" },
+    "private": { "type": "boolean" },
+    "echobird": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "manifestVersion",
+        "apiVersion",
+        "platforms",
+        "permissions",
+        "contributes"
+      ],
+      "properties": {
+        "manifestVersion": { "const": 1 },
+        "apiVersion": { "const": "0.1-draft" },
+        "platforms": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 3,
+          "uniqueItems": true,
+          "items": { "enum": ["windows", "macos", "linux"] }
+        },
+        "permissions": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9]*(\\.[a-z][a-z0-9]*)*$",
+            "maxLength": 80
+          }
+        },
+        "contributes": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["pages"],
+          "properties": {
+            "pages": {
+              "type": "array",
+              "minItems": 1,
+              "maxItems": 16,
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["id", "title", "entry"],
+                "properties": {
+                  "id": { "$ref": "#/$defs/identifier" },
+                  "title": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 80
+                  },
+                  "entry": { "type": "string", "format": "relative-html" }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "identifier": {
+      "type": "string",
+      "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$",
+      "maxLength": 64
+    }
+  }
+}

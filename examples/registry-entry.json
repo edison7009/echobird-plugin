@@ -1,0 +1,39 @@
+{
+  "$schema": "https://raw.githubusercontent.com/edison7009/echobird-plugin/main/schemas/registry-entry.schema.json",
+  "id": "example.hello-plugin",
+  "repository": "https://github.com/example/hello-plugin",
+  "releases": [
+    {
+      "manifest": {
+        "name": "hello-plugin",
+        "publisher": "example",
+        "version": "0.1.0",
+        "displayName": "Hello Plugin",
+        "description": "Registry record example; not a published plugin.",
+        "license": "MIT",
+        "repository": "https://github.com/example/hello-plugin",
+        "echobird": {
+          "manifestVersion": 1,
+          "apiVersion": "0.1-draft",
+          "platforms": ["windows", "macos", "linux"],
+          "permissions": [],
+          "contributes": {
+            "pages": [
+              {
+                "id": "hello",
+                "title": "Hello Plugin",
+                "entry": "ui/index.html"
+              }
+            ]
+          }
+        }
+      },
+      "commit": "0000000000000000000000000000000000000000",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+      "downloads": {
+        "international": "https://example.com/releases/hello-plugin-0.1.0.zip",
+        "china": "https://example.cn/releases/hello-plugin-0.1.0.zip"
+      }
+    }
+  ]
+}

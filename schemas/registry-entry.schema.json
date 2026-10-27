@@ -1,0 +1,42 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/edison7009/echobird-plugin/main/schemas/registry-entry.schema.json",
+  "title": "EchoBird plugin registry entry",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["id", "repository", "releases"],
+  "properties": {
+    "$schema": { "type": "string" },
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*\\.[a-z0-9]+(?:-[a-z0-9]+)*$"
+    },
+    "repository": { "type": "string", "format": "public-https" },
+    "releases": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["manifest", "commit", "sha256", "downloads"],
+        "properties": {
+          "manifest": { "$ref": "plugin-manifest.schema.json" },
+          "commit": {
+            "type": "string",
+            "pattern": "^(?:[a-f0-9]{40}|[a-f0-9]{64})$"
+          },
+          "sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+          "downloads": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["international", "china"],
+            "properties": {
+              "international": { "type": "string", "format": "public-https" },
+              "china": { "type": "string", "format": "public-https" }
+            }
+          }
+        }
+      }
+    }
+  }
+}

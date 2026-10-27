@@ -1,0 +1,50 @@
+name: Plugin submission / 插件投稿
+description: Submit a plugin repository for review / 提交插件仓库供审核
+title: "[Plugin] "
+labels: []
+body:
+  - type: markdown
+    attributes:
+      value: "The plugin API is a draft. Submission does not automatically publish a plugin. 插件接口为草案，投稿不会自动上架。"
+  - type: input
+    id: repository
+    attributes:
+      label: Source repository / 源码仓库
+      description: Public HTTPS Git repository URL
+      placeholder: https://github.com/your-name/your-plugin
+    validations:
+      required: true
+  - type: input
+    id: identity
+    attributes:
+      label: Plugin id / 插件标识
+      placeholder: publisher.name
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Version and full commit / 版本与完整提交
+    validations:
+      required: true
+  - type: textarea
+    id: distribution
+    attributes:
+      label: Downloads and checksum / 下载地址及校验值
+      description: Include international and China ZIP URLs, one SHA-256, and the package manifest. 请提供两区域 ZIP 地址、同一 SHA-256 和插件清单。
+    validations:
+      required: true
+  - type: textarea
+    id: platforms
+    attributes:
+      label: Platform verification / 平台验证
+      description: State which of Windows, macOS and Linux were actually tested. 写明实际测试的平台。
+    validations:
+      required: true
+  - type: checkboxes
+    id: ownership
+    attributes:
+      label: Publisher and license / 发布者与许可证
+      options:
+        - label: I am authorized to publish this plugin and have included its license. 我有权发布此插件并已声明许可证。
+          required: true

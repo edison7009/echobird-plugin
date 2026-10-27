@@ -1,0 +1,6 @@
+{
+  "$schema": "https://raw.githubusercontent.com/edison7009/echobird-plugin/main/schemas/index.schema.json",
+  "schemaVersion": 1,
+  "name": "EchoBird Plugin Hub",
+  "plugins": []
+}
