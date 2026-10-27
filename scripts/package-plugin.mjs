@@ -26,7 +26,14 @@ export function packagePlugin(directory) {
         throw new Error("Plugin packages cannot contain links");
       if (stat.isDirectory()) walk(filename, relative + "/");
       else if (stat.isFile()) {
-        const bytes = new Uint8Array(readFileSync(filename));
+        let bytes = new Uint8Array(readFileSync(filename));
+        if (
+          /\.(?:html|css|js|mjs|json|svg|md|txt|ts)$/iu.test(name) ||
+          name === "LICENSE"
+        ) {
+          const text = new TextDecoder("utf-8", { fatal: true }).decode(bytes);
+          bytes = new TextEncoder().encode(text.replace(/\r\n/gu, "\n"));
+        }
         total += bytes.length;
         if (total > 20 * 1024 * 1024 || Object.keys(files).length >= 2000)
           throw new Error("Plugin package exceeds runtime limits");
