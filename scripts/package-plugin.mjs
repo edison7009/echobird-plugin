@@ -4,6 +4,7 @@ import {
   mkdirSync,
   writeFileSync,
   lstatSync,
+  existsSync,
 } from "node:fs";
 import { createHash } from "node:crypto";
 import path from "node:path";
@@ -61,6 +62,11 @@ if (
     `${manifest.publisher}.${manifest.name}-${manifest.version}.zip`,
   );
   mkdirSync(path.dirname(output), { recursive: true });
+  if (existsSync(output) && !readFileSync(output).equals(Buffer.from(bytes))) {
+    throw new Error(
+      "This package version already exists with different contents; increment the plugin version.",
+    );
+  }
   writeFileSync(output, bytes);
   console.log(
     JSON.stringify({

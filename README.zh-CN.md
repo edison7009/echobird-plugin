@@ -13,7 +13,7 @@
 | 中国区分发镜像 | [GitCode](https://gitcode.com/edison7009/echobird-plugin) |
 | 国际区主线     | [GitHub](https://github.com/edison7009/echobird-plugin)   |
 
-两边保持相同的 `index.json`、插件标识和版本。每个上架版本需要国际区、中国区下载地址，共用一个 SHA-256 校验值。只同步 Git 代码不会复制发布附件、Issue 或 PR；中国区安装包需要单独分发并验证一致。
+两边保持相同的 `index.json`、插件标识和版本。每个上架版本需要国际区、中国区下载地址，共用一个 SHA-256 校验值。首方版本化安装包放在 `packages/` 中，随 Git 自动同步；外部发布附件需要另行分发并验证一致。Issue 和 PR 不会同步。
 
 ## 开发与提交
 

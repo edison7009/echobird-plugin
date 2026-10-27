@@ -25,6 +25,11 @@ test("the Reversi package is reproducible and contains the manifest and local ru
     path.join(root, "packages/echobird.reversi-1.0.0.zip"),
   );
   assert.deepEqual(new Uint8Array(committed), first.bytes);
+  const release = JSON.parse(
+    readFileSync(path.join(root, "registry/echobird.reversi.json"), "utf8"),
+  ).releases[0];
+  assert.equal(release.sha256, first.sha256);
+  assert.deepEqual(release.manifest, first.manifest);
 });
 
 test("the sample starts without inference and uses only the declared host API for a legal AI move", async () => {
