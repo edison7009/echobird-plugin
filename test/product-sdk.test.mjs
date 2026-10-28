@@ -141,3 +141,20 @@ test("text example registers without side effects and executes explicit commands
   assert.equal(commands.size, 0);
   assert.equal(processors.size, 0);
 });
+
+test("published product examples match immutable archives and registry checksums", () => {
+  for (const name of ["ocean-theme", "text-tools"]) {
+    const packaged = packagePlugin(path.join(root, "plugins", name));
+    const record = readJson(
+      path.join(root, "registry", `echobird.${name}.json`),
+    );
+    assert.equal(record.releases[0].sha256, packaged.sha256);
+    assert.deepEqual(record.releases[0].manifest, packaged.manifest);
+    assert.deepEqual(
+      new Uint8Array(
+        readFileSync(path.join(root, "packages", `echobird.${name}-0.1.0.zip`)),
+      ),
+      packaged.bytes,
+    );
+  }
+});

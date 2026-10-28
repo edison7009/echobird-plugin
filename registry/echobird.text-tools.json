@@ -1,0 +1,73 @@
+{
+  "$schema": "https://raw.githubusercontent.com/edison7009/echobird-plugin/main/schemas/registry-entry.schema.json",
+  "id": "echobird.text-tools",
+  "repository": "https://github.com/edison7009/echobird-plugin",
+  "descriptions": {
+    "international": "Clean up speech text and run a text-formatting command with private settings.",
+    "china": "清理语音文本，支持私有配置、存储和文本格式化命令。"
+  },
+  "releases": [
+    {
+      "manifest": {
+        "name": "text-tools",
+        "publisher": "echobird",
+        "version": "0.1.0",
+        "displayName": "Text Tools",
+        "description": "Clean up speech text and run a text-formatting command with private settings.",
+        "category": "feature",
+        "license": "MIT",
+        "repository": "https://github.com/edison7009/echobird-plugin",
+        "echobird": {
+          "manifestVersion": 1,
+          "apiVersion": "0.1-draft",
+          "platforms": ["windows", "macos", "linux"],
+          "permissions": [
+            "extension.background",
+            "configuration",
+            "storage",
+            "commands",
+            "events",
+            "text.process"
+          ],
+          "background": "background.mjs",
+          "contributes": {
+            "pages": [],
+            "configuration": [
+              {
+                "key": "collapse-spaces",
+                "title": "Collapse repeated spaces",
+                "type": "boolean",
+                "default": true
+              },
+              {
+                "key": "prefix",
+                "title": "Output prefix",
+                "type": "string",
+                "default": ""
+              }
+            ],
+            "commands": [
+              {
+                "id": "format",
+                "title": "Format text"
+              }
+            ],
+            "textProcessors": [
+              {
+                "id": "clean-output",
+                "title": "Clean speech output",
+                "stage": "voice.output"
+              }
+            ]
+          }
+        }
+      },
+      "commit": "72bf00de721ac4a1c622c3be7bfe2526a7e9387f",
+      "sha256": "0585ca5e8e71e751003a8decb2b63527d92f0fb1ab43ff2e5877f8bae1ab45c6",
+      "downloads": {
+        "international": "https://raw.githubusercontent.com/edison7009/echobird-plugin/72bf00de721ac4a1c622c3be7bfe2526a7e9387f/packages/echobird.text-tools-0.1.0.zip",
+        "china": "https://api.gitcode.com/api/v5/repos/edison7009/echobird-plugin/raw/packages/echobird.text-tools-0.1.0.zip"
+      }
+    }
+  ]
+}
