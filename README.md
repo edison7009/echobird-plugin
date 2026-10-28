@@ -44,3 +44,7 @@ Repository tooling and the template use the [MIT license](LICENSE). Plugins reta
 
 - [AI Translate source and installation](plugins/translator/README.md)
 - [Native account extensions, six preview packages and build instructions](native/account-engine/README.md)
+
+## Product SDK examples
+
+[Ocean Theme](plugins/ocean-theme) demonstrates declarative colors. [Text Tools](plugins/text-tools) demonstrates private settings, JSON storage, explicit commands and opt-in speech-text processing. Read the [product extension contract](docs/plugin-spec.md#product-extensions) and [SDK types](sdk/echobird.d.ts) before developing an extension. These additions require an unreleased development host.

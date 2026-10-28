@@ -46,6 +46,11 @@ ajv.addFormat(
   (value) => portablePath(value) && value.endsWith(".html"),
 );
 
+ajv.addFormat(
+  "relative-script",
+  (value) => portablePath(value) && /\.m?js$/u.test(value),
+);
+
 export function readJson(filename) {
   if (statSync(filename).size > 1024 * 1024)
     throw new Error(`${path.basename(filename)} exceeds 1 MiB`);
@@ -69,7 +74,12 @@ export function validateManifest(manifest) {
   if (worker && worker.runtime !== "native" && !worker.entry.endsWith(".mjs"))
     throw new Error("Node account code entry must end in .mjs");
   const pages = manifest.echobird.contributes.pages.map((page) => page.id);
-  if (!pages.length && !manifest.echobird.worker)
+  if (
+    !pages.length &&
+    !manifest.echobird.worker &&
+    !manifest.echobird.background &&
+    !manifest.echobird.contributes.themes?.length
+  )
     throw new Error("A plugin must declare a page or an account code module");
   if (new Set(pages).size !== pages.length)
     throw new Error("Duplicate page id");
@@ -96,6 +106,51 @@ export function validateManifest(manifest) {
       !providers.some((provider) => provider.operations?.length))
   )
     throw new Error("Account code requires permission and declared operations");
+  const extension = manifest.echobird;
+  const contributes = extension.contributes;
+  const requirePermission = (permission) => {
+    if (!extension.permissions.includes(permission))
+      throw new Error(`Missing permission: ${permission}`);
+  };
+  if (extension.background) requirePermission("extension.background");
+  for (const [name, key] of [
+    ["themes", "id"],
+    ["configuration", "key"],
+    ["commands", "id"],
+    ["textProcessors", "id"],
+  ]) {
+    const items = contributes[name] ?? [];
+    if (new Set(items.map((item) => item[key])).size !== items.length)
+      throw new Error(`Duplicate ${name} identity`);
+    if (items.some((item) => !item.title.trim()))
+      throw new Error(`Empty ${name} title`);
+  }
+  if (contributes.configuration?.length) requirePermission("configuration");
+  for (const field of contributes.configuration ?? []) {
+    const accepts = (value) =>
+      typeof value === field.type &&
+      (field.type !== "string" || [...value].length <= 4096);
+    if (
+      !accepts(field.default) ||
+      field.options?.some((value) => !accepts(value)) ||
+      (field.options?.length && !field.options.includes(field.default))
+    )
+      throw new Error("Invalid plugin configuration value");
+  }
+  if (contributes.commands?.length) requirePermission("commands");
+  for (const command of contributes.commands ?? []) {
+    if (
+      command.pageId !== undefined
+        ? !pages.includes(command.pageId)
+        : !extension.background
+    )
+      throw new Error("Command requires a page or background entry");
+  }
+  if (contributes.textProcessors?.length) {
+    requirePermission("text.process");
+    if (!extension.background)
+      throw new Error("Text processors require a background entry");
+  }
   return manifest;
 }
 
@@ -167,6 +222,13 @@ export function validateLocalManifest(filename) {
     ).isFile()
   )
     throw new Error("Missing regular account code module");
+  if (
+    manifest.echobird.background &&
+    !lstatSync(
+      path.join(path.dirname(filename), manifest.echobird.background),
+    ).isFile()
+  )
+    throw new Error("Missing regular background entry");
   return manifest;
 }
 

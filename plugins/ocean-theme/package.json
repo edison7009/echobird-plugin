@@ -1,0 +1,53 @@
+{
+  "name": "ocean-theme",
+  "publisher": "echobird",
+  "version": "0.1.0",
+  "displayName": "Ocean Theme",
+  "description": "A light and dark ocean palette for EchoBird.",
+  "category": "appearance",
+  "license": "MIT",
+  "repository": "https://github.com/edison7009/echobird-plugin",
+  "echobird": {
+    "manifestVersion": 1,
+    "apiVersion": "0.1-draft",
+    "platforms": [
+      "windows",
+      "macos",
+      "linux"
+    ],
+    "permissions": [],
+    "contributes": {
+      "pages": [],
+      "themes": [
+        {
+          "id": "ocean",
+          "title": "Ocean",
+          "light": {
+            "background": "#F0F7FA",
+            "surface": "#E4EFF4",
+            "elevated": "#D6E6ED",
+            "input": "#F9FCFD",
+            "border": "#B8CED8",
+            "text": "#183544",
+            "textSecondary": "#476775",
+            "textMuted": "#708994",
+            "accent": "#16889A",
+            "accentSecondary": "#3377AA"
+          },
+          "dark": {
+            "background": "#14232B",
+            "surface": "#1B303B",
+            "elevated": "#24404D",
+            "input": "#192E37",
+            "border": "#345361",
+            "text": "#E7F1F5",
+            "textSecondary": "#AAC5D1",
+            "textMuted": "#7F9BA8",
+            "accent": "#46BEC5",
+            "accentSecondary": "#7BAAE6"
+          }
+        }
+      ]
+    }
+  }
+}

@@ -14,16 +14,46 @@
     "echobird"
   ],
   "properties": {
-    "$schema": { "type": "string" },
-    "name": { "$ref": "#/$defs/identifier" },
-    "publisher": { "$ref": "#/$defs/identifier" },
-    "version": { "type": "string", "format": "semver" },
-    "displayName": { "type": "string", "minLength": 1, "maxLength": 80 },
-    "description": { "type": "string", "minLength": 1, "maxLength": 240 },
-    "license": { "type": "string", "minLength": 1, "maxLength": 100 },
-    "repository": { "type": "string", "format": "public-https" },
-    "private": { "type": "boolean" },
-    "icon": { "type": "string", "format": "relative-asset", "maxLength": 240 },
+    "$schema": {
+      "type": "string"
+    },
+    "name": {
+      "$ref": "#/$defs/identifier"
+    },
+    "publisher": {
+      "$ref": "#/$defs/identifier"
+    },
+    "version": {
+      "type": "string",
+      "format": "semver"
+    },
+    "displayName": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 80
+    },
+    "description": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 240
+    },
+    "license": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 100
+    },
+    "repository": {
+      "type": "string",
+      "format": "public-https"
+    },
+    "private": {
+      "type": "boolean"
+    },
+    "icon": {
+      "type": "string",
+      "format": "relative-asset",
+      "maxLength": 240
+    },
     "category": {
       "type": "string",
       "enum": ["application", "account", "appearance", "feature", "other"]
@@ -39,21 +69,37 @@
         "contributes"
       ],
       "properties": {
-        "manifestVersion": { "const": 1 },
-        "apiVersion": { "const": "0.1-draft" },
+        "manifestVersion": {
+          "const": 1
+        },
+        "apiVersion": {
+          "const": "0.1-draft"
+        },
         "platforms": {
           "type": "array",
           "minItems": 1,
           "maxItems": 3,
           "uniqueItems": true,
-          "items": { "enum": ["windows", "macos", "linux"] }
+          "items": {
+            "enum": ["windows", "macos", "linux"]
+          }
         },
         "permissions": {
           "type": "array",
           "uniqueItems": true,
           "items": {
             "type": "string",
-            "enum": ["model.request", "clipboard.write", "account.code"]
+            "enum": [
+              "model.request",
+              "clipboard.write",
+              "account.code",
+              "extension.background",
+              "configuration",
+              "storage",
+              "commands",
+              "events",
+              "text.process"
+            ]
           }
         },
         "contributes": {
@@ -70,13 +116,18 @@
                 "additionalProperties": false,
                 "required": ["id", "title", "entry"],
                 "properties": {
-                  "id": { "$ref": "#/$defs/identifier" },
+                  "id": {
+                    "$ref": "#/$defs/identifier"
+                  },
                   "title": {
                     "type": "string",
                     "minLength": 1,
                     "maxLength": 80
                   },
-                  "entry": { "type": "string", "format": "relative-html" }
+                  "entry": {
+                    "type": "string",
+                    "format": "relative-html"
+                  }
                 }
               }
             },
@@ -88,7 +139,9 @@
                 "additionalProperties": false,
                 "required": ["id", "title", "applications"],
                 "properties": {
-                  "id": { "$ref": "#/$defs/identifier" },
+                  "id": {
+                    "$ref": "#/$defs/identifier"
+                  },
                   "title": {
                     "type": "string",
                     "minLength": 1,
@@ -99,9 +152,13 @@
                     "minItems": 1,
                     "maxItems": 16,
                     "uniqueItems": true,
-                    "items": { "$ref": "#/$defs/identifier" }
+                    "items": {
+                      "$ref": "#/$defs/identifier"
+                    }
                   },
-                  "pageId": { "$ref": "#/$defs/identifier" },
+                  "pageId": {
+                    "$ref": "#/$defs/identifier"
+                  },
                   "operations": {
                     "type": "array",
                     "uniqueItems": true,
@@ -135,6 +192,217 @@
                   }
                 }
               }
+            },
+            "themes": {
+              "type": "array",
+              "maxItems": 16,
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["id", "title", "light", "dark"],
+                "properties": {
+                  "id": {
+                    "$ref": "#/$defs/identifier"
+                  },
+                  "title": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 80
+                  },
+                  "light": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "minProperties": 1,
+                    "properties": {
+                      "background": {
+                        "type": "string",
+                        "pattern": "^#[0-9a-fA-F]{6}$"
+                      },
+                      "surface": {
+                        "type": "string",
+                        "pattern": "^#[0-9a-fA-F]{6}$"
+                      },
+                      "elevated": {
+                        "type": "string",
+                        "pattern": "^#[0-9a-fA-F]{6}$"
+                      },
+                      "input": {
+                        "type": "string",
+                        "pattern": "^#[0-9a-fA-F]{6}$"
+                      },
+                      "border": {
+                        "type": "string",
+                        "pattern": "^#[0-9a-fA-F]{6}$"
+                      },
+                      "text": {
+                        "type": "string",
+                        "pattern": "^#[0-9a-fA-F]{6}$"
+                      },
+                      "textSecondary": {
+                        "type": "string",
+                        "pattern": "^#[0-9a-fA-F]{6}$"
+                      },
+                      "textMuted": {
+                        "type": "string",
+                        "pattern": "^#[0-9a-fA-F]{6}$"
+                      },
+                      "accent": {
+                        "type": "string",
+                        "pattern": "^#[0-9a-fA-F]{6}$"
+                      },
+                      "accentSecondary": {
+                        "type": "string",
+                        "pattern": "^#[0-9a-fA-F]{6}$"
+                      }
+                    }
+                  },
+                  "dark": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "minProperties": 1,
+                    "properties": {
+                      "background": {
+                        "type": "string",
+                        "pattern": "^#[0-9a-fA-F]{6}$"
+                      },
+                      "surface": {
+                        "type": "string",
+                        "pattern": "^#[0-9a-fA-F]{6}$"
+                      },
+                      "elevated": {
+                        "type": "string",
+                        "pattern": "^#[0-9a-fA-F]{6}$"
+                      },
+                      "input": {
+                        "type": "string",
+                        "pattern": "^#[0-9a-fA-F]{6}$"
+                      },
+                      "border": {
+                        "type": "string",
+                        "pattern": "^#[0-9a-fA-F]{6}$"
+                      },
+                      "text": {
+                        "type": "string",
+                        "pattern": "^#[0-9a-fA-F]{6}$"
+                      },
+                      "textSecondary": {
+                        "type": "string",
+                        "pattern": "^#[0-9a-fA-F]{6}$"
+                      },
+                      "textMuted": {
+                        "type": "string",
+                        "pattern": "^#[0-9a-fA-F]{6}$"
+                      },
+                      "accent": {
+                        "type": "string",
+                        "pattern": "^#[0-9a-fA-F]{6}$"
+                      },
+                      "accentSecondary": {
+                        "type": "string",
+                        "pattern": "^#[0-9a-fA-F]{6}$"
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "configuration": {
+              "type": "array",
+              "maxItems": 32,
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["key", "title", "type", "default"],
+                "properties": {
+                  "key": {
+                    "$ref": "#/$defs/identifier"
+                  },
+                  "title": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 80
+                  },
+                  "type": {
+                    "enum": ["boolean", "number", "string"]
+                  },
+                  "default": {
+                    "anyOf": [
+                      {
+                        "type": "boolean"
+                      },
+                      {
+                        "type": "number"
+                      },
+                      {
+                        "type": "string",
+                        "maxLength": 4096
+                      }
+                    ]
+                  },
+                  "options": {
+                    "type": "array",
+                    "maxItems": 32,
+                    "items": {
+                      "anyOf": [
+                        {
+                          "type": "boolean"
+                        },
+                        {
+                          "type": "number"
+                        },
+                        {
+                          "type": "string",
+                          "maxLength": 4096
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
+            },
+            "commands": {
+              "type": "array",
+              "maxItems": 32,
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["id", "title"],
+                "properties": {
+                  "id": {
+                    "$ref": "#/$defs/identifier"
+                  },
+                  "title": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 80
+                  },
+                  "pageId": {
+                    "$ref": "#/$defs/identifier"
+                  }
+                }
+              }
+            },
+            "textProcessors": {
+              "type": "array",
+              "maxItems": 16,
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["id", "title", "stage"],
+                "properties": {
+                  "id": {
+                    "$ref": "#/$defs/identifier"
+                  },
+                  "title": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 80
+                  },
+                  "stage": {
+                    "enum": ["voice.transcribed", "voice.output"]
+                  }
+                }
+              }
             }
           }
         },
@@ -147,8 +415,14 @@
               "type": "string",
               "format": "relative-asset"
             },
-            "runtime": { "enum": ["node", "native"] }
+            "runtime": {
+              "enum": ["node", "native"]
+            }
           }
+        },
+        "background": {
+          "type": "string",
+          "format": "relative-script"
         }
       }
     }

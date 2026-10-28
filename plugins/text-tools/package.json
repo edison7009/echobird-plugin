@@ -1,0 +1,58 @@
+{
+  "name": "text-tools",
+  "publisher": "echobird",
+  "version": "0.1.0",
+  "displayName": "Text Tools",
+  "description": "Clean up speech text and run a text-formatting command with private settings.",
+  "category": "feature",
+  "license": "MIT",
+  "repository": "https://github.com/edison7009/echobird-plugin",
+  "echobird": {
+    "manifestVersion": 1,
+    "apiVersion": "0.1-draft",
+    "platforms": [
+      "windows",
+      "macos",
+      "linux"
+    ],
+    "permissions": [
+      "extension.background",
+      "configuration",
+      "storage",
+      "commands",
+      "events",
+      "text.process"
+    ],
+    "background": "background.mjs",
+    "contributes": {
+      "pages": [],
+      "configuration": [
+        {
+          "key": "collapse-spaces",
+          "title": "Collapse repeated spaces",
+          "type": "boolean",
+          "default": true
+        },
+        {
+          "key": "prefix",
+          "title": "Output prefix",
+          "type": "string",
+          "default": ""
+        }
+      ],
+      "commands": [
+        {
+          "id": "format",
+          "title": "Format text"
+        }
+      ],
+      "textProcessors": [
+        {
+          "id": "clean-output",
+          "title": "Clean speech output",
+          "stage": "voice.output"
+        }
+      ]
+    }
+  }
+}

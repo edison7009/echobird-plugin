@@ -43,3 +43,7 @@ npm run check
 参见 [同步说明](docs/mirroring.md)。本仓库工具和模板使用 [MIT 许可证](LICENSE)，第三方插件保留各自许可证。
 
 - [AI 翻译源码与安装](plugins/translator/README.md)
+
+## 产品扩展 SDK 示例
+
+[Ocean Theme](plugins/ocean-theme) 展示明暗主题配色；[Text Tools](plugins/text-tools) 展示私有配置、JSON 存储、显式命令和用户主动开启的语音文本处理。开发前请阅读[产品扩展约定](docs/plugin-spec.md#product-extensions)及 [SDK 类型](sdk/echobird.d.ts)。这些新增接口需要尚未正式发布的开发版宿主，原有应用和账号插件接口保持兼容。
