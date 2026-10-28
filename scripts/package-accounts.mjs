@@ -15,7 +15,9 @@ if (!binary || !path.isAbsolute(binary) || !existsSync(binary))
   throw new Error(
     "Pass the absolute path of the verified Windows x64 native module",
   );
+const selected = process.argv.slice(3);
 for (const folder of readdirSync(path.join(root, "plugins")).sort()) {
+  if (selected.length && !selected.includes(folder)) continue;
   const directory = path.join(root, "plugins", folder);
   const filename = path.join(directory, "package.json");
   if (!existsSync(filename)) continue;

@@ -1,6 +1,6 @@
 # Native account extensions
 
-This module contains the account login, switch, quota, proxy, speech and conversation migration implementations used by the six community packages. EchoBird supplies the installed application paths and an authenticated local transport. The native module restores the existing account controls when installed and enabled; it contributes no application page or manual launch entry.
+This module contains the account login, switch, quota, proxy, speech and conversation migration implementations used by the eight community packages. EchoBird supplies the installed application paths and an authenticated local transport. The native module restores the existing account controls when installed and enabled; it contributes no application page or manual launch entry.
 
 The module preserves the existing `~/.echobird` account files and encryption format. Account secrets remain inside the extension. EchoBird sends saved account IDs, request data and audio; account list replies contain display summaries. Installation does not sign in, query quota, apply an account, send audio or merge history. Login and mutation operations require an explicit user action. Disabling the extension cancels its process tree and login windows, while keeping saved account data.
 
@@ -13,7 +13,7 @@ cargo fmt --manifest-path native/account-engine/Cargo.toml --check
 cargo clippy --manifest-path native/account-engine/Cargo.toml --all-targets --all-features -- -D warnings
 cargo test --manifest-path native/account-engine/Cargo.toml
 cargo build --release --manifest-path native/account-engine/Cargo.toml
-node scripts/package-accounts.mjs /absolute/path/to/echobird-account-engine.exe
+node scripts/package-accounts.mjs /absolute/path/to/echobird-account-engine.exe trae-accounts trae-cn-accounts
 npm run check
 ```
 
@@ -30,3 +30,5 @@ Authenticated `POST /operation` takes `{operation,params}`. Public operations mu
 This is trusted native code with the current user's file, process and network access. The process boundary is for integration, lifecycle and cancellation; it is not a security sandbox. Maintainer review is required before indexing an extension. A repository topic does not grant publication rights.
 
 Protocol implementations and storage utilities retain their existing MIT notices. See [the WorkBuddy notice](licenses/workbuddy-switch-LICENSE.txt) and [repository license](../../LICENSE).
+
+Pass package folder names after the binary to package only those new releases. Omitting them processes all native packages; previously published versions remain immutable.

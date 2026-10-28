@@ -15,6 +15,8 @@ const applications = {
   "claude-code-accounts": "claudecode",
   "doubao-work-accounts": "doubaowork",
   "dola-accounts": "dola",
+  "trae-accounts": "trae",
+  "trae-cn-accounts": "traecn",
   "workbuddy-accounts": "workbuddy",
   "workbuddy-ai-accounts": "workbuddyai",
 };

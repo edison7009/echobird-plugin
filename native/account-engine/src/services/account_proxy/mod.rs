@@ -1,3 +1,4 @@
+mod audio_format;
 mod bridge;
 pub(crate) mod claude_voice;
 mod doubao;
@@ -7,6 +8,9 @@ mod providers;
 mod responses;
 mod signatures;
 mod tools;
+mod trae;
+pub(crate) mod trae_global_voice;
+pub(crate) mod trae_voice;
 mod workbuddy_failure;
 pub(crate) mod workbuddy_voice;
 use crate::models::model::AccountProvider;
@@ -17,24 +21,15 @@ use axum::{
 };
 pub(crate) use protocol::SseParser;
 pub(crate) use providers::{context_limit_error, stream_error};
-#[cfg(test)]
-pub(crate) use responses::responses_to_chat;
-use serde_json::{json, Value};
-mod trae {
-    pub(super) use super::providers::stream_error;
-    #[cfg(test)]
-    pub(super) fn stream_diagnostics_enabled() -> bool {
-        false
-    }
-    #[cfg(test)]
-    pub(super) fn stream_event_shape(_event: &str, _data: &str) -> serde_json::Value {
-        serde_json::json!({})
-    }
-    #[cfg(test)]
-    pub(super) fn stream_error_shape(_event: &str, _data: &str, _error: &str) -> serde_json::Value {
-        serde_json::json!({})
-    }
+pub(crate) fn trae_connection_base(
+    provider: AccountProvider,
+    metadata: &serde_json::Value,
+) -> Result<String, ProxyError> {
+    trae::base(provider, metadata)
 }
+#[cfg(test)]
+pub(crate) use responses::{chat_to_responses, responses_to_chat};
+use serde_json::{json, Value};
 #[cfg(test)]
 pub(crate) async fn route_responses(
     provider: AccountProvider,
@@ -45,11 +40,7 @@ pub(crate) async fn route_responses(
 ) -> Result<Option<Response>, ProxyError> {
     providers::route_responses(provider, credentials, model, body, client).await
 }
-pub mod voice {
-    pub(crate) fn media_timeout(size: usize) -> std::time::Duration {
-        std::time::Duration::from_secs(60 + (size as u64 / 32000))
-    }
-}
+pub mod voice;
 #[derive(Debug, Clone)]
 pub struct ProxyError {
     pub status: StatusCode,
@@ -195,6 +186,9 @@ pub async fn route(
     client: &reqwest::Client,
 ) -> Result<Response, ProxyError> {
     match provider {
+        AccountProvider::Trae | AccountProvider::Traecn => {
+            trae::route(provider, credentials, model, body, client).await
+        }
         AccountProvider::ClaudeCode => bridge::route(credentials, model, body).await,
         AccountProvider::DoubaoWork | AccountProvider::Dola => {
             doubao::route(provider, credentials, model, body, client).await
@@ -211,6 +205,9 @@ pub async fn list_models(
     client: &reqwest::Client,
 ) -> Result<Vec<String>, ProxyError> {
     match provider {
+        AccountProvider::Trae | AccountProvider::Traecn => {
+            trae::list_models(provider, credentials, client).await
+        }
         AccountProvider::ClaudeCode => bridge::list_models(credentials).await,
         AccountProvider::DoubaoWork | AccountProvider::Dola => {
             doubao::list_models(provider, credentials, client).await

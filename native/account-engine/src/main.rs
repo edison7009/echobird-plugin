@@ -8,6 +8,12 @@ mod models {
 }
 mod utils {
     pub mod process;
+    #[cfg(not(test))]
+    pub mod platform {
+        pub fn echobird_dir() -> std::path::PathBuf {
+            dirs::home_dir().unwrap_or_default().join(".echobird")
+        }
+    }
 }
 
 use axum::{
@@ -117,6 +123,8 @@ fn main() {
                 "dola",
                 "workbuddy",
                 "workbuddyai",
+                "trae",
+                "traecn",
             ]
             .contains(value)
         })

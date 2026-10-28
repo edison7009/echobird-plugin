@@ -13,6 +13,7 @@ pub mod model_manager;
 pub mod native_account_files;
 pub mod process_manager;
 pub mod tool_manager;
+pub mod trae_accounts;
 pub mod workbuddy_accounts;
 
 pub mod smart_router {
