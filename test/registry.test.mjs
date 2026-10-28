@@ -105,6 +105,29 @@ test("discovery icons require both public HTTPS regional URLs", () => {
   assert.throws(() => validateEntry(entry));
 });
 
+test("source descriptions are optional display metadata and preserve release manifests", () => {
+  const entry = copy();
+  const releases = structuredClone(entry.releases);
+  entry.descriptions = {
+    international: "English source description",
+    china: "中文来源说明",
+  };
+  assert.doesNotThrow(() => validateEntry(entry));
+  assert.deepEqual(entry.releases, releases);
+  for (const invalid of [
+    { international: "English only" },
+    { international: "English", china: "中文", other: "extra" },
+    { international: "", china: "中文" },
+    { international: "English", china: "x".repeat(501) },
+    { international: 42, china: "中文" },
+  ]) {
+    entry.descriptions = invalid;
+    assert.throws(() => validateEntry(entry));
+  }
+  delete entry.descriptions;
+  assert.doesNotThrow(() => validateEntry(entry));
+});
+
 test("client icon hints opt into a safe built-in filename without requiring remote icons", () => {
   const entry = copy();
   delete entry.icons;

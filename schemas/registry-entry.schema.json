@@ -12,6 +12,16 @@
       "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*\\.[a-z0-9]+(?:-[a-z0-9]+)*$"
     },
     "repository": { "type": "string", "format": "public-https" },
+    "descriptions": {
+      "type": "object",
+      "description": "Optional catalog display descriptions selected by plugin source, independently of interface language. Release manifests stay unchanged.",
+      "additionalProperties": false,
+      "required": ["international", "china"],
+      "properties": {
+        "international": { "type": "string", "minLength": 1, "maxLength": 500 },
+        "china": { "type": "string", "minLength": 1, "maxLength": 500 }
+      }
+    },
     "clientIcon": {
       "type": "string",
       "maxLength": 68,

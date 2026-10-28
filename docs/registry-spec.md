@@ -16,6 +16,8 @@ See [the entry schema](../schemas/registry-entry.schema.json) and [example](../e
 
 Every archive contains `package.json` at the archive root and all required runtime files. Its manifest must equal the embedded release manifest. Source commit, manifest, archive contents and both download checksums are checked in maintainer review; the initial validator does not fetch archives or execute code. Declared checksums provide a content comparison value, not publisher verification or a security certificate.
 
+Optional `descriptions` provides catalog display text for each source: `international` is the English description shown for GitHub, and `china` is the Simplified Chinese description shown for GitCode (CN). Both entries are required when this field is present; each contains 1–500 characters. Selection follows the chosen plugin source, independently of interface language. Cards, details and description search use the same text, including installed catalog plugins. Without this field, the package manifest's own description is displayed. The field does not modify release manifests, versions, archive bytes, downloads or checksums, so the same records and commits remain mirrored on both platforms.
+
 The generated index has `schemaVersion: 1`, `name: "EchoBird Plugin Hub"` and `plugins: [...]`. Plugins sort by id; releases sort by descending SemVer precedence. Equivalent duplicate versions and duplicate plugin identities are rejected. No build timestamp is inserted, so identical records produce identical index bytes.
 
 Generation reads only reviewed JSON records. Templates, examples and Issues are not discovery inputs. CI checks that the committed index matches generation; it does not silently commit new catalog content.

@@ -62,5 +62,9 @@
     "international": "https://raw.githubusercontent.com/edison7009/echobird-plugin/daed3fabf424ea29479c3359da233bb56f7c1308/packages/icons/trae-accounts-0.1.0-preview.1.svg",
     "china": "https://api.gitcode.com/api/v5/repos/edison7009/echobird-plugin/raw/packages/icons/trae-accounts-0.1.0-preview.1.svg"
   },
-  "clientIcon": "trae.svg"
+  "clientIcon": "trae.svg",
+  "descriptions": {
+    "international": "Account sign-in, switching, AI access, and voice access for Trae.",
+    "china": "Trae 账号登录、切换、智能接入和语音接入。"
+  }
 }

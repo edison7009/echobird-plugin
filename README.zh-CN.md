@@ -27,6 +27,8 @@
 
 索引记录可选填 `"clientIcon": "workbuddy.png"`，优先使用客户端已有的 `icons/tools/` 图标，缺失时再读插件自带或远程图标。使用自己图标的插件不填此项即可；此字段不改变插件安装包，详见 [索引规范](docs/registry-spec.md)。
 
+插件描述可在索引的 `descriptions` 中分别填写 `international` 英文和 `china` 中文。Hub 按所选插件来源显示，不跟随界面语言；未填写时使用插件自己的描述。无需为翻译修改已发布安装包。
+
 ## 本地校验
 
 需要 Node.js 24 或更高版本：
