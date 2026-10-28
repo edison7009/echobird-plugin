@@ -1,0 +1,223 @@
+mod bridge;
+pub(crate) mod claude_voice;
+mod doubao;
+pub(crate) mod doubao_voice;
+mod protocol;
+mod providers;
+mod responses;
+mod signatures;
+mod tools;
+mod workbuddy_failure;
+pub(crate) mod workbuddy_voice;
+use crate::models::model::AccountProvider;
+use axum::{
+    body::Body,
+    http::{header, HeaderValue, StatusCode},
+    response::Response,
+};
+pub(crate) use protocol::SseParser;
+pub(crate) use providers::{context_limit_error, stream_error};
+#[cfg(test)]
+pub(crate) use responses::responses_to_chat;
+use serde_json::{json, Value};
+mod trae {
+    pub(super) use super::providers::stream_error;
+    #[cfg(test)]
+    pub(super) fn stream_diagnostics_enabled() -> bool {
+        false
+    }
+    #[cfg(test)]
+    pub(super) fn stream_event_shape(_event: &str, _data: &str) -> serde_json::Value {
+        serde_json::json!({})
+    }
+    #[cfg(test)]
+    pub(super) fn stream_error_shape(_event: &str, _data: &str, _error: &str) -> serde_json::Value {
+        serde_json::json!({})
+    }
+}
+#[cfg(test)]
+pub(crate) async fn route_responses(
+    provider: AccountProvider,
+    credentials: Value,
+    model: &str,
+    body: Value,
+    client: &reqwest::Client,
+) -> Result<Option<Response>, ProxyError> {
+    providers::route_responses(provider, credentials, model, body, client).await
+}
+pub mod voice {
+    pub(crate) fn media_timeout(size: usize) -> std::time::Duration {
+        std::time::Duration::from_secs(60 + (size as u64 / 32000))
+    }
+}
+#[derive(Debug, Clone)]
+pub struct ProxyError {
+    pub status: StatusCode,
+    pub message: String,
+    pub error_code: Option<String>,
+    pub error_type: Option<String>,
+    pub retry_after: Option<HeaderValue>,
+    pub model_scope: bool,
+}
+
+#[derive(Clone, Copy, Debug, Default)]
+pub struct ProxyFailureMetadata {
+    pub model_scope: bool,
+}
+
+impl std::fmt::Display for ProxyError {
+    fn fmt(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        formatter.write_str(&self.message)
+    }
+}
+
+impl std::error::Error for ProxyError {}
+
+pub(crate) fn require_text_provider(provider: AccountProvider) -> Result<(), ProxyError> {
+    if matches!(
+        provider,
+        AccountProvider::QwenWork
+            | AccountProvider::QwenWorkCn
+            | AccountProvider::Cursor
+            | AccountProvider::GrokBot
+    ) {
+        return Err(ProxyError::new(
+            StatusCode::BAD_REQUEST,
+            "This account source only supports speech transcription",
+        ));
+    }
+    Ok(())
+}
+
+impl ProxyError {
+    pub(crate) fn new(status: StatusCode, message: impl Into<String>) -> Self {
+        Self {
+            status,
+            message: message.into(),
+            error_code: None,
+            error_type: None,
+            retry_after: None,
+            model_scope: false,
+        }
+    }
+
+    pub fn into_response(self) -> Response {
+        let mut error = json!({"message":self.message,"type":self.error_type.as_deref().unwrap_or("upstream_error")});
+        if let Some(code) = self.error_code {
+            error["code"] = json!(code);
+        }
+        let mut response = json_response(&json!({"error":error}));
+        *response.status_mut() = self.status;
+        if let Some(retry_after) = self.retry_after {
+            response
+                .headers_mut()
+                .insert(header::RETRY_AFTER, retry_after);
+        }
+        response.extensions_mut().insert(ProxyFailureMetadata {
+            model_scope: self.model_scope,
+        });
+        response
+    }
+
+    pub(crate) fn upstream(error: impl std::fmt::Display) -> Self {
+        Self::new(
+            StatusCode::BAD_GATEWAY,
+            format!("Account upstream failed: {error}"),
+        )
+    }
+}
+
+pub(crate) fn json_response(value: &Value) -> Response {
+    Response::builder()
+        .header("content-type", "application/json")
+        .body(Body::from(value.to_string()))
+        .expect("fixed response headers")
+}
+
+pub(crate) fn stream_response(body: Body) -> Response {
+    Response::builder()
+        .header("content-type", "text/event-stream")
+        .header("cache-control", "no-cache")
+        .body(body)
+        .expect("fixed response headers")
+}
+
+pub(crate) fn forget_preparation_metadata(provider: AccountProvider, id: &str) {
+    providers::forget_metadata(provider, id);
+}
+pub(crate) async fn doubao_account_json(
+    provider: AccountProvider,
+    credentials: &Value,
+    path: &str,
+    body: &Value,
+) -> Result<Value, ProxyError> {
+    doubao::account_json(provider, credentials, path, body).await
+}
+pub fn strip_response_metadata(body: &mut Value) {
+    if let Some(object) = body.as_object_mut() {
+        object.remove(tools::RESPONSES_REQUEST);
+    }
+    for message in body
+        .get_mut("messages")
+        .and_then(Value::as_array_mut)
+        .into_iter()
+        .flatten()
+    {
+        if let Some(object) = message.as_object_mut() {
+            object.remove("_echobird_response_items");
+        }
+        for call in message
+            .get_mut("tool_calls")
+            .and_then(Value::as_array_mut)
+            .into_iter()
+            .flatten()
+        {
+            if let Some(object) = call.as_object_mut() {
+                object.remove("_echobird_response_item_id");
+            }
+        }
+    }
+}
+pub(crate) fn cached_model_labels(
+    provider: AccountProvider,
+    id: &str,
+) -> std::collections::BTreeMap<String, String> {
+    doubao::cached_model_labels(provider, id)
+}
+pub(crate) fn cached_free_model_ids(provider: AccountProvider, id: &str) -> Vec<String> {
+    providers::cached_free_model_ids(provider, id)
+}
+pub async fn route(
+    provider: AccountProvider,
+    credentials: Value,
+    model: &str,
+    body: Value,
+    client: &reqwest::Client,
+) -> Result<Response, ProxyError> {
+    match provider {
+        AccountProvider::ClaudeCode => bridge::route(credentials, model, body).await,
+        AccountProvider::DoubaoWork | AccountProvider::Dola => {
+            doubao::route(provider, credentials, model, body, client).await
+        }
+        AccountProvider::WorkBuddy | AccountProvider::WorkBuddyAi => {
+            providers::route(provider, credentials, model, body, client).await
+        }
+        _ => providers::route(provider, credentials, model, body, client).await,
+    }
+}
+pub async fn list_models(
+    provider: AccountProvider,
+    credentials: Value,
+    client: &reqwest::Client,
+) -> Result<Vec<String>, ProxyError> {
+    match provider {
+        AccountProvider::ClaudeCode => bridge::list_models(credentials).await,
+        AccountProvider::DoubaoWork | AccountProvider::Dola => {
+            doubao::list_models(provider, credentials, client).await
+        }
+        AccountProvider::WorkBuddy | AccountProvider::WorkBuddyAi => {
+            providers::list_models(provider, credentials, client).await
+        }
+        _ => providers::list_models(provider, credentials, client).await,
+    }
+}

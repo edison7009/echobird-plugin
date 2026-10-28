@@ -1,0 +1,8 @@
+{
+  "productName": "EchoBird Account Extension",
+  "version": "0.1.0",
+  "identifier": "com.echobird.account-extension",
+  "build": { "frontendDist": "assets" },
+  "app": { "windows": [], "macOSPrivateApi": true },
+  "bundle": { "active": false }
+}

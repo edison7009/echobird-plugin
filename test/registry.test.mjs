@@ -25,6 +25,73 @@ import {
 const example = readJson(path.join(root, "examples/registry-entry.json"));
 const copy = () => structuredClone(example);
 
+test("optional categories accept the five Hub groups and reject unsupported values", () => {
+  for (const category of [
+    "application",
+    "account",
+    "appearance",
+    "feature",
+    "other",
+  ]) {
+    const manifest = copy().releases[0].manifest;
+    manifest.category = category;
+    assert.doesNotThrow(() => validateManifest(manifest));
+  }
+  const manifest = copy().releases[0].manifest;
+  manifest.category = "unsupported";
+  assert.throws(() => validateManifest(manifest));
+});
+
+test("provider contributions target an existing page and unique provider IDs", () => {
+  const manifest = copy().releases[0].manifest;
+  manifest.category = "account";
+  manifest.echobird.contributes.providers = [
+    {
+      id: "claude-code",
+      title: "Claude Code accounts",
+      applications: ["claudecode"],
+      pageId: "hello",
+      searchTerms: ["Claude Code"],
+    },
+  ];
+  assert.doesNotThrow(() => validateManifest(manifest));
+  manifest.echobird.contributes.providers[0].pageId = "missing";
+  assert.throws(() => validateManifest(manifest), /page id does not exist/);
+  manifest.echobird.contributes.providers[0].pageId = "hello";
+  manifest.echobird.contributes.providers.push(
+    structuredClone(manifest.echobird.contributes.providers[0]),
+  );
+  assert.throws(() => validateManifest(manifest), /Duplicate provider id/);
+});
+
+test("account code requires an explicit permission and declared operations", () => {
+  const manifest = copy().releases[0].manifest;
+  manifest.category = "account";
+  manifest.echobird.worker = { entry: "account.mjs" };
+  manifest.echobird.contributes.providers = [
+    {
+      id: "fixture-account",
+      title: "Fixture account",
+      applications: ["fixture"],
+      pageId: "hello",
+      operations: ["accounts", "login.start"],
+    },
+  ];
+  assert.throws(() => validateManifest(manifest), /permission/);
+  manifest.echobird.permissions.push("account.code");
+  assert.doesNotThrow(() => validateManifest(manifest));
+  manifest.echobird.contributes.pages = [];
+  delete manifest.echobird.contributes.providers[0].pageId;
+  assert.doesNotThrow(() => validateManifest(manifest));
+  manifest.echobird.contributes.providers[0].operations = [
+    "undeclared-operation",
+  ];
+  assert.throws(() => validateManifest(manifest));
+  manifest.echobird.contributes.providers[0].operations = ["accounts"];
+  manifest.echobird.worker.entry = "../outside.mjs";
+  assert.throws(() => validateManifest(manifest));
+});
+
 test("discovery icons require both public HTTPS regional URLs", () => {
   const entry = copy();
   entry.icons = {

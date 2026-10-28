@@ -65,9 +65,37 @@ function checkSchema(name, value) {
 
 export function validateManifest(manifest) {
   checkSchema("plugin-manifest", manifest);
+  const worker = manifest.echobird.worker;
+  if (worker && worker.runtime !== "native" && !worker.entry.endsWith(".mjs"))
+    throw new Error("Node account code entry must end in .mjs");
   const pages = manifest.echobird.contributes.pages.map((page) => page.id);
+  if (!pages.length && !manifest.echobird.worker)
+    throw new Error("A plugin must declare a page or an account code module");
   if (new Set(pages).size !== pages.length)
     throw new Error("Duplicate page id");
+  const providers = manifest.echobird.contributes.providers ?? [];
+  if (
+    worker?.runtime === "native" &&
+    (providers.length !== 1 || providers[0].applications.length !== 1)
+  )
+    throw new Error("Native account modules must declare one application");
+  const providerIds = new Set();
+  for (const provider of providers) {
+    if (providerIds.has(provider.id)) throw new Error("Duplicate provider id");
+    providerIds.add(provider.id);
+    if (provider.pageId !== undefined && !pages.includes(provider.pageId))
+      throw new Error("Provider page id does not exist");
+    if (provider.pageId === undefined && !provider.operations?.length)
+      throw new Error("Provider needs a page or declared operations");
+    if (provider.operations?.length && !manifest.echobird.worker)
+      throw new Error("Account operations require a code module");
+  }
+  if (
+    manifest.echobird.worker &&
+    (!manifest.echobird.permissions.includes("account.code") ||
+      !providers.some((provider) => provider.operations?.length))
+  )
+    throw new Error("Account code requires permission and declared operations");
   return manifest;
 }
 
@@ -132,6 +160,13 @@ export function validateLocalManifest(filename) {
     if (!lstatSync(file).isFile())
       throw new Error(`Missing regular page file: ${page.entry}`);
   }
+  if (
+    manifest.echobird.worker &&
+    !lstatSync(
+      path.join(path.dirname(filename), manifest.echobird.worker.entry),
+    ).isFile()
+  )
+    throw new Error("Missing regular account code module");
   return manifest;
 }
 
@@ -149,8 +184,11 @@ if (
       validateLocalManifest(
         path.join(root, "templates/hello-plugin/package.json"),
       );
-      validateLocalManifest(path.join(root, "plugins/reversi/package.json"));
-      validateLocalManifest(path.join(root, "plugins/translator/package.json"));
+      for (const directory of readdirSync(path.join(root, "plugins"))) {
+        validateLocalManifest(
+          path.join(root, "plugins", directory, "package.json"),
+        );
+      }
       validateEntry(readJson(path.join(root, "examples/registry-entry.json")));
       validateIndex(readJson(path.join(root, "index.json")));
       console.log(

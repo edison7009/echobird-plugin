@@ -28,9 +28,21 @@ jobs:
       - run: npm ci --ignore-scripts --no-audit --no-fund
       - run: npm run check
 
+  native:
+    name: Native account module (Windows)
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
+        with:
+          persist-credentials: false
+      - run: rustup toolchain install 1.93 --profile minimal --component clippy,rustfmt
+      - run: cargo +1.93 fmt --manifest-path native/account-engine/Cargo.toml --check
+      - run: cargo +1.93 clippy --locked --manifest-path native/account-engine/Cargo.toml --all-targets --all-features -- -D warnings
+      - run: cargo +1.93 test --locked --manifest-path native/account-engine/Cargo.toml
+
   mirror:
     name: Mirror main to GitCode
-    needs: validate
+    needs: [validate, native]
     if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     concurrency:

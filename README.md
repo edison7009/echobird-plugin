@@ -43,3 +43,4 @@ Authors may add the repository topic `echobird-plugin` for discovery. A topic do
 Repository tooling and the template use the [MIT license](LICENSE). Plugins retain their own declared licenses.
 
 - [AI Translate source and installation](plugins/translator/README.md)
+- [Native account extensions, six preview packages and build instructions](native/account-engine/README.md)
