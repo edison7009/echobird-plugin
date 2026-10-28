@@ -105,6 +105,28 @@ test("discovery icons require both public HTTPS regional URLs", () => {
   assert.throws(() => validateEntry(entry));
 });
 
+test("client icon hints opt into a safe built-in filename without requiring remote icons", () => {
+  const entry = copy();
+  delete entry.icons;
+  for (const file of ["workbuddy.png", "claudecode.svg"]) {
+    entry.clientIcon = file;
+    assert.doesNotThrow(() => validateEntry(entry));
+  }
+  for (const file of [
+    "../private.png",
+    "/icons/tools/a.svg",
+    "https://example.com/a.png",
+    "a.exe",
+    "a.png?token=1",
+    "",
+  ]) {
+    entry.clientIcon = file;
+    assert.throws(() => validateEntry(entry));
+  }
+  delete entry.clientIcon;
+  assert.doesNotThrow(() => validateEntry(entry));
+});
+
 test("the template has a valid manifest and a local page", () => {
   assert.equal(
     validateLocalManifest(

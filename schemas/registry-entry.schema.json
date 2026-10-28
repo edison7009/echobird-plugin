@@ -12,6 +12,12 @@
       "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*\\.[a-z0-9]+(?:-[a-z0-9]+)*$"
     },
     "repository": { "type": "string", "format": "public-https" },
+    "clientIcon": {
+      "type": "string",
+      "maxLength": 68,
+      "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*\\.(?:svg|png)$",
+      "description": "Optional built-in EchoBird tool icon filename. Prefer it before package or regional icons."
+    },
     "icons": {
       "type": "object",
       "additionalProperties": false,

@@ -26,4 +26,6 @@ First-party versioned ZIPs live in `packages/` and are mirrored with Git. Build 
 
 Optional registry `icons` supplies `international` and `china` public HTTPS image URLs for discovery before installation. Use versioned assets and the same original icon in both regions. Installed plugins use their local manifest icon. Omit the field when no icon is available; the client uses its generic fallback.
 
+Optional registry `clientIcon` opts into a built-in EchoBird tool icon, for example `"clientIcon": "workbuddy.png"`. It accepts only a filename such as `name.svg` or `name.png` from the client's `icons/tools/` directory. The client prefers this asset without requesting the remote image; if the asset is unavailable, it falls back to the installed package icon or regional discovery URL. Omit `clientIcon` for plugins that supply their own artwork. It may be used without regional `icons`, and changes no package manifest or archive checksum. Older clients may ignore this display hint.
+
 For raw-file hosts that return `application/octet-stream` with `nosniff`, publish PNG or WebP discovery previews rendered from the original icon. SVG previews require an image MIME type. The installed package may retain its original SVG icon.

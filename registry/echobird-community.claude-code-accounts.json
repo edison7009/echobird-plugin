@@ -60,5 +60,6 @@
   "icons": {
     "international": "https://raw.githubusercontent.com/edison7009/echobird-plugin/5f6df19653df2b640f2c9a2ce0a07ef295f6ed80/packages/icons/claude-code-accounts-0.1.0-preview.1.png",
     "china": "https://api.gitcode.com/api/v5/repos/edison7009/echobird-plugin/raw/packages/icons/claude-code-accounts-0.1.0-preview.1.png"
-  }
+  },
+  "clientIcon": "claudecode.svg"
 }

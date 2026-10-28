@@ -65,7 +65,8 @@
       "icons": {
         "international": "https://raw.githubusercontent.com/edison7009/echobird-plugin/5f6df19653df2b640f2c9a2ce0a07ef295f6ed80/packages/icons/claude-code-accounts-0.1.0-preview.1.png",
         "china": "https://api.gitcode.com/api/v5/repos/edison7009/echobird-plugin/raw/packages/icons/claude-code-accounts-0.1.0-preview.1.png"
-      }
+      },
+      "clientIcon": "claudecode.svg"
     },
     {
       "$schema": "https://raw.githubusercontent.com/edison7009/echobird-plugin/main/schemas/registry-entry.schema.json",
@@ -127,7 +128,8 @@
       "icons": {
         "international": "https://raw.githubusercontent.com/edison7009/echobird-plugin/5f6df19653df2b640f2c9a2ce0a07ef295f6ed80/packages/icons/claude-desktop-accounts-0.1.0-preview.1.png",
         "china": "https://api.gitcode.com/api/v5/repos/edison7009/echobird-plugin/raw/packages/icons/claude-desktop-accounts-0.1.0-preview.1.png"
-      }
+      },
+      "clientIcon": "claudedesktop.svg"
     },
     {
       "$schema": "https://raw.githubusercontent.com/edison7009/echobird-plugin/main/schemas/registry-entry.schema.json",
@@ -191,7 +193,8 @@
       "icons": {
         "international": "https://raw.githubusercontent.com/edison7009/echobird-plugin/5f6df19653df2b640f2c9a2ce0a07ef295f6ed80/packages/icons/dola-accounts-0.1.0-preview.1.png",
         "china": "https://api.gitcode.com/api/v5/repos/edison7009/echobird-plugin/raw/packages/icons/dola-accounts-0.1.0-preview.1.png"
-      }
+      },
+      "clientIcon": "dola.png"
     },
     {
       "$schema": "https://raw.githubusercontent.com/edison7009/echobird-plugin/main/schemas/registry-entry.schema.json",
@@ -256,7 +259,8 @@
       "icons": {
         "international": "https://raw.githubusercontent.com/edison7009/echobird-plugin/5f6df19653df2b640f2c9a2ce0a07ef295f6ed80/packages/icons/doubao-work-accounts-0.1.0-preview.1.png",
         "china": "https://api.gitcode.com/api/v5/repos/edison7009/echobird-plugin/raw/packages/icons/doubao-work-accounts-0.1.0-preview.1.png"
-      }
+      },
+      "clientIcon": "doubaowork.png"
     },
     {
       "$schema": "https://raw.githubusercontent.com/edison7009/echobird-plugin/main/schemas/registry-entry.schema.json",
@@ -321,7 +325,8 @@
       "icons": {
         "international": "https://raw.githubusercontent.com/edison7009/echobird-plugin/5f6df19653df2b640f2c9a2ce0a07ef295f6ed80/packages/icons/workbuddy-accounts-0.1.0-preview.1.png",
         "china": "https://api.gitcode.com/api/v5/repos/edison7009/echobird-plugin/raw/packages/icons/workbuddy-accounts-0.1.0-preview.1.png"
-      }
+      },
+      "clientIcon": "workbuddy.png"
     },
     {
       "$schema": "https://raw.githubusercontent.com/edison7009/echobird-plugin/main/schemas/registry-entry.schema.json",
@@ -386,7 +391,8 @@
       "icons": {
         "international": "https://raw.githubusercontent.com/edison7009/echobird-plugin/5f6df19653df2b640f2c9a2ce0a07ef295f6ed80/packages/icons/workbuddy-ai-accounts-0.1.0-preview.1.png",
         "china": "https://api.gitcode.com/api/v5/repos/edison7009/echobird-plugin/raw/packages/icons/workbuddy-ai-accounts-0.1.0-preview.1.png"
-      }
+      },
+      "clientIcon": "workbuddyai.png"
     },
     {
       "$schema": "https://raw.githubusercontent.com/edison7009/echobird-plugin/main/schemas/registry-entry.schema.json",
@@ -431,7 +437,8 @@
       "icons": {
         "international": "https://raw.githubusercontent.com/edison7009/echobird-plugin/907f520eae6cf22bf2ff7f223441e4cb4b853439/packages/icons/reversi-1.0.0.png",
         "china": "https://api.gitcode.com/api/v5/repos/edison7009/echobird-plugin/raw/packages/icons/reversi-1.0.0.png"
-      }
+      },
+      "clientIcon": "reversi.svg"
     },
     {
       "$schema": "https://raw.githubusercontent.com/edison7009/echobird-plugin/main/schemas/registry-entry.schema.json",
@@ -476,7 +483,8 @@
       "icons": {
         "international": "https://raw.githubusercontent.com/edison7009/echobird-plugin/907f520eae6cf22bf2ff7f223441e4cb4b853439/packages/icons/translator-1.0.0.png",
         "china": "https://api.gitcode.com/api/v5/repos/edison7009/echobird-plugin/raw/packages/icons/translator-1.0.0.png"
-      }
+      },
+      "clientIcon": "translator.svg"
     }
   ]
 }

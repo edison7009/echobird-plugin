@@ -41,5 +41,6 @@
   "icons": {
     "international": "https://raw.githubusercontent.com/edison7009/echobird-plugin/907f520eae6cf22bf2ff7f223441e4cb4b853439/packages/icons/reversi-1.0.0.png",
     "china": "https://api.gitcode.com/api/v5/repos/edison7009/echobird-plugin/raw/packages/icons/reversi-1.0.0.png"
-  }
+  },
+  "clientIcon": "reversi.svg"
 }
