@@ -189,8 +189,8 @@ fn snapshot(credentials: &Value, config: &Value) -> Result<SavedAccount, String>
         .to_ascii_lowercase();
     let normalized_plan = plan.map(str::to_ascii_lowercase);
     let plan = match normalized_plan.as_deref() {
-        Some("max") if tier.contains("20x") => Some("Max 20x".to_string()),
-        Some("max") if tier.contains("5x") => Some("Max 5x".to_string()),
+        Some("ultra") => Some("Ultra".to_string()),
+        Some("max") if tier.contains("20x") || tier.contains("ultra") => Some("Ultra".to_string()),
         Some(value) => Some(
             value
                 .split_whitespace()
@@ -809,8 +809,10 @@ mod tests {
     #[test]
     fn recognizes_max_tiers_without_guessing_an_unknown_tier() {
         for (plan, tier, expected) in [
-            ("max", "default_claude_max_5x", "Max 5x"),
-            ("Max", "default_claude_max_20x", "Max 20x"),
+            ("max", "default_claude_max_5x", "Max"),
+            ("Max", "default_claude_max_20x", "Ultra"),
+            ("max", "default_claude_ultra", "Ultra"),
+            ("ultra", "", "Ultra"),
             ("MAX", "", "Max"),
             ("pro", "", "Pro"),
             ("free", "", "Free"),

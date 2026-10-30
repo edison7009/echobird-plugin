@@ -382,6 +382,13 @@ fn account_from_profile(body: &Value, org: &str) -> Result<(Account, String), St
     let has = |key: &str| caps.is_some_and(|c| c.iter().any(|v| v.as_str() == Some(key)));
     let plan = if organization["organization_type"].as_str() == Some("claude_enterprise") {
         Some("Enterprise")
+    } else if has("claude_ultra")
+        || (has("claude_max")
+            && organization["rate_limit_tier"]
+                .as_str()
+                .is_some_and(|tier| tier.contains("20x") || tier.contains("ultra")))
+    {
+        Some("Ultra")
     } else if has("claude_max") {
         Some("Max")
     } else if has("raven") || has("claude_team") {
@@ -1077,6 +1084,23 @@ mod tests {
         body["account"]["memberships"][1]["organization"]["billing_type"] =
             json!("stripe_subscription");
         assert!(account_from_profile(&body, org).unwrap().0.plan.is_none());
+        body["account"]["memberships"][1]["organization"]["capabilities"] = json!(["claude_max"]);
+        for (tier, expected) in [
+            (json!("default_claude_max_5x"), "Max"),
+            (json!("default_claude_max_20x"), "Ultra"),
+            (json!(null), "Max"),
+        ] {
+            body["account"]["memberships"][1]["organization"]["rate_limit_tier"] = tier;
+            assert_eq!(
+                account_from_profile(&body, org).unwrap().0.plan.as_deref(),
+                Some(expected)
+            );
+        }
+        body["account"]["memberships"][1]["organization"]["capabilities"] = json!(["claude_ultra"]);
+        assert_eq!(
+            account_from_profile(&body, org).unwrap().0.plan.as_deref(),
+            Some("Ultra")
+        );
         body["account"]["email_address"] = json!("");
         assert!(account_from_profile(&body, org).is_err());
     }
