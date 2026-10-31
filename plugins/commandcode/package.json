@@ -2,7 +2,7 @@
   "$schema": "https://raw.githubusercontent.com/edison7009/echobird-plugin/main/schemas/plugin-manifest.schema.json",
   "name": "commandcode",
   "publisher": "echobird-community",
-  "version": "0.1.0-preview.5",
+  "version": "0.1.0-preview.6",
   "displayName": "Command Code",
   "description": "Command Code 桌面端和 CLI 的安装、启动、模型切换、账号切换和智能接入。Install, launch and switch models or accounts for Command Code and its CLI.",
   "license": "MIT",

@@ -34,6 +34,26 @@ const paths = {
 
 class Failure extends Error {}
 
+// Plan names as the Command Code app shows them, longest id first.
+const PLAN_NAMES = [
+  ["individual-provider", "Provider"],
+  ["individual-goat", "GOAT"],
+  ["individual-ultra", "Ultra"],
+  ["individual-max", "Max"],
+  ["individual-pro", "Pro"],
+  ["individual-go", "Go"],
+  ["teams-pro", "Teams Pro"],
+];
+
+function planName(id) {
+  if (!id) return null;
+  const plan = String(id).toLowerCase().replaceAll("_", "-");
+  const known = PLAN_NAMES.find(([prefix]) => plan.startsWith(prefix));
+  if (!known) return id;
+  const tier = plan.match(/-(\d+)x\b/u);
+  return tier ? `${known[1]} ${tier[1]}×` : known[1];
+}
+
 function read(path, fallback) {
   let text;
   try {
@@ -63,6 +83,7 @@ const accounts = () => read(paths.accounts, { accounts: [] }).accounts;
 const save = (list) => write(paths.accounts, { accounts: list });
 const summary = ({ key, ...entry }, active = read(paths.auth, {}).apiKey) => ({
   ...entry,
+  plan: planName(entry.plan),
   active: key === active,
 });
 
@@ -72,10 +93,10 @@ function saved(id) {
   return entry;
 }
 
-async function account(path, key) {
+async function account(path, key, timeout = 15_000) {
   const response = await fetch(API + path, {
     headers: { Authorization: `Bearer ${key}`, Accept: "application/json" },
-    signal: AbortSignal.timeout(15_000),
+    signal: AbortSignal.timeout(timeout),
   });
   if (response.status === 401 || response.status === 403)
     throw new Failure("accountError.loginRequired");
@@ -86,7 +107,8 @@ async function account(path, key) {
 async function details(key) {
   const user = (await account("/alpha/whoami", key))?.user ?? {};
   const [subscription, credits] = await Promise.allSettled([
-    account("/alpha/billing/subscriptions", key),
+    // This endpoint can take over 15 seconds.
+    account("/alpha/billing/subscriptions", key, 30_000),
     account("/alpha/billing/credits", key),
   ]);
   const plan = subscription.value?.data;
@@ -95,7 +117,12 @@ async function details(key) {
     id: createHash("sha256").update(key).digest("hex"),
     key,
     email: user.email || user.userName || user.id || "Command Code",
-    plan: plan?.planId && plan.status !== "canceled" ? plan.planId : null,
+    plan: planName(
+      (plan?.status !== "canceled" &&
+        plan?.status !== "incomplete_expired" &&
+        plan?.planId) ||
+        left?.planId,
+    ),
     remaining: left
       ? (left.monthlyCredits ?? 0) +
         (left.purchasedCredits ?? 0) +
@@ -313,7 +340,7 @@ async function operation(name, input) {
       return accounts().map((entry) => ({
         source: { provider: "plugin:commandcode", accountId: entry.id },
         label: entry.email,
-        plan: entry.plan,
+        plan: planName(entry.plan),
         modelLabels: {},
         freeModelIds: [],
       }));

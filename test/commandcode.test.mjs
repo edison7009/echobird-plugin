@@ -26,7 +26,7 @@ async function start(t) {
     if (request.url === "/alpha/whoami")
       return send({ user: { email: "a@example.test" } });
     if (request.url === "/alpha/billing/subscriptions")
-      return send({ data: { planId: "pro", status: "active" } });
+      return send({ data: { planId: "individual-pro-v1", status: "active" } });
     if (request.url === "/alpha/billing/credits")
       return send({ credits: { monthlyCredits: 3, freeCredits: 2 } });
     if (request.url === "/provider/v1/models")
@@ -103,7 +103,7 @@ test("login saves an account and never returns its key", async (t) => {
   await call("login.cancel", { loginId: pending.loginId });
   const account = await signIn();
   assert.equal(account.email, "a@example.test");
-  assert.equal(account.plan, "pro");
+  assert.equal(account.plan, "Pro");
   assert.equal(account.remaining, 5);
   assert.equal(account.active, false);
   assert.ok(!JSON.stringify((await call("accounts")).value).includes(key));
@@ -226,4 +226,27 @@ test("models and proxy use the saved account", async (t) => {
     (await call("models", { accountId: "missing" })).value.error.message,
     "accountError.invalidAccount",
   );
+});
+
+test("plans use the names Command Code shows", async (t) => {
+  const { call, signIn, home } = await start(t);
+  const account = await signIn();
+  const file = path.join(home, ".echobird/commandcode-accounts.json");
+  const stored = JSON.parse(readFileSync(file, "utf8"));
+  for (const [id, name] of [
+    ["individual-go-v1", "Go"],
+    ["individual_goat", "GOAT"],
+    ["individual-pro", "Pro"],
+    ["individual-max", "Max"],
+    ["individual-max-10x", "Max 10×"],
+    ["individual-max-20x", "Max 20×"],
+    ["individual-ultra", "Ultra"],
+    ["teams-pro", "Teams Pro"],
+  ]) {
+    stored.accounts[0].plan = id;
+    writeFileSync(file, JSON.stringify(stored));
+    const [row] = (await call("accounts")).value;
+    assert.equal(row.id, account.id);
+    assert.equal(row.plan, name);
+  }
 });
