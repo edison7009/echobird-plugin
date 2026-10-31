@@ -109,6 +109,8 @@ test("login saves an account and never returns its key", async (t) => {
   assert.ok(!JSON.stringify((await call("accounts")).value).includes(key));
   const [option] = (await call("accounts.options")).value;
   assert.equal(option.source.provider, "plugin:commandcode");
+  assert.deepEqual(option.modelLabels, {});
+  assert.deepEqual(option.freeModelIds, []);
 });
 
 test("a forged login callback is refused", async (t) => {

@@ -314,6 +314,8 @@ async function operation(name, input) {
         source: { provider: "plugin:commandcode", accountId: entry.id },
         label: entry.email,
         plan: entry.plan,
+        modelLabels: {},
+        freeModelIds: [],
       }));
     case "login.start":
       return startLogin();
