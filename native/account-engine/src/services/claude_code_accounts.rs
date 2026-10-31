@@ -9,7 +9,68 @@ use std::{
 
 const LOGIN_REQUIRED: &str = "accountError.loginRequired";
 const TOKEN_URL: &str = "https://platform.claude.com/v1/oauth/token";
+const LOCK_STALE: Duration = Duration::from_secs(60);
+const LOCK_WAIT: Duration = Duration::from_secs(10);
 pub(super) static ACCOUNT_LOCK: tokio::sync::Mutex<()> = tokio::sync::Mutex::const_new(());
+
+/// The directory locks Claude Code holds while it rotates tokens. Refresh tokens
+/// are single use, so the client and EchoBird must never rotate at the same time.
+struct RefreshLocks(Vec<PathBuf>);
+
+impl RefreshLocks {
+    async fn acquire() -> Result<Self, String> {
+        Self::acquire_in(&config_dir()?).await
+    }
+
+    async fn acquire_in(dir: &Path) -> Result<Self, String> {
+        let mut locks = Self(vec![]);
+        if !dir.is_dir() {
+            return Ok(locks);
+        }
+        let mut shared = fs::canonicalize(dir)
+            .unwrap_or_else(|_| dir.to_path_buf())
+            .into_os_string();
+        shared.push(".lock");
+        for path in [dir.join(".oauth_refresh.lock"), PathBuf::from(shared)] {
+            acquire_directory(&path).await?;
+            locks.0.push(path);
+        }
+        Ok(locks)
+    }
+}
+
+impl Drop for RefreshLocks {
+    fn drop(&mut self) {
+        for path in &self.0 {
+            let _ = fs::remove_dir(path);
+        }
+    }
+}
+
+async fn acquire_directory(path: &Path) -> Result<(), String> {
+    let started = std::time::Instant::now();
+    loop {
+        match fs::create_dir(path) {
+            Ok(()) => return Ok(()),
+            Err(error) if error.kind() != std::io::ErrorKind::AlreadyExists => {
+                return Err(format!("accountError.read|{error}"));
+            }
+            Err(_) => {}
+        }
+        let abandoned = fs::metadata(path)
+            .and_then(|metadata| metadata.modified())
+            .ok()
+            .and_then(|modified| modified.elapsed().ok())
+            .is_some_and(|age| age > LOCK_STALE);
+        if abandoned {
+            let _ = fs::remove_dir(path);
+        } else if started.elapsed() >= LOCK_WAIT {
+            return Err("accountError.unavailable".into());
+        } else {
+            tokio::time::sleep(Duration::from_millis(100)).await;
+        }
+    }
+}
 
 #[derive(Clone, Serialize, Deserialize, Debug, PartialEq)]
 #[serde(rename_all = "camelCase")]
@@ -304,7 +365,7 @@ pub(crate) async fn list_saved_accounts() -> Result<Vec<ClaudeCodeAccount>, Stri
 }
 
 pub(crate) async fn proxy_credentials(id: &str, force_refresh: bool) -> Result<Value, String> {
-    proxy_credentials_at(&store()?, id, force_refresh, TOKEN_URL).await
+    proxy_credentials_with_rejection_at(&store()?, id, force_refresh, TOKEN_URL, None, true).await
 }
 
 pub(crate) async fn proxy_credentials_after_rejection(
@@ -312,16 +373,18 @@ pub(crate) async fn proxy_credentials_after_rejection(
     rejected_credentials: &Value,
 ) -> Result<Value, String> {
     let rejected_token = text(rejected_credentials, "accessToken").ok_or(LOGIN_REQUIRED)?;
-    proxy_credentials_with_rejection_at(&store()?, id, true, TOKEN_URL, Some(rejected_token)).await
+    proxy_credentials_with_rejection_at(&store()?, id, true, TOKEN_URL, Some(rejected_token), true)
+        .await
 }
 
+#[cfg(test)]
 async fn proxy_credentials_at(
     dir: &Path,
     id: &str,
     force_refresh: bool,
     token_url: &str,
 ) -> Result<Value, String> {
-    proxy_credentials_with_rejection_at(dir, id, force_refresh, token_url, None).await
+    proxy_credentials_with_rejection_at(dir, id, force_refresh, token_url, None, false).await
 }
 
 async fn proxy_credentials_with_rejection_at(
@@ -330,8 +393,11 @@ async fn proxy_credentials_with_rejection_at(
     force_refresh: bool,
     token_url: &str,
     rejected_token: Option<&str>,
+    follow_native: bool,
 ) -> Result<Value, String> {
     let _guard = ACCOUNT_LOCK.lock().await;
+    // The signed-in account's newest token lives with the client.
+    let active = follow_native && sync_current(dir)?.is_some_and(|a| a.summary.id == id);
     let mut account = load(dir, id)?;
     if force_refresh
         && (rejected_token.is_none() || rejected_token == text(&account.oauth, "accessToken"))
@@ -339,7 +405,7 @@ async fn proxy_credentials_with_rejection_at(
             .as_i64()
             .is_some_and(|t| t <= chrono::Utc::now().timestamp_millis() + 60_000)
     {
-        renew_at(dir, &mut account, false, token_url).await?;
+        renew_at(dir, &mut account, active, token_url).await?;
     }
     Ok(
         json!({"accessToken": text(&account.oauth, "accessToken").ok_or(LOGIN_REQUIRED)?, "accountId":id, "oauth": account.oauth, "identity": account.identity}),
@@ -367,6 +433,7 @@ fn merge_oauth(target: &mut Value, key: &str, value: &Value) -> Result<(), Strin
 
 pub async fn switch(id: &str) -> Result<ClaudeCodeAccount, String> {
     let _guard = ACCOUNT_LOCK.lock().await;
+    let _locks = RefreshLocks::acquire().await?;
     let dir = store()?;
     sync_current(&dir)?;
     let mut account = load(&dir, id)?;
@@ -458,6 +525,21 @@ async fn renew_at(
     update_native: bool,
     token_url: &str,
 ) -> Result<(), String> {
+    let _locks = if update_native {
+        Some(RefreshLocks::acquire().await?)
+    } else {
+        None
+    };
+    if update_native {
+        // The client may have rotated while waiting; spending the old token would revoke it.
+        if let Some(live) = sync_current(dir)?.filter(|live| live.summary.id == account.summary.id)
+        {
+            if text(&live.oauth, "accessToken") != text(&account.oauth, "accessToken") {
+                account.oauth = live.oauth;
+                return Ok(());
+            }
+        }
+    }
     let original_oauth = account.oauth.clone();
     let refresh_token = text(&account.oauth, "refreshToken").ok_or(LOGIN_REQUIRED)?;
     let old_token = text(&account.oauth, "accessToken")
@@ -511,7 +593,7 @@ pub async fn refresh(id: &str) -> Result<ClaudeCodeAccount, String> {
     let mut response =
         request_quota(text(&account.oauth, "accessToken").ok_or(LOGIN_REQUIRED)?).await?;
     if response.status() == reqwest::StatusCode::UNAUTHORIZED {
-        renew(&dir, &mut account, true).await?;
+        renew(&dir, &mut account, active).await?;
         response =
             request_quota(text(&account.oauth, "accessToken").ok_or(LOGIN_REQUIRED)?).await?;
     }
@@ -678,6 +760,7 @@ mod tests {
                 true,
                 &url,
                 Some(rejected_token),
+                false,
             )
             .await
             .unwrap();
@@ -711,7 +794,8 @@ mod tests {
             &account.summary.id,
             true,
             &url,
-            Some("saved-token")
+            Some("saved-token"),
+            false,
         )
         .await
         .is_err());
@@ -728,6 +812,7 @@ mod tests {
             true,
             &url,
             Some("saved-token"),
+            false,
         )
         .await
         .unwrap();
@@ -788,6 +873,125 @@ mod tests {
                 assert_eq!(result.unwrap()["access_token"], "fixture-access");
             }
         }
+    }
+
+    #[tokio::test]
+    async fn refresh_locks_wait_for_the_client_and_take_over_only_when_abandoned() {
+        let dir = std::env::temp_dir().join(format!("echobird-lock-{}", uuid::Uuid::new_v4()));
+        fs::create_dir_all(&dir).unwrap();
+        let held = dir.join(".oauth_refresh.lock");
+        fs::create_dir(&held).unwrap();
+        let release = held.clone();
+        tokio::spawn(async move {
+            tokio::time::sleep(Duration::from_millis(250)).await;
+            fs::remove_dir(release).unwrap();
+        });
+        let started = std::time::Instant::now();
+        let locks = RefreshLocks::acquire_in(&dir).await.unwrap();
+        assert!(started.elapsed() >= Duration::from_millis(200));
+        assert!(held.is_dir());
+        drop(locks);
+        assert!(!held.exists());
+
+        fs::create_dir(&held).unwrap();
+        let old = std::time::SystemTime::now() - Duration::from_secs(120);
+        #[cfg(windows)]
+        let directory = {
+            use std::os::windows::fs::OpenOptionsExt;
+            fs::OpenOptions::new()
+                .write(true)
+                .custom_flags(0x0200_0000)
+                .open(&held)
+                .unwrap()
+        };
+        #[cfg(not(windows))]
+        let directory = fs::File::open(&held).unwrap();
+        directory.set_modified(old).unwrap();
+        drop(directory);
+        drop(RefreshLocks::acquire_in(&dir).await.unwrap());
+        assert!(!held.exists());
+
+        let missing = dir.join("missing");
+        assert!(RefreshLocks::acquire_in(&missing)
+            .await
+            .unwrap()
+            .0
+            .is_empty());
+    }
+
+    #[tokio::test]
+    async fn signed_in_account_shares_one_token_with_the_client() {
+        use axum::{http::StatusCode, routing::any, Json, Router};
+        use std::sync::{
+            atomic::{AtomicUsize, Ordering},
+            Arc,
+        };
+        let root = std::env::temp_dir().join(format!("echobird-claude-{}", uuid::Uuid::new_v4()));
+        let config = root.join("config");
+        let dir = root.join("saved");
+        fs::create_dir_all(&config).unwrap();
+        std::env::set_var("CLAUDE_CONFIG_DIR", &config);
+        let identity = json!({"emailAddress":"active@example.test"});
+        fs::write(
+            config.join(".claude.json"),
+            json!({"oauthAccount":identity}).to_string(),
+        )
+        .unwrap();
+        let now = chrono::Utc::now().timestamp_millis();
+        let credentials = |access: &str, refresh: &str, expires: i64| {
+            fs::write(
+                config.join(".credentials.json"),
+                json!({"claudeAiOauth":{"accessToken":access,"refreshToken":refresh,"expiresAt":expires}})
+                    .to_string(),
+            )
+            .unwrap();
+        };
+        credentials("old-access", "old-refresh", now + 3_600_000);
+        let saved = current().unwrap();
+        save(&dir, &saved).unwrap();
+        let id = saved.summary.id.clone();
+
+        let calls = Arc::new(AtomicUsize::new(0));
+        let observed = calls.clone();
+        let app = Router::new().fallback(any(move || {
+            observed.fetch_add(1, Ordering::SeqCst);
+            async {
+                (
+                    StatusCode::OK,
+                    Json(json!({"access_token":"new-access","refresh_token":"new-refresh","expires_in":3600})),
+                )
+            }
+        }));
+        let listener = tokio::net::TcpListener::bind("127.0.0.1:0").await.unwrap();
+        let url = format!("http://{}", listener.local_addr().unwrap());
+        let server = tokio::spawn(async move { axum::serve(listener, app).await.unwrap() });
+
+        // A token the client already rotated is used as is, never spent again.
+        credentials("cli-access", "cli-refresh", now + 7_200_000);
+        let secret = proxy_credentials_with_rejection_at(&dir, &id, false, &url, None, true)
+            .await
+            .unwrap();
+        assert_eq!(secret["accessToken"], "cli-access");
+        assert_eq!(
+            load(&dir, &id).unwrap().oauth["refreshToken"],
+            "cli-refresh"
+        );
+        assert_eq!(calls.load(Ordering::SeqCst), 0);
+
+        // EchoBird's own rotation reaches the client, so its copy stays valid.
+        let secret = proxy_credentials_with_rejection_at(&dir, &id, true, &url, None, true)
+            .await
+            .unwrap();
+        assert_eq!(secret["accessToken"], "new-access");
+        assert_eq!(calls.load(Ordering::SeqCst), 1);
+        let native: Value =
+            serde_json::from_slice(&fs::read(config.join(".credentials.json")).unwrap()).unwrap();
+        assert_eq!(native["claudeAiOauth"]["refreshToken"], "new-refresh");
+        assert!(!config.join(".oauth_refresh.lock").exists());
+
+        server.abort();
+        std::env::remove_var("CLAUDE_CONFIG_DIR");
+        fs::remove_dir_all(root).unwrap();
     }
 
     #[test]

@@ -2,7 +2,7 @@
   "$schema": "https://raw.githubusercontent.com/edison7009/echobird-plugin/main/schemas/plugin-manifest.schema.json",
   "name": "claude-code-accounts",
   "publisher": "echobird-community",
-  "version": "0.1.0-preview.2",
+  "version": "0.1.0-preview.3",
   "displayName": "Claude Code",
   "description": "Claude Code 账号登录、切换及已有账号能力。Account capabilities for Claude Code.",
   "license": "MIT",
