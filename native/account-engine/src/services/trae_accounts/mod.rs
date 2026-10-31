@@ -316,7 +316,15 @@ pub(crate) async fn proxy_credentials(
     } else {
         None
     };
-    proxy_credentials_at(edition, id, &path, rejected.as_deref()).await
+    let native_dir = native::data_dir(edition).ok();
+    proxy_credentials_at(
+        edition,
+        id,
+        &path,
+        rejected.as_deref(),
+        native_dir.as_deref(),
+    )
+    .await
 }
 
 pub(crate) async fn proxy_credentials_after_rejection(
@@ -325,7 +333,14 @@ pub(crate) async fn proxy_credentials_after_rejection(
     rejected: &Value,
 ) -> Result<Value, String> {
     let token = native::text(rejected, "accessToken").ok_or("accountError.invalidAccount")?;
-    proxy_credentials_at(edition, id, &store_path(edition)?, Some(token)).await
+    proxy_credentials_at(
+        edition,
+        id,
+        &store_path(edition)?,
+        Some(token),
+        native::data_dir(edition).ok().as_deref(),
+    )
+    .await
 }
 
 async fn proxy_credentials_at(
@@ -333,10 +348,19 @@ async fn proxy_credentials_at(
     id: &str,
     path: &Path,
     rejected: Option<&str>,
+    native_dir: Option<&Path>,
 ) -> Result<Value, String> {
     let _request = REQUEST_LOCK.lock().await;
+    let live = native_dir
+        .and_then(|dir| native::read(dir, edition).ok().flatten())
+        .filter(|live| summary(edition, live, true).is_ok_and(|account| account.id == id));
     let previous = {
         let _guard = ACCOUNT_LOCK.lock().await;
+        if let Some(live) = &live {
+            let mut accounts = load_at(path)?;
+            sync_native(edition, live, &mut accounts, false)?;
+            super::cursor_auth::write(path, &accounts)?;
+        }
         unprotect(&proxy_saved_at(edition, id, path)?)?
     };
     let mut incoming = previous.clone();
@@ -352,6 +376,9 @@ async fn proxy_credentials_at(
     if refreshed && apply_proxy_refresh(&mut current, &previous, &incoming) {
         saved.credential = protect(&current)?;
         super::cursor_auth::write(path, &accounts)?;
+        if let (Some(dir), true) = (native_dir, live.is_some()) {
+            native::apply(dir, &current)?;
+        }
     }
     proxy_value(edition, &current)
 }

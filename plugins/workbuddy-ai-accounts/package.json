@@ -2,7 +2,7 @@
   "$schema": "https://raw.githubusercontent.com/edison7009/echobird-plugin/main/schemas/plugin-manifest.schema.json",
   "name": "workbuddy-ai-accounts",
   "publisher": "echobird-community",
-  "version": "0.1.0-preview.1",
+  "version": "0.1.0-preview.2",
   "displayName": "WorkBuddy AI",
   "description": "WorkBuddy AI 账号登录、切换及已有账号能力。Account capabilities for WorkBuddy AI.",
   "license": "MIT",

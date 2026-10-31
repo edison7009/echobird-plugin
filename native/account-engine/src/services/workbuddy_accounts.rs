@@ -271,7 +271,17 @@ pub(crate) async fn proxy_credentials(
     id: &str,
     force_refresh: bool,
 ) -> Result<Value, String> {
-    proxy_credentials_at(edition, id, force_refresh, &store()?, edition.api()).await
+    let native = edition.auth_path()?;
+    proxy_credentials_with_rejection_at(
+        edition,
+        id,
+        force_refresh,
+        &store()?,
+        edition.api(),
+        None,
+        Some(&native),
+    )
+    .await
 }
 
 pub(crate) async fn proxy_credentials_after_rejection(
@@ -281,6 +291,7 @@ pub(crate) async fn proxy_credentials_after_rejection(
 ) -> Result<Value, String> {
     let rejected_token =
         text(rejected_credentials, "accessToken").ok_or("accountError.loginRequired")?;
+    let native = edition.auth_path()?;
     proxy_credentials_with_rejection_at(
         edition,
         id,
@@ -288,10 +299,12 @@ pub(crate) async fn proxy_credentials_after_rejection(
         &store()?,
         edition.api(),
         Some(rejected_token),
+        Some(&native),
     )
     .await
 }
 
+#[cfg(test)]
 async fn proxy_credentials_at(
     edition: Edition,
     id: &str,
@@ -299,7 +312,8 @@ async fn proxy_credentials_at(
     dir: &Path,
     token_api: &str,
 ) -> Result<Value, String> {
-    proxy_credentials_with_rejection_at(edition, id, force_refresh, dir, token_api, None).await
+    proxy_credentials_with_rejection_at(edition, id, force_refresh, dir, token_api, None, None)
+        .await
 }
 
 async fn proxy_credentials_with_rejection_at(
@@ -309,9 +323,13 @@ async fn proxy_credentials_with_rejection_at(
     dir: &Path,
     token_api: &str,
     rejected_token: Option<&str>,
+    native: Option<&Path>,
 ) -> Result<Value, String> {
     let _guard = ACCOUNT_LOCK.lock().await;
     let mut saved = load_at(dir, id, edition)?;
+    if let Some(native) = native {
+        adopt_native(&mut saved, native, dir)?;
+    }
     if force_refresh
         && (rejected_token.is_none()
             || rejected_token == text(&saved.session["auth"], "accessToken"))
@@ -319,6 +337,9 @@ async fn proxy_credentials_with_rejection_at(
             .is_some_and(|t| t <= chrono::Utc::now().timestamp() + 60)
     {
         refresh_token_at(&mut saved, dir, token_api).await?;
+        if let Some(native) = native {
+            write_native(&saved, native)?;
+        }
     }
     let auth = &saved.session["auth"];
     let profile = &saved.session["account"];
@@ -634,8 +655,12 @@ async fn refresh_token_at(saved: &mut Saved, dir: &Path, token_api: &str) -> Res
     save_at(dir, saved)
 }
 fn sync_current(saved: &mut Saved) -> Result<(), String> {
+    adopt_native(saved, &saved.summary.edition.auth_path()?, &store()?)
+}
+
+fn adopt_native(saved: &mut Saved, path: &Path, dir: &Path) -> Result<(), String> {
     let edition = saved.summary.edition;
-    let Ok(session) = read(&edition.auth_path()?) else {
+    let Ok(session) = read(path) else {
         return Ok(());
     };
     let Ok(current) = snapshot(edition, session) else {
@@ -647,7 +672,20 @@ fn sync_current(saved: &mut Saved) -> Result<(), String> {
             > credits::timestamp(saved.session["auth"].get("expiresAt"))
     {
         saved.session = current.session;
-        save(saved)?;
+        save_at(dir, saved)?;
+    }
+    Ok(())
+}
+
+// The client keeps working only if it receives the token EchoBird rotated.
+fn write_native(saved: &Saved, path: &Path) -> Result<(), String> {
+    let Ok(session) = read(path) else {
+        return Ok(());
+    };
+    let signed_in = snapshot(saved.summary.edition, session.clone())
+        .is_ok_and(|current| current.summary.id == saved.summary.id);
+    if signed_in {
+        write(path, &merge_session(session, saved)?)?;
     }
     Ok(())
 }
@@ -658,6 +696,7 @@ async fn ensure_fresh(saved: &mut Saved) -> Result<(), String> {
         .is_some_and(|t| t <= chrono::Utc::now().timestamp() + 60)
     {
         refresh_token(saved).await?;
+        write_native(saved, &saved.summary.edition.auth_path()?)?;
     }
     Ok(())
 }
@@ -855,6 +894,31 @@ async fn close_app(edition: Edition) -> Result<(), String> {
 #[cfg(test)]
 mod tests {
     use super::*;
+    #[test]
+    fn client_receives_rotations_only_for_its_own_account() {
+        let dir = std::env::temp_dir().join(format!("echobird-wb-{}", uuid::Uuid::new_v4()));
+        fs::create_dir_all(&dir).unwrap();
+        let native = dir.join("auth.info");
+        write(&native, &session()).unwrap();
+        let mut saved = snapshot(Edition::Cn, session()).unwrap();
+        saved.session["auth"]["accessToken"] = json!("rotated-access");
+        saved.session["auth"]["refreshToken"] = json!("rotated-refresh");
+        write_native(&saved, &native).unwrap();
+        let written = read(&native).unwrap();
+        assert_eq!(written["auth"]["refreshToken"], "rotated-refresh");
+
+        let mut other = session();
+        other["account"]["uid"] = json!("someone-else");
+        other["account"]["id"] = json!("someone-else");
+        write(&native, &other).unwrap();
+        write_native(&saved, &native).unwrap();
+        assert_ne!(
+            read(&native).unwrap()["auth"]["refreshToken"],
+            "rotated-refresh"
+        );
+        fs::remove_dir_all(dir).unwrap();
+    }
+
     fn session() -> Value {
         json!({"account":{"uid":"u1","nickname":"Name"},"auth":{"accessToken":"token","domain":"www.codebuddy.cn"}})
     }
@@ -992,6 +1056,7 @@ mod tests {
                 &dir,
                 &url,
                 Some(rejected_token),
+                None,
             )
             .await
             .unwrap();
@@ -1026,7 +1091,8 @@ mod tests {
             true,
             &dir,
             &url,
-            Some("token")
+            Some("token"),
+            None
         )
         .await
         .is_err());
@@ -1041,6 +1107,7 @@ mod tests {
             &dir,
             &url,
             Some("token"),
+            None,
         )
         .await
         .unwrap();
