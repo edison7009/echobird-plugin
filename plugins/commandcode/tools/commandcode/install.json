@@ -1,27 +1,27 @@
 {
   "id": "commandcode",
   "displayName": "Command Code",
-  "homepage": "https://commandcode.ai/",
-  "docs": "https://commandcode.ai/docs",
+  "homepage": "https://commandcode.ai/desktop",
+  "docs": "https://commandcode.ai/docs/desktop",
   "install": {
-    "npm (all platforms)": "npm i -g command-code@latest",
-    "note": "Requires Node.js 22 or newer. Native Windows must use `cmdc` or `command-code`; `cmd` opens the Windows command prompt. Verify with `command-code --version`."
+    "Windows x64": "Download https://commandcode.ai/download/windows and run the setup file. The installer may be unsigned; only use this official link.",
+    "macOS Apple Silicon": "Download https://commandcode.ai/download/mac?arch=arm64, open the DMG and move Command Code to Applications.",
+    "macOS Intel": "Download https://commandcode.ai/download/mac?arch=x64, open the DMG and move Command Code to Applications.",
+    "Linux .deb": "Download https://commandcode.ai/download/linux, then run sudo apt install ./CommandCode-*.deb.",
+    "note": "Command Code is installed as the desktop app. The agent runtime ships inside it, so do not use npm and do not install any separate command-line package."
   },
   "network_requirements": {
     "test_urls": [
-      "https://commandcode.ai",
-      "https://registry.npmjs.org/command-code"
+      "https://commandcode.ai/desktop",
+      "https://github.com/CommandCodeAI/desktop/releases"
     ],
-    "mirrors": {
-      "npm": "npm i -g command-code@latest --registry=https://registry.npmmirror.com"
-    }
+    "mirrors": {}
   },
   "first_run": {
-    "description": "Sign in with `command-code login`, or add an account in EchoBird. Settings are stored in ~/.commandcode.",
-    "config_global": "~/.commandcode/settings.json",
-    "verify": "command-code --version"
+    "description": "Open Command Code and sign in, or add an account in EchoBird.",
+    "config_global": "~/.commandcode/settings.json"
   },
   "identity_guard": {
-    "description": "Command Code (commandcode.ai, npm package `command-code`) is not Claude Code and is not the Windows `cmd` shell."
+    "description": "The product is Command Code, the desktop app from commandcode.ai. Do not call it Command Code CLI or install it with npm. It is not Claude Code."
   }
 }
