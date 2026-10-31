@@ -684,6 +684,60 @@
             "$schema": "https://raw.githubusercontent.com/edison7009/echobird-plugin/main/schemas/plugin-manifest.schema.json",
             "name": "trae-accounts",
             "publisher": "echobird-community",
+            "version": "0.1.0-preview.2",
+            "displayName": "Trae",
+            "description": "Trae 账号登录、切换、智能接入和语音接入。Account capabilities for Trae.",
+            "license": "MIT",
+            "repository": "https://github.com/edison7009/echobird-plugin",
+            "icon": "icon.svg",
+            "category": "account",
+            "echobird": {
+              "manifestVersion": 1,
+              "apiVersion": "0.1-draft",
+              "platforms": ["windows"],
+              "permissions": ["account.code"],
+              "worker": {
+                "runtime": "native",
+                "entry": "bin/echobird-account-engine.exe"
+              },
+              "contributes": {
+                "pages": [],
+                "providers": [
+                  {
+                    "id": "trae",
+                    "title": "Trae",
+                    "applications": ["trae"],
+                    "searchTerms": ["Trae", "trae"],
+                    "operations": [
+                      "accounts",
+                      "login.start",
+                      "login.poll",
+                      "login.cancel",
+                      "account.refresh",
+                      "account.claim",
+                      "account.apply",
+                      "account.remove",
+                      "models",
+                      "proxy",
+                      "voice"
+                    ]
+                  }
+                ]
+              }
+            }
+          },
+          "commit": "37221a918a83cd9a08f099bd60da9145cd798d22",
+          "sha256": "7db5c226cac4ededf882ecbd98e4aca8a19314662294c726bcf65703bfe3eb54",
+          "downloads": {
+            "international": "https://raw.githubusercontent.com/edison7009/echobird-plugin/37221a918a83cd9a08f099bd60da9145cd798d22/packages/echobird-community.trae-accounts-0.1.0-preview.2.zip",
+            "china": "https://api.gitcode.com/api/v5/repos/edison7009/echobird-plugin/raw/packages/echobird-community.trae-accounts-0.1.0-preview.2.zip"
+          }
+        },
+        {
+          "manifest": {
+            "$schema": "https://raw.githubusercontent.com/edison7009/echobird-plugin/main/schemas/plugin-manifest.schema.json",
+            "name": "trae-accounts",
+            "publisher": "echobird-community",
             "version": "0.1.0-preview.1",
             "displayName": "Trae",
             "description": "Trae 账号登录、切换、智能接入和语音接入。Account capabilities for Trae.",
@@ -749,6 +803,60 @@
       "id": "echobird-community.trae-cn-accounts",
       "repository": "https://github.com/edison7009/echobird-plugin",
       "releases": [
+        {
+          "manifest": {
+            "$schema": "https://raw.githubusercontent.com/edison7009/echobird-plugin/main/schemas/plugin-manifest.schema.json",
+            "name": "trae-cn-accounts",
+            "publisher": "echobird-community",
+            "version": "0.1.0-preview.2",
+            "displayName": "Trae CN",
+            "description": "Trae CN 账号登录、切换、智能接入和语音接入。Account capabilities for Trae CN.",
+            "license": "MIT",
+            "repository": "https://github.com/edison7009/echobird-plugin",
+            "icon": "icon.svg",
+            "category": "account",
+            "echobird": {
+              "manifestVersion": 1,
+              "apiVersion": "0.1-draft",
+              "platforms": ["windows"],
+              "permissions": ["account.code"],
+              "worker": {
+                "runtime": "native",
+                "entry": "bin/echobird-account-engine.exe"
+              },
+              "contributes": {
+                "pages": [],
+                "providers": [
+                  {
+                    "id": "traecn",
+                    "title": "Trae CN",
+                    "applications": ["traecn"],
+                    "searchTerms": ["Trae CN", "traecn"],
+                    "operations": [
+                      "accounts",
+                      "login.start",
+                      "login.poll",
+                      "login.cancel",
+                      "account.refresh",
+                      "account.claim",
+                      "account.apply",
+                      "account.remove",
+                      "models",
+                      "proxy",
+                      "voice"
+                    ]
+                  }
+                ]
+              }
+            }
+          },
+          "commit": "37221a918a83cd9a08f099bd60da9145cd798d22",
+          "sha256": "e313290f5264eb7bce387797858eb36cad87131b9afcc992f43f9fcb88778d51",
+          "downloads": {
+            "international": "https://raw.githubusercontent.com/edison7009/echobird-plugin/37221a918a83cd9a08f099bd60da9145cd798d22/packages/echobird-community.trae-cn-accounts-0.1.0-preview.2.zip",
+            "china": "https://api.gitcode.com/api/v5/repos/edison7009/echobird-plugin/raw/packages/echobird-community.trae-cn-accounts-0.1.0-preview.2.zip"
+          }
+        },
         {
           "manifest": {
             "$schema": "https://raw.githubusercontent.com/edison7009/echobird-plugin/main/schemas/plugin-manifest.schema.json",
@@ -824,6 +932,60 @@
             "$schema": "https://raw.githubusercontent.com/edison7009/echobird-plugin/main/schemas/plugin-manifest.schema.json",
             "name": "workbuddy-accounts",
             "publisher": "echobird-community",
+            "version": "0.1.0-preview.2",
+            "displayName": "WorkBuddy",
+            "description": "WorkBuddy 账号登录、切换及已有账号能力。Account capabilities for WorkBuddy.",
+            "license": "MIT",
+            "repository": "https://github.com/edison7009/echobird-plugin",
+            "icon": "icon.png",
+            "category": "account",
+            "echobird": {
+              "manifestVersion": 1,
+              "apiVersion": "0.1-draft",
+              "platforms": ["windows"],
+              "permissions": ["account.code"],
+              "worker": {
+                "runtime": "native",
+                "entry": "bin/echobird-account-engine.exe"
+              },
+              "contributes": {
+                "pages": [],
+                "providers": [
+                  {
+                    "id": "workbuddy",
+                    "title": "WorkBuddy",
+                    "applications": ["workbuddy"],
+                    "searchTerms": ["WorkBuddy", "workbuddy"],
+                    "operations": [
+                      "accounts",
+                      "login.start",
+                      "login.poll",
+                      "login.cancel",
+                      "account.refresh",
+                      "account.claim",
+                      "account.apply",
+                      "account.remove",
+                      "models",
+                      "proxy",
+                      "voice"
+                    ]
+                  }
+                ]
+              }
+            }
+          },
+          "commit": "37221a918a83cd9a08f099bd60da9145cd798d22",
+          "sha256": "d79d839313b53ae8328f2c2f36859267189d483e0dfa0ab09edbb5d2516843a9",
+          "downloads": {
+            "international": "https://raw.githubusercontent.com/edison7009/echobird-plugin/37221a918a83cd9a08f099bd60da9145cd798d22/packages/echobird-community.workbuddy-accounts-0.1.0-preview.2.zip",
+            "china": "https://api.gitcode.com/api/v5/repos/edison7009/echobird-plugin/raw/packages/echobird-community.workbuddy-accounts-0.1.0-preview.2.zip"
+          }
+        },
+        {
+          "manifest": {
+            "$schema": "https://raw.githubusercontent.com/edison7009/echobird-plugin/main/schemas/plugin-manifest.schema.json",
+            "name": "workbuddy-accounts",
+            "publisher": "echobird-community",
             "version": "0.1.0-preview.1",
             "displayName": "WorkBuddy",
             "description": "WorkBuddy 账号登录、切换及已有账号能力。Account capabilities for WorkBuddy.",
@@ -889,6 +1051,60 @@
       "id": "echobird-community.workbuddy-ai-accounts",
       "repository": "https://github.com/edison7009/echobird-plugin",
       "releases": [
+        {
+          "manifest": {
+            "$schema": "https://raw.githubusercontent.com/edison7009/echobird-plugin/main/schemas/plugin-manifest.schema.json",
+            "name": "workbuddy-ai-accounts",
+            "publisher": "echobird-community",
+            "version": "0.1.0-preview.2",
+            "displayName": "WorkBuddy AI",
+            "description": "WorkBuddy AI 账号登录、切换及已有账号能力。Account capabilities for WorkBuddy AI.",
+            "license": "MIT",
+            "repository": "https://github.com/edison7009/echobird-plugin",
+            "icon": "icon.png",
+            "category": "account",
+            "echobird": {
+              "manifestVersion": 1,
+              "apiVersion": "0.1-draft",
+              "platforms": ["windows"],
+              "permissions": ["account.code"],
+              "worker": {
+                "runtime": "native",
+                "entry": "bin/echobird-account-engine.exe"
+              },
+              "contributes": {
+                "pages": [],
+                "providers": [
+                  {
+                    "id": "workbuddyai",
+                    "title": "WorkBuddy AI",
+                    "applications": ["workbuddyai"],
+                    "searchTerms": ["WorkBuddy AI", "workbuddyai"],
+                    "operations": [
+                      "accounts",
+                      "login.start",
+                      "login.poll",
+                      "login.cancel",
+                      "account.refresh",
+                      "account.claim",
+                      "account.apply",
+                      "account.remove",
+                      "models",
+                      "proxy",
+                      "voice"
+                    ]
+                  }
+                ]
+              }
+            }
+          },
+          "commit": "37221a918a83cd9a08f099bd60da9145cd798d22",
+          "sha256": "4887c8e731c8edda7a398b09679942c4b821a592487e696b8d0ad358772be594",
+          "downloads": {
+            "international": "https://raw.githubusercontent.com/edison7009/echobird-plugin/37221a918a83cd9a08f099bd60da9145cd798d22/packages/echobird-community.workbuddy-ai-accounts-0.1.0-preview.2.zip",
+            "china": "https://api.gitcode.com/api/v5/repos/edison7009/echobird-plugin/raw/packages/echobird-community.workbuddy-ai-accounts-0.1.0-preview.2.zip"
+          }
+        },
         {
           "manifest": {
             "$schema": "https://raw.githubusercontent.com/edison7009/echobird-plugin/main/schemas/plugin-manifest.schema.json",

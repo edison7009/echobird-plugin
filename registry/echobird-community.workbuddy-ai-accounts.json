@@ -8,6 +8,60 @@
         "$schema": "https://raw.githubusercontent.com/edison7009/echobird-plugin/main/schemas/plugin-manifest.schema.json",
         "name": "workbuddy-ai-accounts",
         "publisher": "echobird-community",
+        "version": "0.1.0-preview.2",
+        "displayName": "WorkBuddy AI",
+        "description": "WorkBuddy AI 账号登录、切换及已有账号能力。Account capabilities for WorkBuddy AI.",
+        "license": "MIT",
+        "repository": "https://github.com/edison7009/echobird-plugin",
+        "icon": "icon.png",
+        "category": "account",
+        "echobird": {
+          "manifestVersion": 1,
+          "apiVersion": "0.1-draft",
+          "platforms": ["windows"],
+          "permissions": ["account.code"],
+          "worker": {
+            "runtime": "native",
+            "entry": "bin/echobird-account-engine.exe"
+          },
+          "contributes": {
+            "pages": [],
+            "providers": [
+              {
+                "id": "workbuddyai",
+                "title": "WorkBuddy AI",
+                "applications": ["workbuddyai"],
+                "searchTerms": ["WorkBuddy AI", "workbuddyai"],
+                "operations": [
+                  "accounts",
+                  "login.start",
+                  "login.poll",
+                  "login.cancel",
+                  "account.refresh",
+                  "account.claim",
+                  "account.apply",
+                  "account.remove",
+                  "models",
+                  "proxy",
+                  "voice"
+                ]
+              }
+            ]
+          }
+        }
+      },
+      "commit": "37221a918a83cd9a08f099bd60da9145cd798d22",
+      "sha256": "4887c8e731c8edda7a398b09679942c4b821a592487e696b8d0ad358772be594",
+      "downloads": {
+        "international": "https://raw.githubusercontent.com/edison7009/echobird-plugin/37221a918a83cd9a08f099bd60da9145cd798d22/packages/echobird-community.workbuddy-ai-accounts-0.1.0-preview.2.zip",
+        "china": "https://api.gitcode.com/api/v5/repos/edison7009/echobird-plugin/raw/packages/echobird-community.workbuddy-ai-accounts-0.1.0-preview.2.zip"
+      }
+    },
+    {
+      "manifest": {
+        "$schema": "https://raw.githubusercontent.com/edison7009/echobird-plugin/main/schemas/plugin-manifest.schema.json",
+        "name": "workbuddy-ai-accounts",
+        "publisher": "echobird-community",
         "version": "0.1.0-preview.1",
         "displayName": "WorkBuddy AI",
         "description": "WorkBuddy AI 账号登录、切换及已有账号能力。Account capabilities for WorkBuddy AI.",

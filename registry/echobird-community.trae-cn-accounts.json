@@ -8,6 +8,60 @@
         "$schema": "https://raw.githubusercontent.com/edison7009/echobird-plugin/main/schemas/plugin-manifest.schema.json",
         "name": "trae-cn-accounts",
         "publisher": "echobird-community",
+        "version": "0.1.0-preview.2",
+        "displayName": "Trae CN",
+        "description": "Trae CN 账号登录、切换、智能接入和语音接入。Account capabilities for Trae CN.",
+        "license": "MIT",
+        "repository": "https://github.com/edison7009/echobird-plugin",
+        "icon": "icon.svg",
+        "category": "account",
+        "echobird": {
+          "manifestVersion": 1,
+          "apiVersion": "0.1-draft",
+          "platforms": ["windows"],
+          "permissions": ["account.code"],
+          "worker": {
+            "runtime": "native",
+            "entry": "bin/echobird-account-engine.exe"
+          },
+          "contributes": {
+            "pages": [],
+            "providers": [
+              {
+                "id": "traecn",
+                "title": "Trae CN",
+                "applications": ["traecn"],
+                "searchTerms": ["Trae CN", "traecn"],
+                "operations": [
+                  "accounts",
+                  "login.start",
+                  "login.poll",
+                  "login.cancel",
+                  "account.refresh",
+                  "account.claim",
+                  "account.apply",
+                  "account.remove",
+                  "models",
+                  "proxy",
+                  "voice"
+                ]
+              }
+            ]
+          }
+        }
+      },
+      "commit": "37221a918a83cd9a08f099bd60da9145cd798d22",
+      "sha256": "e313290f5264eb7bce387797858eb36cad87131b9afcc992f43f9fcb88778d51",
+      "downloads": {
+        "international": "https://raw.githubusercontent.com/edison7009/echobird-plugin/37221a918a83cd9a08f099bd60da9145cd798d22/packages/echobird-community.trae-cn-accounts-0.1.0-preview.2.zip",
+        "china": "https://api.gitcode.com/api/v5/repos/edison7009/echobird-plugin/raw/packages/echobird-community.trae-cn-accounts-0.1.0-preview.2.zip"
+      }
+    },
+    {
+      "manifest": {
+        "$schema": "https://raw.githubusercontent.com/edison7009/echobird-plugin/main/schemas/plugin-manifest.schema.json",
+        "name": "trae-cn-accounts",
+        "publisher": "echobird-community",
         "version": "0.1.0-preview.1",
         "displayName": "Trae CN",
         "description": "Trae CN 账号登录、切换、智能接入和语音接入。Account capabilities for Trae CN.",
