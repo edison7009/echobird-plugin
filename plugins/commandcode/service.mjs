@@ -173,7 +173,7 @@ async function startLogin() {
   return {
     loginId,
     authorizationUrl: `${STUDIO}/studio/auth/cli?${query}`,
-    expiresAt: Date.now() + LOGIN_MS,
+    expiresAt: Math.floor((Date.now() + LOGIN_MS) / 1000),
   };
 }
 

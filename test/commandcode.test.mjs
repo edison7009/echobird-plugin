@@ -98,6 +98,9 @@ test("requests without the session secret are refused", async (t) => {
 test("login saves an account and never returns its key", async (t) => {
   const { call, signIn } = await start(t);
   assert.equal((await call("accounts")).value.length, 0);
+  const pending = (await call("login.start")).value;
+  assert.ok(pending.expiresAt < Date.now() / 100);
+  await call("login.cancel", { loginId: pending.loginId });
   const account = await signIn();
   assert.equal(account.email, "a@example.test");
   assert.equal(account.plan, "pro");
