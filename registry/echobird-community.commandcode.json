@@ -8,6 +8,65 @@
         "$schema": "https://raw.githubusercontent.com/edison7009/echobird-plugin/main/schemas/plugin-manifest.schema.json",
         "name": "commandcode",
         "publisher": "echobird-community",
+        "version": "0.1.0-preview.2",
+        "displayName": "Command Code",
+        "description": "Command Code 桌面端安装、启动、模型切换、账号切换和智能接入。Install, launch and switch models or accounts for Command Code Desktop.",
+        "license": "MIT",
+        "repository": "https://github.com/edison7009/echobird-plugin",
+        "icon": "icon.svg",
+        "category": "application",
+        "categories": ["application", "account"],
+        "tools": [
+          {
+            "id": "commandcode",
+            "directory": "tools/commandcode"
+          }
+        ],
+        "echobird": {
+          "manifestVersion": 1,
+          "apiVersion": "0.1-draft",
+          "platforms": ["windows", "macos", "linux"],
+          "permissions": ["account.code"],
+          "worker": {
+            "runtime": "node",
+            "entry": "service.mjs"
+          },
+          "contributes": {
+            "pages": [],
+            "providers": [
+              {
+                "id": "commandcode",
+                "title": "Command Code",
+                "applications": ["commandcode"],
+                "searchTerms": ["Command Code", "commandcode", "cmd"],
+                "operations": [
+                  "accounts",
+                  "login.start",
+                  "login.poll",
+                  "login.cancel",
+                  "account.refresh",
+                  "account.apply",
+                  "account.remove",
+                  "models",
+                  "proxy"
+                ]
+              }
+            ]
+          }
+        }
+      },
+      "commit": "f41d9f95a4bf351e4d10710dbb9c875d1f4ad170",
+      "sha256": "bf80df142865e267e92eb0ca6901755ca1d36973f46f50718284583b31c221c9",
+      "downloads": {
+        "international": "https://raw.githubusercontent.com/edison7009/echobird-plugin/f41d9f95a4bf351e4d10710dbb9c875d1f4ad170/packages/echobird-community.commandcode-0.1.0-preview.2.zip",
+        "china": "https://api.gitcode.com/api/v5/repos/edison7009/echobird-plugin/raw/packages/echobird-community.commandcode-0.1.0-preview.2.zip"
+      }
+    },
+    {
+      "manifest": {
+        "$schema": "https://raw.githubusercontent.com/edison7009/echobird-plugin/main/schemas/plugin-manifest.schema.json",
+        "name": "commandcode",
+        "publisher": "echobird-community",
         "version": "0.1.0-preview.1",
         "displayName": "Command Code",
         "description": "Command Code 安装、启动、模型切换、账号切换和智能接入。Install, launch and switch models or accounts for Command Code.",
@@ -64,11 +123,11 @@
     }
   ],
   "icons": {
-    "international": "https://raw.githubusercontent.com/edison7009/echobird-plugin/39f1da7439ba6a5ff1d2dd6f3cb06ccc60036382/packages/icons/commandcode-0.1.0-preview.1.png",
-    "china": "https://api.gitcode.com/api/v5/repos/edison7009/echobird-plugin/raw/packages/icons/commandcode-0.1.0-preview.1.png"
+    "international": "https://raw.githubusercontent.com/edison7009/echobird-plugin/f41d9f95a4bf351e4d10710dbb9c875d1f4ad170/packages/icons/commandcode-0.1.0-preview.2.svg",
+    "china": "https://api.gitcode.com/api/v5/repos/edison7009/echobird-plugin/raw/packages/icons/commandcode-0.1.0-preview.2.svg"
   },
   "descriptions": {
-    "international": "Install, launch and switch models or accounts for Command Code, with Smart Access.",
-    "china": "Command Code 安装、启动、模型切换、账号切换和智能接入。"
+    "international": "Install, launch and switch models or accounts for Command Code Desktop, with Smart Access.",
+    "china": "Command Code 桌面端安装、启动、模型切换、账号切换和智能接入。"
   }
 }
