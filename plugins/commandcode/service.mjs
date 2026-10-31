@@ -113,6 +113,9 @@ async function details(key) {
   ]);
   const plan = subscription.value?.data;
   const left = credits.value?.credits;
+  // A successful empty reply means no subscription; a failed read stays unknown.
+  const unsubscribed =
+    subscription.value?.success === true && subscription.value.data === null;
   return {
     id: createHash("sha256").update(key).digest("hex"),
     key,
@@ -121,7 +124,8 @@ async function details(key) {
       (plan?.status !== "canceled" &&
         plan?.status !== "incomplete_expired" &&
         plan?.planId) ||
-        left?.planId,
+        left?.planId ||
+        (unsubscribed ? "No plan" : null),
     ),
     remaining: left
       ? (left.monthlyCredits ?? 0) +

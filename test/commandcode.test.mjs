@@ -11,7 +11,7 @@ const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const entry = path.join(root, "plugins/commandcode/service.mjs");
 const key = "fixture-key";
 
-async function start(t) {
+async function start(t, subscription) {
   const home = mkdtempSync(path.join(tmpdir(), "commandcode-"));
   const requests = [];
   const upstream = createServer(async (request, response) => {
@@ -26,7 +26,9 @@ async function start(t) {
     if (request.url === "/alpha/whoami")
       return send({ user: { email: "a@example.test" } });
     if (request.url === "/alpha/billing/subscriptions")
-      return send({ data: { planId: "individual-pro-v1", status: "active" } });
+      return subscription
+        ? send(subscription.body, subscription.status)
+        : send({ data: { planId: "individual-pro-v1", status: "active" } });
     if (request.url === "/alpha/billing/credits")
       return send({ credits: { monthlyCredits: 3, freeCredits: 2 } });
     if (request.url === "/provider/v1/models")
@@ -226,6 +228,17 @@ test("models and proxy use the saved account", async (t) => {
     (await call("models", { accountId: "missing" })).value.error.message,
     "accountError.invalidAccount",
   );
+});
+
+test("no subscription differs from an unread plan", async (t) => {
+  for (const [body, status, plan] of [
+    [{ success: true, data: null }, 200, "No plan"],
+    [{}, 500, null],
+    [{ success: false }, 200, null],
+  ]) {
+    const { signIn } = await start(t, { body, status });
+    assert.equal((await signIn()).plan, plan);
+  }
 });
 
 test("plans use the names Command Code shows", async (t) => {
