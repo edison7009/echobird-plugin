@@ -1,0 +1,32 @@
+{
+  "name": "Command Code CLI",
+  "category": "CLI Code",
+  "apiProtocol": ["openai", "anthropic"],
+  "docs": "https://commandcode.ai/docs",
+  "website": "https://commandcode.ai/",
+  "command": "command-code",
+  "startCommand": "command-code",
+  "envVar": "COMMAND_CODE_PATH",
+  "configDir": "~/.commandcode",
+  "configFile": "~/.commandcode/settings.json",
+  "requireConfigFile": false,
+  "paths": {
+    "win32": [
+      "%APPDATA%\\npm\\command-code.cmd",
+      "%LOCALAPPDATA%\\pnpm\\command-code.cmd",
+      "%USERPROFILE%\\.npm-global\\command-code.cmd"
+    ],
+    "darwin": [
+      "/opt/homebrew/bin/command-code",
+      "/usr/local/bin/command-code",
+      "~/.npm-global/bin/command-code",
+      "~/Library/pnpm/command-code"
+    ],
+    "linux": [
+      "/usr/local/bin/command-code",
+      "/usr/bin/command-code",
+      "~/.npm-global/bin/command-code",
+      "~/.local/share/pnpm/command-code"
+    ]
+  }
+}

@@ -8,7 +8,7 @@
     "macOS Apple Silicon": "Download https://commandcode.ai/download/mac?arch=arm64, open the DMG and move Command Code to Applications.",
     "macOS Intel": "Download https://commandcode.ai/download/mac?arch=x64, open the DMG and move Command Code to Applications.",
     "Linux .deb": "Download https://commandcode.ai/download/linux, then run sudo apt install ./CommandCode-*.deb.",
-    "note": "Command Code is installed as the desktop app. The agent runtime ships inside it, so do not use npm and do not install any separate command-line package."
+    "note": "Install the desktop app with these downloads. The agent runtime ships inside it. Command Code CLI is a separate tool with its own reference."
   },
   "network_requirements": {
     "test_urls": [
@@ -22,6 +22,6 @@
     "config_global": "~/.commandcode/settings.json"
   },
   "identity_guard": {
-    "description": "The product is Command Code, the desktop app from commandcode.ai. Do not call it Command Code CLI or install it with npm. It is not Claude Code."
+    "description": "Command Code is the desktop app from commandcode.ai/desktop. Do not install it with npm: the npm package is Command Code CLI. It is not Claude Code."
   }
 }

@@ -1,0 +1,27 @@
+{
+  "id": "commandcodecli",
+  "displayName": "Command Code CLI",
+  "homepage": "https://commandcode.ai/",
+  "docs": "https://commandcode.ai/docs",
+  "install": {
+    "npm (all platforms)": "npm i -g command-code@latest",
+    "note": "Requires Node.js 22 or newer. Native Windows must use `cmdc` or `command-code`; `cmd` opens the Windows command prompt. Verify with `command-code --version`."
+  },
+  "network_requirements": {
+    "test_urls": [
+      "https://commandcode.ai",
+      "https://registry.npmjs.org/command-code"
+    ],
+    "mirrors": {
+      "npm": "npm i -g command-code@latest --registry=https://registry.npmmirror.com"
+    }
+  },
+  "first_run": {
+    "description": "Sign in with `command-code login`, or add an account in EchoBird. Settings are stored in ~/.commandcode.",
+    "config_global": "~/.commandcode/settings.json",
+    "verify": "command-code --version"
+  },
+  "identity_guard": {
+    "description": "Command Code CLI is the npm package `command-code`, separate from the Command Code desktop app. Install it only when the user asks for the CLI. It is not Claude Code and not the Windows `cmd` shell."
+  }
+}

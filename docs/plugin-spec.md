@@ -30,7 +30,7 @@ An optional root `categories` array lists every Hub filter a plugin appears unde
 
 ## Application plugins
 
-A root `tools` array adds applications to EchoBird: `[{ "id": "commandcode", "directory": "tools/commandcode" }]`. It requires a host with application plugins; older hosts ignore it. The directory holds `paths.json` and `config.json`, in the format of a built-in tool, and `install.json`, the installation reference given to the assistant for the store's install action. Built-in tool IDs take priority.
+A root `tools` array adds applications to EchoBird: `[{ "id": "commandcode", "directory": "tools/commandcode" }]`. It requires a host with application plugins; older hosts ignore it. The directory holds `paths.json` and `config.json`, in the format of a built-in tool, and `install.json`, the installation reference given to the assistant for the store's install action. Built-in tool IDs take priority. One plugin may add up to four tools; they share one provider, one service process and one account source, `plugin:<first application>`.
 
 The plugin needs `account.code`, `worker.runtime: "node"` with a `.mjs` entry, and a provider listing the tool ID in `applications`. Such a worker runs as a persistent service using the transport in [the native module documentation](../native/account-engine/README.md), under Node.js from the user's `PATH`. Besides its declared operations it implements `model.read`, `model.apply` and `model.restore` for the application's own configuration. `accounts.options` returns sources with the provider `plugin:<tool id>`, which is how accounts reach Smart Access.
 

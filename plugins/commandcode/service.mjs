@@ -304,14 +304,14 @@ async function models(id) {
     .map((model) => model.id);
 }
 
-async function operation(name, input, provider) {
+async function operation(name, input) {
   switch (name) {
     case "accounts":
     case "accounts.saved":
       return accounts().map((entry) => summary(entry));
     case "accounts.options":
       return accounts().map((entry) => ({
-        source: { provider: `plugin:${provider}`, accountId: entry.id },
+        source: { provider: "plugin:commandcode", accountId: entry.id },
         label: entry.email,
         plan: entry.plan,
       }));
@@ -379,7 +379,7 @@ function matches(actual = "", expected) {
   return timingSafeEqual(a, b);
 }
 
-function serve({ provider, secret }) {
+function serve({ secret }) {
   const server = createServer(async (request, response) => {
     if (
       request.method !== "POST" ||
@@ -394,7 +394,7 @@ function serve({ provider, secret }) {
     try {
       const { operation: name, params } = JSON.parse(raw);
       if (name === "proxy") return await proxy(params, response);
-      reply(response, 200, await operation(name, params ?? {}, provider));
+      reply(response, 200, await operation(name, params ?? {}));
     } catch (error) {
       const message =
         error instanceof Failure ? error.message : "accountError.failed";

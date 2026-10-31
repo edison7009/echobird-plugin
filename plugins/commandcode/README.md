@@ -1,6 +1,6 @@
 # Command Code
 
-Adds [Command Code Desktop](https://commandcode.ai/desktop) to EchoBird: store entry, installation, launch, model switching, account switching and Smart Access.
+Adds [Command Code Desktop](https://commandcode.ai/desktop) and Command Code CLI to EchoBird as two applications that share accounts: store entry, installation, launch, model switching, account switching and Smart Access.
 
 Requires an EchoBird host with application plugins, and Node.js 22 or newer on the `PATH` for this plugin's service.
 
