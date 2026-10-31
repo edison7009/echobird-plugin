@@ -26,6 +26,16 @@ An optional root `category` selects one Hub filter: `application` (应用), `acc
 
 Account integrations may declare `echobird.contributes.providers`. Each record identifies supported application IDs, optional search terms, and either a page ID or code operations. This metadata lets an application's account entry open the Account login category with a targeted search. The page API retains its existing restricted permissions; account operations use the separately declared code module described below.
 
+An optional root `categories` array lists every Hub filter a plugin appears under, such as `["application", "account"]`. Keep `category` as the primary value for older hosts.
+
+## Application plugins
+
+A root `tools` array adds applications to EchoBird: `[{ "id": "commandcode", "directory": "tools/commandcode" }]`. It requires a host with application plugins; older hosts ignore it. The directory holds `paths.json` and `config.json`, in the format of a built-in tool, and `install.json`, the installation reference given to the assistant for the store's install action. Built-in tool IDs take priority.
+
+The plugin needs `account.code`, `worker.runtime: "node"` with a `.mjs` entry, and a provider listing the tool ID in `applications`. Such a worker runs as a persistent service using the transport in [the native module documentation](../native/account-engine/README.md), under Node.js from the user's `PATH`. Besides its declared operations it implements `model.read`, `model.apply` and `model.restore` for the application's own configuration. `accounts.options` returns sources with the provider `plugin:<tool id>`, which is how accounts reach Smart Access.
+
+Passive scans call `model.read` for installed applications. It must read local files only.
+
 ## Page host
 
 Each installed, enabled page contributes a separate application-desktop entry. The user selects a model and explicitly launches it. The host opens a dedicated private WebView, serves only that installed package, denies navigation to other origins and new windows, and applies a host CSP. Scripts, styles, fonts and images must be packaged locally; inline script/style and data images are supported. Direct network requests, nested frames and form submissions are blocked. This is a WebView/IPC boundary, not a native process sandbox or a guarantee against system-WebView vulnerabilities. No general filesystem, shell, clipboard, account or arbitrary application-command API is available.
