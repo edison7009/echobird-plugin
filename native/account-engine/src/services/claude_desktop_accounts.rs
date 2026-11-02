@@ -3,6 +3,7 @@ use super::account_login_browser::Login;
 pub use super::claude_code_accounts::ClaudeCodeAccount as Account;
 use super::cursor_auth::{read, write};
 mod browser;
+mod web;
 use super::electron_storage::{cipher, decrypt_bytes, Cipher};
 use rusqlite::{types::Value as SqlValue, Connection, OpenFlags};
 use serde::{Deserialize, Serialize};
@@ -315,40 +316,13 @@ fn validate_saved_identity(saved: &Saved, id: &str, org: &str) -> Result<(), Str
     Ok(())
 }
 
-// Unit tests must not contact the public Claude service. This also makes an
-// accidental live verification in cached account application fail immediately.
-#[cfg(test)]
-async fn request(_session: &str, _org: &str, _endpoint: &str) -> Result<Value, String> {
-    Err("accountError.network".into())
-}
-#[cfg(not(test))]
-async fn request(session: &str, org: &str, endpoint: &str) -> Result<Value, String> {
-    let response = reqwest::Client::builder()
-        .timeout(Duration::from_secs(15))
-        .redirect(reqwest::redirect::Policy::none())
-        .build()
-        .map_err(|_| "accountError.network")?
-        .get(format!("https://claude.ai/api/{endpoint}"))
-        .header(reqwest::header::ACCEPT, "application/json")
-        .header(
-            reqwest::header::COOKIE,
-            format!("sessionKey={session}; lastActiveOrg={org}"),
-        )
-        .header("x-organization-uuid", org)
-        .send()
-        .await
-        .map_err(|_| "accountError.network")?;
-    if response.status() == reqwest::StatusCode::UNAUTHORIZED {
-        return Err("accountError.loginRequired".into());
-    }
-    if !response.status().is_success() {
-        return Err(format!("accountError.quota|HTTP {}", response.status()));
-    }
-    response
-        .json()
-        .await
-        .map_err(|_| "accountError.authResponse".into())
-}
+/// How long one login poll may wait for the sign-in page to answer before
+/// the next poll tries again.
+const LOGIN_REQUEST_SECONDS: u64 = 8;
+/// A refresh opens a background page and makes two requests; this stays well
+/// inside the host's operation timeout.
+const REFRESH_SECONDS: i64 = 60;
+
 fn account_from_profile(body: &Value, org: &str) -> Result<(Account, String), String> {
     let account = &body["account"];
     let uuid = account["uuid"]
@@ -414,10 +388,6 @@ fn account_from_profile(body: &Value, org: &str) -> Result<(Account, String), St
         },
         uuid.into(),
     ))
-}
-async fn profile(session: &str, org: &str) -> Result<(Account, String), String> {
-    let body = request(session, org, &format!("bootstrap/{org}/app_start?statsig_hashing_algorithm=djb2&growthbook_format=sdk&include_system_prompts=false")).await?;
-    account_from_profile(&body, org)
 }
 fn usage_window(
     body: &Value,
@@ -496,6 +466,8 @@ pub async fn start_login(app: tauri::AppHandle) -> Result<LoginStart, String> {
             "google.com",
             "googleusercontent.com",
             "apple.com",
+            // The challenge frame Claude's edge may show before its pages.
+            "challenges.cloudflare.com",
         ],
     )?;
     let old = PENDING
@@ -540,11 +512,45 @@ pub async fn poll_login(app: &tauri::AppHandle, id: &str) -> Result<LoginPoll, S
     let Some(mut snapshot) = browser::capture(&login.cookies(app)?)? else {
         return Ok(LoginPoll::default());
     };
-    let (session, org) = session_values(&data_dir()?, &snapshot)?;
-    let (mut account, account_uuid) = match profile(&session, &org).await {
-        Err(error) if error == "accountError.loginRequired" => return Ok(LoginPoll::default()),
-        result => result?,
+    let dir = data_dir()?;
+    let captured = session_values(&dir, &snapshot)?;
+    let org = captured.1.clone();
+    let Some(window) = login.window(app) else {
+        return Ok(LoginPoll::default());
     };
+    // The sign-in page answers with its own cookies. Until it is back on
+    // Claude and allowed through, keep waiting for the next poll.
+    let deadline = std::time::Instant::now() + Duration::from_secs(LOGIN_REQUEST_SECONDS);
+    let profile = web::get(
+        &window,
+        &web::profile_endpoint(&org),
+        &org,
+        deadline,
+        || login.check(),
+    )
+    .await;
+    let body = match profile {
+        Ok(web::Fetch::Ready(body)) => body,
+        Ok(web::Fetch::Waiting(_)) => return Ok(LoginPoll::default()),
+        Err(error) => {
+            // A closed or expired attempt reports that rather than the
+            // browser failure it caused.
+            login.check()?;
+            if error == "accountError.loginRequired" {
+                return Ok(LoginPoll::default());
+            }
+            return Err(error);
+        }
+    };
+    // The page used its live cookies. Save only if they are still the
+    // session that was captured, so the identity matches the snapshot.
+    let current = browser::capture(&login.cookies(app)?)?
+        .map(|current| session_values(&dir, &current))
+        .transpose()?;
+    if current.as_ref() != Some(&captured) {
+        return Ok(LoginPoll::default());
+    }
+    let (mut account, account_uuid) = account_from_profile(&body, &org)?;
     account.active = false;
     snapshot
         .config
@@ -702,21 +708,53 @@ where
     write(store_path, &store)?;
     Ok(account)
 }
-pub async fn refresh(id: &str) -> Result<Account, String> {
-    let _guard = ACCOUNT_LOCK.lock().await;
-    let mut store = load_store()?;
-    let saved = store.get_mut(id).ok_or("accountError.invalidAccount")?;
-    let (session, org) = session_values(&data_dir()?, &saved.snapshot)?;
-    let (mut account, _) = profile(&session, &org).await?;
+pub async fn refresh(app: &tauri::AppHandle, id: &str) -> Result<Account, String> {
+    let (session, org) = {
+        let _guard = ACCOUNT_LOCK.lock().await;
+        let store = load_store()?;
+        let saved = store.get(id).ok_or("accountError.invalidAccount")?;
+        session_values(&data_dir()?, &saved.snapshot)?
+    };
+    // The browser session can take a while; other account operations keep
+    // working meanwhile, and the result is merged into the current store.
+    let page = Login::start_hidden(app, "Claude", web::BACKGROUND_DOMAINS, REFRESH_SECONDS)?;
+    let result = fetch_saved(app, &page, &session, &org).await;
+    page.cancel(app);
+    let (profile, quota) = result?;
+    let (mut account, _) = account_from_profile(&profile, &org)?;
     if account.id != id {
         return Err("accountError.authResponse".into());
     }
-    let quota = request(&session, &org, &format!("organizations/{org}/usage")).await?;
     set_usage(&mut account, &quota)?;
+    let _guard = ACCOUNT_LOCK.lock().await;
+    let mut store = load_store()?;
+    let saved = store.get_mut(id).ok_or("accountError.invalidAccount")?;
     account.active = saved.account.active;
     saved.account = account.clone();
     write(&store_path()?, &store)?;
     Ok(account)
+}
+/// Profile and usage for a saved session, requested from a background
+/// Claude page that carries only that session.
+async fn fetch_saved(
+    app: &tauri::AppHandle,
+    page: &Login,
+    session: &str,
+    org: &str,
+) -> Result<(Value, Value), String> {
+    let window = page.window(app).ok_or("accountError.browser")?;
+    web::sign_in(&window, session, org)?;
+    let deadline = std::time::Instant::now() + Duration::from_secs(REFRESH_SECONDS as u64 - 5);
+    let window = &window;
+    let get = |endpoint: String| async move {
+        match web::get(window, &endpoint, org, deadline, || page.check()).await? {
+            web::Fetch::Ready(body) => Ok::<_, String>(body),
+            web::Fetch::Waiting(error) => Err(error.into()),
+        }
+    };
+    let profile = get(web::profile_endpoint(org)).await?;
+    let quota = get(web::usage_endpoint(org)).await?;
+    Ok((profile, quota))
 }
 pub async fn delete(id: &str) -> Result<(), String> {
     let _guard = ACCOUNT_LOCK.lock().await;
@@ -811,11 +849,9 @@ mod tests {
         let path = fixture.dir.join("accounts.json");
         let store = load_store_at(&path).unwrap();
         let saved = &store[&fixture.id];
+        // Claude requests need a browser window, which applying never opens.
         let (session, org) = session_values(&fixture.dir, &saved.snapshot).unwrap();
-        // Positive control: online identity verification is unavailable in this test.
-        assert!(
-            matches!(profile(&session, &org).await, Err(error) if error == "accountError.network")
-        );
+        assert!(!session.is_empty());
         let stage = std::cell::Cell::new(0);
         let before = fixture.state();
         let account = switch_at(

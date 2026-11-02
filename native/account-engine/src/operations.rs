@@ -185,7 +185,7 @@ pub(crate) async fn dispatch(host: &Host, request: &Value) -> Result<Response, P
                     .map_err(failure)?,
             ),
             "claudecode" => response(code::refresh(id).await.map_err(failure)?),
-            "claudedesktop" => response(desktop::refresh(id).await.map_err(failure)?),
+            "claudedesktop" => response(desktop::refresh(&host.app, id).await.map_err(failure)?),
             "workbuddy" | "workbuddyai" => {
                 response(work::refresh(work_edition, id).await.map_err(failure)?)
             }

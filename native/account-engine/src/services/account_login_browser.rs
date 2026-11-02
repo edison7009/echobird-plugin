@@ -5,6 +5,7 @@ mod desktop;
 use desktop::DesktopLogin;
 
 pub(crate) const LOGIN_TIMEOUT_SECONDS: i64 = 10 * 60;
+const BLANK: &str = "about:blank";
 
 #[derive(Clone)]
 pub(crate) struct Login {
@@ -12,6 +13,7 @@ pub(crate) struct Login {
     pub expires: i64,
     cancelled: Arc<Mutex<bool>>,
     desktop: Option<DesktopLogin>,
+    hidden: bool,
 }
 
 impl Login {
@@ -27,6 +29,8 @@ impl Login {
             url.parse().map_err(|_| "accountError.format")?,
             domains,
             None,
+            false,
+            LOGIN_TIMEOUT_SECONDS,
         )
     }
 
@@ -37,7 +41,34 @@ impl Login {
         domains: &'static [&'static str],
     ) -> Result<Self, String> {
         let desktop = DesktopLogin::new(scheme);
-        Self::start_with(app, title, desktop.url(), domains, Some(desktop))
+        Self::start_with(
+            app,
+            title,
+            desktop.url(),
+            domains,
+            Some(desktop),
+            false,
+            LOGIN_TIMEOUT_SECONDS,
+        )
+    }
+
+    /// An invisible, isolated browser for requests that must come from the
+    /// provider's own page. It opens blank so cookies can be set first.
+    pub fn start_hidden(
+        app: &tauri::AppHandle,
+        title: &'static str,
+        domains: &'static [&'static str],
+        timeout_seconds: i64,
+    ) -> Result<Self, String> {
+        Self::start_with(
+            app,
+            title,
+            BLANK.parse().map_err(|_| "accountError.format")?,
+            domains,
+            None,
+            true,
+            timeout_seconds,
+        )
     }
 
     fn start_with(
@@ -46,21 +77,30 @@ impl Login {
         url: url::Url,
         domains: &'static [&'static str],
         desktop: Option<DesktopLogin>,
+        hidden: bool,
+        timeout_seconds: i64,
     ) -> Result<Self, String> {
         let login = Self {
             id: uuid::Uuid::new_v4().to_string(),
-            expires: chrono::Utc::now().timestamp() + LOGIN_TIMEOUT_SECONDS,
+            expires: chrono::Utc::now().timestamp() + timeout_seconds,
             cancelled: Default::default(),
             desktop,
+            hidden,
         };
         login.open(app, title, url, domains, None)?;
         let timeout = login.clone();
         let app = app.clone();
         tauri::async_runtime::spawn(async move {
-            tokio::time::sleep(std::time::Duration::from_secs(LOGIN_TIMEOUT_SECONDS as u64)).await;
+            tokio::time::sleep(std::time::Duration::from_secs(timeout_seconds as u64)).await;
             timeout.cancel(&app);
         });
         Ok(login)
+    }
+
+    /// The attempt's first window. It stays on the provider's site while
+    /// sign-in popups come and go.
+    pub fn window(&self, app: &tauri::AppHandle) -> Option<tauri::WebviewWindow> {
+        app.get_webview_window(&self.prefix())
     }
 
     fn prefix(&self) -> String {
@@ -76,7 +116,7 @@ impl Login {
         features: Option<NewWindowFeatures>,
     ) -> Result<tauri::WebviewWindow, String> {
         self.check()?;
-        if !allowed(&url, domains) {
+        if !permitted(&url, domains) {
             return Err("accountError.authResponse".into());
         }
         let root = features.is_none();
@@ -88,7 +128,15 @@ impl Login {
         let popup_login = self.clone();
         let popup_app = app.clone();
         let navigation_login = self.clone();
-        let mut builder = WebviewWindowBuilder::new(app, label, WebviewUrl::External(url))
+        // A popup must start blank: the browser attaches it to its opener and
+        // loads the requested page itself. Loading the page here would detach
+        // it, so sign-in results could not reach the opener.
+        let initial = if root {
+            url
+        } else {
+            BLANK.parse().map_err(|_| "accountError.format")?
+        };
+        let mut builder = WebviewWindowBuilder::new(app, label, WebviewUrl::External(initial))
             .title(title)
             .inner_size(950.0, 730.0)
             .incognito(true)
@@ -110,6 +158,9 @@ impl Login {
         }
         if let Some(features) = features {
             builder = builder.window_features(features);
+        }
+        if root && self.hidden {
+            builder = builder.visible(false).focused(false).skip_taskbar(true);
         }
         let window = builder.build().map_err(|_| "accountError.browser")?;
         if root {
@@ -146,7 +197,7 @@ impl Login {
         if let Some(desktop) = &self.desktop {
             desktop.capture(url);
         }
-        allowed(url, domains)
+        permitted(url, domains)
     }
 
     pub fn desktop_token(&self) -> Result<Option<String>, String> {
@@ -273,6 +324,12 @@ pub(crate) fn unseal(value: &str) -> Result<String, String> {
         .map_err(|_| "accountError.keychain".into())
 }
 
+/// Blank pages have no content or credentials; popups start there before the
+/// browser loads the page that was requested.
+fn permitted(url: &url::Url, domains: &[&str]) -> bool {
+    url.as_str() == BLANK || allowed(url, domains)
+}
+
 fn allowed(url: &url::Url, domains: &[&str]) -> bool {
     url.scheme() == "https"
         && url.username().is_empty()
@@ -309,6 +366,28 @@ mod tests {
     }
 
     #[test]
+    fn only_the_exact_blank_page_is_added_for_popups() {
+        let domains = ["claude.ai"];
+        let blank: url::Url = BLANK.parse().unwrap();
+        assert!(!allowed(&blank, &domains));
+        assert!(permitted(&blank, &domains));
+        for url in [
+            "about:srcdoc",
+            "about:blank#x",
+            "about:blank?x",
+            "data:text/html,x",
+            "javascript:alert(1)",
+            "https://evil.test/",
+        ] {
+            assert!(!permitted(&url.parse().unwrap(), &domains), "{url}");
+        }
+        assert!(permitted(
+            &"https://claude.ai/login".parse().unwrap(),
+            &domains
+        ));
+    }
+
+    #[test]
     fn cancellation_and_deadline_reject_late_results_without_affecting_another_attempt() {
         assert!(check(false, 61, 60).is_ok());
         assert_eq!(check(false, 61, 61).unwrap_err(), "accountError.expired");
@@ -318,12 +397,14 @@ mod tests {
             expires: i64::MAX,
             cancelled: Default::default(),
             desktop: None,
+            hidden: false,
         };
         let second = Login {
             id: "second".into(),
             expires: i64::MAX,
             cancelled: Default::default(),
             desktop: None,
+            hidden: false,
         };
         *first.cancelled.lock().unwrap() = true;
         assert!(first.clone().check().is_err());
@@ -375,6 +456,7 @@ mod tests {
                 expires: chrono::Utc::now().timestamp() + LOGIN_TIMEOUT_SECONDS,
                 cancelled: Default::default(),
                 desktop: Some(desktop),
+                hidden: false,
             };
             assert!(!login.navigate(&callback, &["manus.im"]));
             assert_eq!(
