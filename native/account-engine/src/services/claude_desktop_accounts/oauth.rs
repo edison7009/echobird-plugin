@@ -7,11 +7,21 @@ use base64::Engine;
 
 const API: &str = "https://api.anthropic.com";
 const TOKEN_CACHE: &str = "oauth:tokenCacheV2";
+/// Enough to read the account's profile and usage.
+pub(super) const PROFILE_SCOPE: &str = "user:profile";
+/// What the official client needs to send a message; narrower tokens get a 403.
+pub(super) const CLIENT_SCOPE: &str = "user:sessions:claude_code";
 
-/// The newest unexpired token of `account` that may read its profile, in
-/// `org` when it is known. Cache keys look like
+/// The newest unexpired token of `account` holding `scope`, in `org` when it
+/// is known. Cache keys look like
 /// `acct:<account>|<client>:<organization>:<audience>:<scopes>`.
-fn select_token(plain: &[u8], account: &str, org: &str, now_ms: i64) -> Result<String, String> {
+fn select_token(
+    plain: &[u8],
+    account: &str,
+    org: &str,
+    scope: &str,
+    now_ms: i64,
+) -> Result<String, String> {
     let cache: BTreeMap<String, Value> =
         serde_json::from_slice(plain).map_err(|_| "accountError.format")?;
     let prefix = format!("acct:{account}|");
@@ -20,7 +30,7 @@ fn select_token(plain: &[u8], account: &str, org: &str, now_ms: i64) -> Result<S
         .iter()
         .filter(|(key, _)| {
             key.starts_with(&prefix)
-                && key.contains("user:profile")
+                && key.contains(scope)
                 && (org.is_empty() || key.contains(&organization))
         })
         .filter_map(|(_, value)| {
@@ -40,6 +50,7 @@ pub(super) fn access_token(
     config: &BTreeMap<String, Value>,
     account: &str,
     org: &str,
+    scope: &str,
 ) -> Result<String, String> {
     let encoded = config
         .get(TOKEN_CACHE)
@@ -49,7 +60,13 @@ pub(super) fn access_token(
         .decode(encoded)
         .map_err(|_| "accountError.format")?;
     let plain = decrypt_bytes(&cipher(dir)?, &bytes)?;
-    select_token(&plain, account, org, chrono::Utc::now().timestamp_millis())
+    select_token(
+        &plain,
+        account,
+        org,
+        scope,
+        chrono::Utc::now().timestamp_millis(),
+    )
 }
 
 fn http_error(status: u16) -> String {
@@ -161,6 +178,36 @@ mod tests {
     }
 
     #[test]
+    fn a_message_uses_the_token_the_official_client_accepts() {
+        let key = |scopes: &str| {
+            format!("acct:{ACCOUNT}|client:{ORG}:https://api.anthropic.com:{scopes}")
+        };
+        // Tied expiry, as Claude Desktop issues them; the longest-lived token lacks the scope.
+        let plain = cache(&[
+            (
+                &key("user:inference user:file_upload user:profile"),
+                "api",
+                90_000,
+            ),
+            (
+                &key("user:inference user:file_upload user:profile user:sessions:claude_code"),
+                "client",
+                8_000,
+            ),
+            (&key("user:profile"), "profile", 8_000),
+        ]);
+        assert_eq!(
+            select_token(&plain, ACCOUNT, ORG, CLIENT_SCOPE, 100).unwrap(),
+            "client"
+        );
+        let plain = cache(&[(&key("user:profile"), "profile", 8_000)]);
+        assert_eq!(
+            select_token(&plain, ACCOUNT, ORG, CLIENT_SCOPE, 100).unwrap_err(),
+            "accountError.initializeClient"
+        );
+    }
+
+    #[test]
     fn tokens_belong_to_the_account_can_read_its_profile_and_are_unexpired() {
         let key = |account: &str, org: &str, scopes: &str| {
             format!("acct:{account}|client:{org}:https://api.anthropic.com:{scopes}")
@@ -177,23 +224,29 @@ mod tests {
             (&key(ACCOUNT, OTHER_ORG, profile), "other-org", 9_500),
             (&key(ACCOUNT, ORG, profile), "same-org", 8_000),
         ]);
-        assert_eq!(select_token(&plain, ACCOUNT, ORG, 100).unwrap(), "same-org");
         assert_eq!(
-            select_token(&plain, ACCOUNT, OTHER_ORG, 100).unwrap(),
+            select_token(&plain, ACCOUNT, ORG, PROFILE_SCOPE, 100).unwrap(),
+            "same-org"
+        );
+        assert_eq!(
+            select_token(&plain, ACCOUNT, OTHER_ORG, PROFILE_SCOPE, 100).unwrap(),
             "other-org"
         );
         // Before the organization is known, any organization's newest token.
-        assert_eq!(select_token(&plain, ACCOUNT, "", 100).unwrap(), "other-org");
         assert_eq!(
-            select_token(&plain, ACCOUNT, "unknown-org", 100).unwrap_err(),
+            select_token(&plain, ACCOUNT, "", PROFILE_SCOPE, 100).unwrap(),
+            "other-org"
+        );
+        assert_eq!(
+            select_token(&plain, ACCOUNT, "unknown-org", PROFILE_SCOPE, 100).unwrap_err(),
             "accountError.initializeClient"
         );
         assert_eq!(
-            select_token(&plain, "missing", ORG, 100).unwrap_err(),
+            select_token(&plain, "missing", ORG, PROFILE_SCOPE, 100).unwrap_err(),
             "accountError.initializeClient"
         );
         assert_eq!(
-            select_token(b"not json", ACCOUNT, ORG, 100).unwrap_err(),
+            select_token(b"not json", ACCOUNT, ORG, PROFILE_SCOPE, 100).unwrap_err(),
             "accountError.format"
         );
     }

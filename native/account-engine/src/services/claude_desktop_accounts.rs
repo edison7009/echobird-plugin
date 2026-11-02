@@ -477,7 +477,7 @@ pub async fn start_login(next: bool) -> Result<LoginStart, String> {
     let uuid = signed_in_account(&native_config(&dir)?).ok_or("accountError.noAccount")?;
     require_closed().await?;
     let (snapshot, org) = read_signed_in(&dir, &uuid)?;
-    let token = oauth::access_token(&dir, &snapshot.config, &uuid, &org)?;
+    let token = oauth::access_token(&dir, &snapshot.config, &uuid, &org, oauth::PROFILE_SCOPE)?;
     let profile = oauth::profile(&token).await?;
     let account = {
         // Switches write the same files; the client may also have been
@@ -731,7 +731,7 @@ fn remember_live(store: &mut Store, target: &str, live: Option<(String, String, 
     }
 }
 /// The account's identity and a token from its newest sign-in.
-async fn saved_token(id: &str) -> Result<(String, String, String), String> {
+async fn saved_token(id: &str, scope: &str) -> Result<(String, String, String), String> {
     let (dir, config, uuid, org) = {
         let _guard = ACCOUNT_LOCK.lock().await;
         let store = load_store()?;
@@ -749,7 +749,7 @@ async fn saved_token(id: &str) -> Result<(String, String, String), String> {
     };
     // Snapshots saved by earlier versions hold no tokens, and a saved token
     // expires until Claude Desktop renews it while that account is in use.
-    let token = oauth::access_token(&dir, &config, &uuid, &org).map_err(|error| {
+    let token = oauth::access_token(&dir, &config, &uuid, &org, scope).map_err(|error| {
         if ["accountError.noAccount", "accountError.initializeClient"].contains(&error.as_str()) {
             "accountError.loginRequired".to_string()
         } else {
@@ -759,7 +759,7 @@ async fn saved_token(id: &str) -> Result<(String, String, String), String> {
     Ok((uuid, org, token))
 }
 pub async fn refresh(id: &str) -> Result<Account, String> {
-    let (uuid, org, token) = saved_token(id).await?;
+    let (uuid, org, token) = saved_token(id, oauth::PROFILE_SCOPE).await?;
     let mut account = oauth::account_from_profile(&oauth::profile(&token).await?, &uuid, &org)?;
     if account.id != id {
         return Err("accountError.authResponse".into());
@@ -796,7 +796,7 @@ pub async fn warm_up(id: &str, executable: &str) -> Result<Account, String> {
     super::claude_code_accounts::warm_up_with(
         || warm_up_refresh(id),
         || async {
-            let credentials = match saved_token(id).await {
+            let credentials = match saved_token(id, oauth::CLIENT_SCOPE).await {
                 Ok((_, _, token)) => json!({"accessToken":token,"accountId":id}),
                 Err(error) => super::claude_code_accounts::proxy_credentials(id, false)
                     .await
