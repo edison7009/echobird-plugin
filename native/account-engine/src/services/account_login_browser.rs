@@ -5,7 +5,6 @@ mod desktop;
 use desktop::DesktopLogin;
 
 pub(crate) const LOGIN_TIMEOUT_SECONDS: i64 = 10 * 60;
-const BLANK: &str = "about:blank";
 
 #[derive(Clone)]
 pub(crate) struct Login {
@@ -26,7 +25,7 @@ impl Login {
         Self::start_with(
             app,
             title,
-            url.parse().map_err(|_| "accountError.format")?,
+            Some(url.parse().map_err(|_| "accountError.format")?),
             domains,
             None,
             false,
@@ -44,7 +43,7 @@ impl Login {
         Self::start_with(
             app,
             title,
-            desktop.url(),
+            Some(desktop.url()),
             domains,
             Some(desktop),
             false,
@@ -53,28 +52,21 @@ impl Login {
     }
 
     /// An invisible, isolated browser for requests that must come from the
-    /// provider's own page. It opens blank so cookies can be set first.
+    /// provider's own page. It opens blank so cookies can be set first; its
+    /// later pages pass the navigation check.
     pub fn start_hidden(
         app: &tauri::AppHandle,
         title: &'static str,
         domains: &'static [&'static str],
         timeout_seconds: i64,
     ) -> Result<Self, String> {
-        Self::start_with(
-            app,
-            title,
-            BLANK.parse().map_err(|_| "accountError.format")?,
-            domains,
-            None,
-            true,
-            timeout_seconds,
-        )
+        Self::start_with(app, title, None, domains, None, true, timeout_seconds)
     }
 
     fn start_with(
         app: &tauri::AppHandle,
         title: &'static str,
-        url: url::Url,
+        url: Option<url::Url>,
         domains: &'static [&'static str],
         desktop: Option<DesktopLogin>,
         hidden: bool,
@@ -111,12 +103,12 @@ impl Login {
         &self,
         app: &tauri::AppHandle,
         title: &'static str,
-        url: url::Url,
+        url: Option<url::Url>,
         domains: &'static [&'static str],
         features: Option<NewWindowFeatures>,
     ) -> Result<tauri::WebviewWindow, String> {
         self.check()?;
-        if !permitted(&url, domains) {
+        if url.as_ref().is_some_and(|url| !allowed(url, domains)) {
             return Err("accountError.authResponse".into());
         }
         let root = features.is_none();
@@ -128,15 +120,7 @@ impl Login {
         let popup_login = self.clone();
         let popup_app = app.clone();
         let navigation_login = self.clone();
-        // A popup must start blank: the browser attaches it to its opener and
-        // loads the requested page itself. Loading the page here would detach
-        // it, so sign-in results could not reach the opener.
-        let initial = if root {
-            url
-        } else {
-            BLANK.parse().map_err(|_| "accountError.format")?
-        };
-        let mut builder = WebviewWindowBuilder::new(app, label, WebviewUrl::External(initial))
+        let mut builder = WebviewWindowBuilder::new(app, label, initial_page(url))
             .title(title)
             .inner_size(950.0, 730.0)
             .incognito(true)
@@ -145,7 +129,8 @@ impl Login {
                 if !popup_login.navigate(&url, domains) {
                     return tauri::webview::NewWindowResponse::Deny;
                 }
-                match popup_login.open(&popup_app, title, url, domains, Some(features)) {
+                // The browser loads the checked URL into the blank popup.
+                match popup_login.open(&popup_app, title, None, domains, Some(features)) {
                     Ok(window) => tauri::webview::NewWindowResponse::Create { window },
                     Err(_) => tauri::webview::NewWindowResponse::Deny,
                 }
@@ -197,7 +182,7 @@ impl Login {
         if let Some(desktop) = &self.desktop {
             desktop.capture(url);
         }
-        permitted(url, domains)
+        allowed(url, domains)
     }
 
     pub fn desktop_token(&self) -> Result<Option<String>, String> {
@@ -324,10 +309,14 @@ pub(crate) fn unseal(value: &str) -> Result<String, String> {
         .map_err(|_| "accountError.keychain".into())
 }
 
-/// Blank pages have no content or credentials; popups start there before the
-/// browser loads the page that was requested.
-fn permitted(url: &url::Url, domains: &[&str]) -> bool {
-    url.as_str() == BLANK || allowed(url, domains)
+/// The page a new window is built with. Windows without a page start blank:
+/// a popup must, so the browser attaches it to its opener and loads the
+/// requested page itself through the navigation check (loading it here would
+/// detach it, so sign-in results could not reach the opener), and a hidden
+/// browser needs its cookies before its first page. The runtime does not
+/// navigate a window built blank, so the allowlist needs no exception.
+fn initial_page(url: Option<url::Url>) -> WebviewUrl {
+    WebviewUrl::External(url.unwrap_or_else(|| url::Url::parse("about:blank").expect("static URL")))
 }
 
 fn allowed(url: &url::Url, domains: &[&str]) -> bool {
@@ -366,25 +355,24 @@ mod tests {
     }
 
     #[test]
-    fn only_the_exact_blank_page_is_added_for_popups() {
-        let domains = ["claude.ai"];
-        let blank: url::Url = BLANK.parse().unwrap();
-        assert!(!allowed(&blank, &domains));
-        assert!(permitted(&blank, &domains));
-        for url in [
+    fn windows_without_a_page_start_blank_and_blank_stays_outside_the_allowlist() {
+        let page = |url: Option<&str>| match initial_page(url.map(|url| url.parse().unwrap())) {
+            WebviewUrl::External(page) => page.to_string(),
+            _ => unreachable!(),
+        };
+        assert_eq!(
+            page(Some("https://claude.ai/login")),
+            "https://claude.ai/login"
+        );
+        assert_eq!(page(None), "about:blank");
+        for blank in [
+            "about:blank",
             "about:srcdoc",
-            "about:blank#x",
-            "about:blank?x",
             "data:text/html,x",
             "javascript:alert(1)",
-            "https://evil.test/",
         ] {
-            assert!(!permitted(&url.parse().unwrap(), &domains), "{url}");
+            assert!(!allowed(&blank.parse().unwrap(), &["claude.ai"]), "{blank}");
         }
-        assert!(permitted(
-            &"https://claude.ai/login".parse().unwrap(),
-            &domains
-        ));
     }
 
     #[test]
