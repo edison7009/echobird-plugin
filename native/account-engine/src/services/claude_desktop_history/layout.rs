@@ -43,18 +43,10 @@ pub(super) fn resolve() -> Result<Layout, String> {
     resolve_at(roots, threep)
 }
 
+/// The same data folder account snapshots use.
 fn official_root() -> Result<PathBuf, String> {
-    #[cfg(windows)]
-    if crate::services::tool_manager::get_tool_exe_path("claudedesktop").is_none() {
-        if let Some(uri) = crate::services::tool_manager::get_tool_launch_uri("claudedesktop") {
-            if let Some(root) = crate::services::msix::roaming_data_dir(&uri, "Claude") {
-                return Ok(root);
-            }
-        }
-    }
-    dirs::config_dir()
-        .map(|root| root.join("Claude"))
-        .ok_or_else(|| "Cannot locate the Claude Desktop data directory.".into())
+    crate::services::claude_desktop_accounts::data_dir()
+        .map_err(|_| "Cannot locate the Claude Desktop data directory.".into())
 }
 
 fn user_data_roots(

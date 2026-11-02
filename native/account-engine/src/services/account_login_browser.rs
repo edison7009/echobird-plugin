@@ -12,7 +12,6 @@ pub(crate) struct Login {
     pub expires: i64,
     cancelled: Arc<Mutex<bool>>,
     desktop: Option<DesktopLogin>,
-    hidden: bool,
 }
 
 impl Login {
@@ -28,8 +27,6 @@ impl Login {
             Some(url.parse().map_err(|_| "accountError.format")?),
             domains,
             None,
-            false,
-            LOGIN_TIMEOUT_SECONDS,
         )
     }
 
@@ -40,27 +37,7 @@ impl Login {
         domains: &'static [&'static str],
     ) -> Result<Self, String> {
         let desktop = DesktopLogin::new(scheme);
-        Self::start_with(
-            app,
-            title,
-            Some(desktop.url()),
-            domains,
-            Some(desktop),
-            false,
-            LOGIN_TIMEOUT_SECONDS,
-        )
-    }
-
-    /// An invisible, isolated browser for requests that must come from the
-    /// provider's own page. It opens blank so cookies can be set first; its
-    /// later pages pass the navigation check.
-    pub fn start_hidden(
-        app: &tauri::AppHandle,
-        title: &'static str,
-        domains: &'static [&'static str],
-        timeout_seconds: i64,
-    ) -> Result<Self, String> {
-        Self::start_with(app, title, None, domains, None, true, timeout_seconds)
+        Self::start_with(app, title, Some(desktop.url()), domains, Some(desktop))
     }
 
     fn start_with(
@@ -69,30 +46,21 @@ impl Login {
         url: Option<url::Url>,
         domains: &'static [&'static str],
         desktop: Option<DesktopLogin>,
-        hidden: bool,
-        timeout_seconds: i64,
     ) -> Result<Self, String> {
         let login = Self {
             id: uuid::Uuid::new_v4().to_string(),
-            expires: chrono::Utc::now().timestamp() + timeout_seconds,
+            expires: chrono::Utc::now().timestamp() + LOGIN_TIMEOUT_SECONDS,
             cancelled: Default::default(),
             desktop,
-            hidden,
         };
         login.open(app, title, url, domains, None)?;
         let timeout = login.clone();
         let app = app.clone();
         tauri::async_runtime::spawn(async move {
-            tokio::time::sleep(std::time::Duration::from_secs(timeout_seconds as u64)).await;
+            tokio::time::sleep(std::time::Duration::from_secs(LOGIN_TIMEOUT_SECONDS as u64)).await;
             timeout.cancel(&app);
         });
         Ok(login)
-    }
-
-    /// The attempt's first window. It stays on the provider's site while
-    /// sign-in popups come and go.
-    pub fn window(&self, app: &tauri::AppHandle) -> Option<tauri::WebviewWindow> {
-        app.get_webview_window(&self.prefix())
     }
 
     fn prefix(&self) -> String {
@@ -143,9 +111,6 @@ impl Login {
         }
         if let Some(features) = features {
             builder = builder.window_features(features);
-        }
-        if root && self.hidden {
-            builder = builder.visible(false).focused(false).skip_taskbar(true);
         }
         let window = builder.build().map_err(|_| "accountError.browser")?;
         if root {
@@ -309,11 +274,10 @@ pub(crate) fn unseal(value: &str) -> Result<String, String> {
         .map_err(|_| "accountError.keychain".into())
 }
 
-/// The page a new window is built with. Windows without a page start blank:
-/// a popup must, so the browser attaches it to its opener and loads the
-/// requested page itself through the navigation check (loading it here would
-/// detach it, so sign-in results could not reach the opener), and a hidden
-/// browser needs its cookies before its first page. The runtime does not
+/// The page a new window is built with. A popup is built without one and
+/// starts blank: the browser attaches it to its opener and loads the requested
+/// page itself through the navigation check. Loading it here would detach it,
+/// so sign-in results could not reach the opener. The runtime does not
 /// navigate a window built blank, so the allowlist needs no exception.
 fn initial_page(url: Option<url::Url>) -> WebviewUrl {
     WebviewUrl::External(url.unwrap_or_else(|| url::Url::parse("about:blank").expect("static URL")))
@@ -385,14 +349,12 @@ mod tests {
             expires: i64::MAX,
             cancelled: Default::default(),
             desktop: None,
-            hidden: false,
         };
         let second = Login {
             id: "second".into(),
             expires: i64::MAX,
             cancelled: Default::default(),
             desktop: None,
-            hidden: false,
         };
         *first.cancelled.lock().unwrap() = true;
         assert!(first.clone().check().is_err());
@@ -444,7 +406,6 @@ mod tests {
                 expires: chrono::Utc::now().timestamp() + LOGIN_TIMEOUT_SECONDS,
                 cancelled: Default::default(),
                 desktop: Some(desktop),
-                hidden: false,
             };
             assert!(!login.navigate(&callback, &["manus.im"]));
             assert_eq!(

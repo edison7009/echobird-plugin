@@ -8,14 +8,9 @@ pub(super) fn value(cookie: &Cookie) -> Result<String, String> {
     account_login_browser::unseal(cookie.text("browser_value").ok_or("accountError.format")?)
 }
 
-pub(super) fn capture(cookies: &[tauri::webview::Cookie<'_>]) -> Result<Option<Snapshot>, String> {
-    capture_with(
-        cookies,
-        chrono::Utc::now().timestamp(),
-        account_login_browser::seal,
-    )
-}
-
+/// Builds a browser-format snapshot, as earlier versions saved them. Only the
+/// tests need it: saved browser snapshots are still applied.
+#[cfg(test)]
 fn capture_with(
     cookies: &[tauri::webview::Cookie<'_>],
     now: i64,

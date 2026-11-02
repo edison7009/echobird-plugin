@@ -148,6 +148,110 @@ pub async fn stop_desktop_for_account(tool: &str) -> Result<(), String> {
     Err("accountError.stopClient".into())
 }
 
+/// Quits a running desktop client the way Windows does at shutdown, so it
+/// writes its session to disk, and ends it only if it does not quit in time.
+/// Returns whether the client was running.
+pub async fn quit_desktop_for_account(tool: &str) -> Result<bool, String> {
+    if !desktop_tool_is_running(tool).await? {
+        return Ok(false);
+    }
+    #[cfg(windows)]
+    {
+        let owner = tool.to_owned();
+        tokio::task::spawn_blocking(move || {
+            let pids = processes()?
+                .into_iter()
+                .filter(|process| owns(&owner, &process.path))
+                .map(|process| process.pid)
+                .collect::<Vec<_>>();
+            end_session(&pids);
+            Ok::<_, String>(())
+        })
+        .await
+        .map_err(|_| "accountError.stopClient")??;
+        // Quitting stops running chats first, which can take a while. Each
+        // check lists processes, so the wait is measured in elapsed time.
+        let deadline = std::time::Instant::now() + std::time::Duration::from_secs(20);
+        while std::time::Instant::now() < deadline {
+            if !desktop_tool_is_running(tool).await? {
+                return Ok(true);
+            }
+            tokio::time::sleep(std::time::Duration::from_millis(250)).await;
+        }
+    }
+    stop_desktop_for_account(tool).await?;
+    Ok(true)
+}
+
+/// Opens a desktop client again after an account operation closed it. The
+/// system shell starts it, so it does not belong to this worker's process
+/// tree and keeps running when EchoBird exits.
+pub fn reopen_desktop_for_account(tool: &str) -> Result<(), String> {
+    let executable = super::tool_manager::get_tool_exe_path(tool);
+    #[cfg(windows)]
+    {
+        let target = executable
+            .or_else(|| super::tool_manager::get_tool_launch_uri(tool))
+            .ok_or("accountError.failed")?;
+        crate::utils::process::command("explorer.exe")
+            .arg(target)
+            .spawn()
+            .map_err(|_| "accountError.failed")?;
+    }
+    #[cfg(target_os = "macos")]
+    {
+        let executable = executable.ok_or("accountError.failed")?;
+        let bundle = Path::new(&executable)
+            .ancestors()
+            .find(|path| path.extension().is_some_and(|extension| extension == "app"))
+            .ok_or("accountError.failed")?
+            .to_path_buf();
+        crate::utils::process::command("open")
+            .arg(bundle)
+            .spawn()
+            .map_err(|_| "accountError.failed")?;
+    }
+    #[cfg(all(unix, not(target_os = "macos")))]
+    {
+        crate::utils::process::command(executable.ok_or("accountError.failed")?)
+            .spawn()
+            .map_err(|_| "accountError.failed")?;
+    }
+    Ok(())
+}
+
+/// Sends the end-of-session message to every top-level window of `pids`.
+#[cfg(windows)]
+fn end_session(pids: &[u32]) {
+    use windows::core::BOOL;
+    use windows::Win32::Foundation::{HWND, LPARAM, WPARAM};
+    use windows::Win32::UI::WindowsAndMessaging::{
+        EnumWindows, GetWindowThreadProcessId, SendMessageTimeoutW, SMTO_ABORTIFHUNG, WM_ENDSESSION,
+    };
+    const ENDSESSION_CLOSEAPP: isize = 0x1;
+    unsafe extern "system" fn each(window: HWND, pids: LPARAM) -> BOOL {
+        let pids = unsafe { &*(pids.0 as *const Vec<u32>) };
+        let mut pid = 0;
+        unsafe { GetWindowThreadProcessId(window, Some(&mut pid)) };
+        if pids.contains(&pid) {
+            unsafe {
+                SendMessageTimeoutW(
+                    window,
+                    WM_ENDSESSION,
+                    WPARAM(1),
+                    LPARAM(ENDSESSION_CLOSEAPP),
+                    SMTO_ABORTIFHUNG,
+                    2000,
+                    None,
+                )
+            };
+        }
+        true.into()
+    }
+    let pids = pids.to_vec();
+    let _ = unsafe { EnumWindows(Some(each), LPARAM(&pids as *const Vec<u32> as isize)) };
+}
+
 #[cfg(unix)]
 fn native_process_path(pid: u32) -> Option<PathBuf> {
     #[cfg(target_os = "linux")]

@@ -118,11 +118,7 @@ pub(crate) async fn dispatch(host: &Host, request: &Value) -> Result<Response, P
         "login.start" => match host.provider.as_str() {
             "trae" | "traecn" => response(trae::start_login(trae_edition).await.map_err(failure)?),
             "claudecode" => response(oauth::start().map_err(failure)?),
-            "claudedesktop" => response(
-                desktop::start_login(host.app.clone())
-                    .await
-                    .map_err(failure)?,
-            ),
+            "claudedesktop" => response(desktop::start_login().await.map_err(failure)?),
             "workbuddy" | "workbuddyai" => {
                 response(work::start_login(work_edition).await.map_err(failure)?)
             }
@@ -139,11 +135,7 @@ pub(crate) async fn dispatch(host: &Host, request: &Value) -> Result<Response, P
         ),
         "login.poll" => match host.provider.as_str() {
             "trae" | "traecn" => response(trae::poll_login(login).await.map_err(failure)?),
-            "claudedesktop" => response(
-                desktop::poll_login(&host.app, login)
-                    .await
-                    .map_err(failure)?,
-            ),
+            "claudedesktop" => response(desktop::poll_login(login).await.map_err(failure)?),
             "workbuddy" | "workbuddyai" => {
                 response(work::poll_login(login).await.map_err(failure)?)
             }
@@ -158,7 +150,7 @@ pub(crate) async fn dispatch(host: &Host, request: &Value) -> Result<Response, P
             match host.provider.as_str() {
                 "trae" | "traecn" => trae::cancel_login(login),
                 "claudecode" => oauth::cancel(login),
-                "claudedesktop" => desktop::cancel_login(&host.app, login).await,
+                "claudedesktop" => desktop::cancel_login(login).await,
                 "workbuddy" | "workbuddyai" => work::cancel_login(login),
                 _ => doubao::cancel_login(&host.app, login),
             }
@@ -185,7 +177,7 @@ pub(crate) async fn dispatch(host: &Host, request: &Value) -> Result<Response, P
                     .map_err(failure)?,
             ),
             "claudecode" => response(code::refresh(id).await.map_err(failure)?),
-            "claudedesktop" => response(desktop::refresh(&host.app, id).await.map_err(failure)?),
+            "claudedesktop" => response(desktop::refresh(id).await.map_err(failure)?),
             "workbuddy" | "workbuddyai" => {
                 response(work::refresh(work_edition, id).await.map_err(failure)?)
             }
