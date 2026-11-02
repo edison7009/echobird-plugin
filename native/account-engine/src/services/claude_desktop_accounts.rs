@@ -438,30 +438,27 @@ fn auth_config(config: &Value) -> BTreeMap<String, Value> {
         })
         .collect()
 }
-/// Saves the account Claude Desktop is signed in to. Its identity is checked
-/// first, while Claude Desktop may still run. Its cookie store is locked while
-/// it runs, so Claude Desktop is then quit, read, and opened again.
+/// Saves the account Claude Desktop is signed in to and changes nothing else.
+/// Its cookie store is locked while it runs, so the user closes it first.
 pub async fn start_login() -> Result<LoginStart, String> {
     let dir = data_dir()?;
     cookie_path(&dir)?;
-    let config = native_config(&dir)?;
-    let uuid = signed_in_account(&config).ok_or("accountError.noAccount")?;
-    let token = oauth::access_token(&dir, &auth_config(&config), &uuid, "")?;
-    let profile = oauth::profile(&token).await?;
-    let closed = super::process_manager::quit_desktop_for_account("claudedesktop").await?;
-    let result = finish_snapshot(&dir, &uuid, profile).await;
-    // EchoBird closed the client, so it reopens it whatever the outcome.
-    if closed {
-        let reopened = super::process_manager::reopen_desktop_for_account("claudedesktop");
-        if result.is_ok() {
-            reopened?;
-        }
+    let uuid = signed_in_account(&native_config(&dir)?).ok_or("accountError.noAccount")?;
+    if super::process_manager::desktop_tool_is_running("claudedesktop").await? {
+        return Err("accountError.closeClient".into());
     }
+    let (snapshot, org) = read_signed_in(&dir, &uuid)?;
+    let token = oauth::access_token(&dir, &snapshot.config, &uuid, &org)?;
+    let profile = oauth::profile(&token).await?;
+    let account = {
+        let _guard = ACCOUNT_LOCK.lock().await;
+        store_snapshot(&store_path()?, &uuid, &org, snapshot, &profile)?
+    };
     let login_id = uuid::Uuid::new_v4().to_string();
     *PENDING.lock().map_err(|_| "accountError.busy")? = Some((
         login_id.clone(),
         LoginPoll {
-            account: Some(result?),
+            account: Some(account),
             ..Default::default()
         },
     ));
@@ -469,18 +466,6 @@ pub async fn start_login() -> Result<LoginStart, String> {
         login_id,
         expires_at: chrono::Utc::now().timestamp() + 60,
     })
-}
-async fn finish_snapshot(dir: &Path, uuid: &str, profile: Value) -> Result<Account, String> {
-    let (snapshot, org) = read_signed_in(dir, uuid)?;
-    // The token read earlier may belong to another of the account's
-    // organizations; describe the organization the session uses.
-    let profile = if profile["organization"]["uuid"].as_str() == Some(org.as_str()) {
-        profile
-    } else {
-        oauth::profile(&oauth::access_token(dir, &snapshot.config, uuid, &org)?).await?
-    };
-    let _guard = ACCOUNT_LOCK.lock().await;
-    store_snapshot(&store_path()?, uuid, &org, snapshot, &profile)
 }
 /// Reads the closed client's sign-in as `uuid` and the organization it uses.
 fn read_signed_in(dir: &Path, uuid: &str) -> Result<(Snapshot, String), String> {

@@ -46,7 +46,7 @@ fn owns(tool: &str, path: &Path) -> bool {
     if tool == "claudedesktop" {
         return claude_desktop_windows_process(
             path,
-            super::tool_manager::get_tool_exe_path(tool).as_deref(),
+            desktop_executable(tool).as_deref(),
             super::tool_manager::get_tool_launch_uri(tool).as_deref(),
         );
     }
@@ -183,41 +183,24 @@ pub async fn quit_desktop_for_account(tool: &str) -> Result<bool, String> {
     Ok(true)
 }
 
-/// Opens a desktop client again after an account operation closed it. The
-/// system shell starts it, so it does not belong to this worker's process
-/// tree and keeps running when EchoBird exits.
-pub fn reopen_desktop_for_account(tool: &str) -> Result<(), String> {
-    let executable = super::tool_manager::get_tool_exe_path(tool);
-    #[cfg(windows)]
-    {
-        let target = executable
-            .or_else(|| super::tool_manager::get_tool_launch_uri(tool))
-            .ok_or("accountError.failed")?;
-        crate::utils::process::command("explorer.exe")
-            .arg(target)
-            .spawn()
-            .map_err(|_| "accountError.failed")?;
-    }
-    #[cfg(target_os = "macos")]
-    {
-        let executable = executable.ok_or("accountError.failed")?;
-        let bundle = Path::new(&executable)
-            .ancestors()
-            .find(|path| path.extension().is_some_and(|extension| extension == "app"))
-            .ok_or("accountError.failed")?
-            .to_path_buf();
-        crate::utils::process::command("open")
-            .arg(bundle)
-            .spawn()
-            .map_err(|_| "accountError.failed")?;
-    }
-    #[cfg(all(unix, not(target_os = "macos")))]
-    {
-        crate::utils::process::command(executable.ok_or("accountError.failed")?)
-            .spawn()
-            .map_err(|_| "accountError.failed")?;
-    }
-    Ok(())
+/// The client's executable. EchoBird builds up to 6.1.4 can report Claude Code
+/// for Claude Desktop, because PATH finds its CLI under the same file name.
+fn desktop_executable(tool: &str) -> Option<String> {
+    super::tool_manager::get_tool_exe_path(tool)
+        .filter(|path| tool != "claudedesktop" || is_claude_desktop_install(Path::new(path)))
+}
+
+/// Claude Desktop's installs carry their Electron runtime or updater; the
+/// single-file Claude Code CLI has neither.
+fn is_claude_desktop_install(path: &Path) -> bool {
+    let beside = |name: &str| path.parent().is_some_and(|dir| dir.join(name).exists());
+    path.ancestors()
+        .any(|dir| dir.extension().is_some_and(|extension| extension == "app"))
+        || path
+            .file_stem()
+            .is_some_and(|name| name.eq_ignore_ascii_case("claude-desktop"))
+        || beside("resources")
+        || beside("Update.exe")
 }
 
 /// Sends the end-of-session message to every top-level window of `pids`.
@@ -320,6 +303,31 @@ fn claude_desktop_windows_process(
 
 #[cfg(test)]
 mod tests {
+    #[test]
+    fn the_claude_code_cli_is_never_taken_for_claude_desktop() {
+        use super::is_claude_desktop_install;
+        use std::path::Path;
+        let root = std::env::temp_dir().join(format!("echobird-claude-{}", uuid::Uuid::new_v4()));
+        let [cli, squirrel, packaged] = ["bin", "squirrel", "packaged"].map(|name| root.join(name));
+        std::fs::create_dir_all(&cli).unwrap();
+        std::fs::create_dir_all(&squirrel).unwrap();
+        std::fs::create_dir_all(packaged.join("resources")).unwrap();
+        std::fs::write(squirrel.join("Update.exe"), "").unwrap();
+        assert!(!is_claude_desktop_install(&cli.join("claude.exe")));
+        assert!(is_claude_desktop_install(&squirrel.join("Claude.exe")));
+        assert!(is_claude_desktop_install(&packaged.join("Claude.exe")));
+        assert!(is_claude_desktop_install(Path::new(
+            "/Applications/Claude.app/Contents/MacOS/Claude"
+        )));
+        assert!(is_claude_desktop_install(Path::new(
+            "/usr/bin/claude-desktop"
+        )));
+        assert!(!is_claude_desktop_install(Path::new(
+            "/usr/local/bin/claude"
+        )));
+        std::fs::remove_dir_all(&root).unwrap();
+    }
+
     #[test]
     fn claude_desktop_shutdown_excludes_standalone_cli_and_supports_store_and_squirrel() {
         use super::claude_desktop_windows_process;
