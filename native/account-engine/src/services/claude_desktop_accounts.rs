@@ -97,6 +97,8 @@ pub struct LoginPoll {
     account: Option<Account>,
     awaiting_client_exit: bool,
     expires_at: Option<i64>,
+    /// The sign-in was removed from this device for the next account.
+    cleared: bool,
 }
 
 /// Claude Desktop's data folder. The Microsoft Store app kept it in its
@@ -230,13 +232,7 @@ fn native_config(dir: &Path) -> Result<Value, String> {
 fn snapshot(dir: &Path) -> Result<Snapshot, String> {
     let config = native_config(dir)?;
     let db = cookie_db(dir, false)?;
-    let cookie_version = db
-        .query_row("SELECT value FROM meta WHERE key='version'", [], |r| {
-            r.get::<_, String>(0)
-        })
-        .ok()
-        .and_then(|s| s.parse::<i64>().ok())
-        .unwrap_or(0);
+    let cookie_version = cookie_version(&db);
     Ok(Snapshot {
         cookies: cookies(&db)?,
         config: auth_config(&config),
@@ -477,17 +473,24 @@ pub async fn start_login(next: bool) -> Result<LoginStart, String> {
     let token = oauth::access_token(&dir, &snapshot.config, &uuid, &org)?;
     let profile = oauth::profile(&token).await?;
     let account = {
+        // Switches write the same files; the client may also have been
+        // reopened during the profile request.
         let _guard = ACCOUNT_LOCK.lock().await;
-        store_snapshot(&store_path()?, &uuid, &org, snapshot, &profile)?
+        if next {
+            require_closed().await?;
+        }
+        let account = store_snapshot(&store_path()?, &uuid, &org, snapshot, &profile, !next)?;
+        if next {
+            clear_sign_in(&dir)?;
+        }
+        account
     };
-    if next {
-        clear_sign_in(&dir)?;
-    }
     let login_id = uuid::Uuid::new_v4().to_string();
     *PENDING.lock().map_err(|_| "accountError.busy")? = Some((
         login_id.clone(),
         LoginPoll {
             account: Some(account),
+            cleared: next,
             ..Default::default()
         },
     ));
@@ -496,16 +499,19 @@ pub async fn start_login(next: bool) -> Result<LoginStart, String> {
         expires_at: chrono::Utc::now().timestamp() + 60,
     })
 }
+/// The cookie store's schema version; 24 added host-bound cookie values.
+fn cookie_version(db: &Connection) -> i64 {
+    db.query_row("SELECT value FROM meta WHERE key='version'", [], |r| {
+        r.get::<_, String>(0)
+    })
+    .ok()
+    .and_then(|s| s.parse::<i64>().ok())
+    .unwrap_or(0)
+}
 /// Removes the closed client's sign-in locally, leaving the session valid.
 fn clear_sign_in(dir: &Path) -> Result<(), String> {
     let mut db = cookie_db(dir, true)?;
-    let cookie_version = db
-        .query_row("SELECT value FROM meta WHERE key='version'", [], |r| {
-            r.get::<_, String>(0)
-        })
-        .ok()
-        .and_then(|s| s.parse::<i64>().ok())
-        .unwrap_or(0);
+    let cookie_version = cookie_version(&db);
     let nothing = Snapshot {
         cookies: Vec::new(),
         config: BTreeMap::new(),
@@ -531,13 +537,14 @@ fn read_signed_in(dir: &Path, uuid: &str) -> Result<(Snapshot, String), String> 
         .insert("lastKnownAccountUuid".into(), json!(uuid));
     Ok((snapshot, org))
 }
-/// Saves a sign-in described by `profile` as the active account.
+/// Saves a sign-in described by `profile`; `active` while the device keeps it.
 fn store_snapshot(
     store_path: &Path,
     uuid: &str,
     org: &str,
     snapshot: Snapshot,
     profile: &Value,
+    active: bool,
 ) -> Result<Account, String> {
     let mut account = oauth::account_from_profile(profile, uuid, org)?;
     let mut store = load_store_at(store_path)?;
@@ -545,7 +552,7 @@ fn store_snapshot(
         account.five_hour = previous.account.five_hour.clone();
         account.seven_day = previous.account.seven_day.clone();
     }
-    account.active = true;
+    account.active = active;
     for saved in store.values_mut() {
         saved.account.active = false;
     }
@@ -579,13 +586,7 @@ pub async fn cancel_login(id: &str) -> Result<(), String> {
     Ok(())
 }
 fn restore(db: &mut Connection, config_path: &Path, snapshot: &Snapshot) -> Result<(), String> {
-    let version = db
-        .query_row("SELECT value FROM meta WHERE key='version'", [], |r| {
-            r.get::<_, String>(0)
-        })
-        .ok()
-        .and_then(|s| s.parse::<i64>().ok())
-        .unwrap_or(0);
+    let version = cookie_version(db);
     if (version >= 24) != (snapshot.cookie_version >= 24) {
         return Err("accountError.format".into());
     }
@@ -1202,7 +1203,7 @@ mod tests {
         let before = std::fs::read(dir.join("Cookies")).unwrap();
         let (snapshot, read_org) = read_signed_in(&dir, uuid).unwrap();
         assert_eq!(read_org, org);
-        let account = store_snapshot(&store_path, uuid, org, snapshot, &profile).unwrap();
+        let account = store_snapshot(&store_path, uuid, org, snapshot, &profile, true).unwrap();
         assert_eq!(account.id, account_id(uuid, org));
         assert_eq!(account.plan.as_deref(), Some("Pro"));
         assert!(account.active);
