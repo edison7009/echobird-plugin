@@ -118,7 +118,11 @@ pub(crate) async fn dispatch(host: &Host, request: &Value) -> Result<Response, P
         "login.start" => match host.provider.as_str() {
             "trae" | "traecn" => response(trae::start_login(trae_edition).await.map_err(failure)?),
             "claudecode" => response(oauth::start().map_err(failure)?),
-            "claudedesktop" => response(desktop::start_login().await.map_err(failure)?),
+            "claudedesktop" => response(
+                desktop::start_login(input["next"].as_bool().unwrap_or(false))
+                    .await
+                    .map_err(failure)?,
+            ),
             "workbuddy" | "workbuddyai" => {
                 response(work::start_login(work_edition).await.map_err(failure)?)
             }

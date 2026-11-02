@@ -261,6 +261,17 @@ fn primary_cookie<'a>(snapshot: &'a Snapshot, name: &str) -> Option<&'a Cookie> 
             )
         })
 }
+/// Claude Desktop reads `sessionKey` and falls back to the newer names, and
+/// `lastActiveOrg` before the sign-in page's copy.
+fn first_cookie<'a>(snapshot: &'a Snapshot, names: &[&str]) -> Option<&'a Cookie> {
+    names.iter().find_map(|name| primary_cookie(snapshot, name))
+}
+fn session_cookie(snapshot: &Snapshot) -> Option<&Cookie> {
+    first_cookie(snapshot, &["sessionKey", "sessionKeyV3", "sessionKeyV2"])
+}
+fn organization_cookie(snapshot: &Snapshot) -> Option<&Cookie> {
+    first_cookie(snapshot, &["lastActiveOrg", "authLastActiveOrg"])
+}
 fn cookie_value(version: i64, cookie: &Cookie, cipher: &Cipher) -> Result<String, String> {
     if version == browser::COOKIE_VERSION {
         return browser::value(cookie);
@@ -290,10 +301,8 @@ fn cookie_value(version: i64, cookie: &Cookie, cipher: &Cipher) -> Result<String
     String::from_utf8(bytes.to_vec()).map_err(|_| "accountError.format".into())
 }
 fn session_values(dir: &Path, snapshot: &Snapshot) -> Result<(String, String), String> {
-    let session_cookie =
-        primary_cookie(snapshot, "sessionKey").ok_or("accountError.loginRequired")?;
-    let org_cookie =
-        primary_cookie(snapshot, "lastActiveOrg").ok_or("accountError.loginRequired")?;
+    let session_cookie = session_cookie(snapshot).ok_or("accountError.loginRequired")?;
+    let org_cookie = organization_cookie(snapshot).ok_or("accountError.loginRequired")?;
     let browser = snapshot.cookie_version == browser::COOKIE_VERSION;
     let plain = [session_cookie, org_cookie]
         .iter()
@@ -385,8 +394,8 @@ fn set_usage(account: &mut Account, body: &Value) -> Result<(), String> {
     Ok(())
 }
 fn fingerprint(snapshot: &Snapshot) -> Option<String> {
-    primary_cookie(snapshot, "sessionKey").map(|c| {
-        let fields = [Some(c), primary_cookie(snapshot, "lastActiveOrg")]
+    session_cookie(snapshot).map(|c| {
+        let fields = [Some(c), organization_cookie(snapshot)]
             .into_iter()
             .flat_map(|c| {
                 ["host_key", "name", "path", "value", "encrypted_value"]
@@ -456,7 +465,10 @@ async fn require_closed() -> Result<(), String> {
     Ok(())
 }
 /// Saves the account Claude Desktop is signed in to and changes nothing else.
-pub async fn start_login() -> Result<LoginStart, String> {
+/// With `next`, it then removes that sign-in from this device so the next
+/// account can sign in. Signing out inside Claude Desktop would instead revoke
+/// the session on the server and end the saved snapshot.
+pub async fn start_login(next: bool) -> Result<LoginStart, String> {
     let dir = data_dir()?;
     cookie_path(&dir)?;
     let uuid = signed_in_account(&native_config(&dir)?).ok_or("accountError.noAccount")?;
@@ -468,6 +480,9 @@ pub async fn start_login() -> Result<LoginStart, String> {
         let _guard = ACCOUNT_LOCK.lock().await;
         store_snapshot(&store_path()?, &uuid, &org, snapshot, &profile)?
     };
+    if next {
+        clear_sign_in(&dir)?;
+    }
     let login_id = uuid::Uuid::new_v4().to_string();
     *PENDING.lock().map_err(|_| "accountError.busy")? = Some((
         login_id.clone(),
@@ -480,6 +495,23 @@ pub async fn start_login() -> Result<LoginStart, String> {
         login_id,
         expires_at: chrono::Utc::now().timestamp() + 60,
     })
+}
+/// Removes the closed client's sign-in locally, leaving the session valid.
+fn clear_sign_in(dir: &Path) -> Result<(), String> {
+    let mut db = cookie_db(dir, true)?;
+    let cookie_version = db
+        .query_row("SELECT value FROM meta WHERE key='version'", [], |r| {
+            r.get::<_, String>(0)
+        })
+        .ok()
+        .and_then(|s| s.parse::<i64>().ok())
+        .unwrap_or(0);
+    let nothing = Snapshot {
+        cookies: Vec::new(),
+        config: BTreeMap::new(),
+        cookie_version,
+    };
+    restore(&mut db, &dir.join("config.json"), &nothing)
 }
 /// Reads the closed client's sign-in as `uuid` and the organization it uses.
 fn read_signed_in(dir: &Path, uuid: &str) -> Result<(Snapshot, String), String> {
@@ -1298,5 +1330,60 @@ mod tests {
         assert_eq!(token(&store, "live"), json!("new"));
         remember_live(&mut store, "target", None);
         assert_eq!(token(&store, "live"), json!("new"));
+    }
+
+    #[test]
+    fn newer_session_cookie_names_count_as_signed_in() {
+        let uuid = "11111111-1111-4111-8111-111111111111";
+        let org = "22222222-2222-4222-8222-222222222222";
+        let config = json!({"lastKnownAccountUuid": uuid, "oauth:tokenCacheV2": "sealed"});
+        for (session, organization) in [
+            ("sessionKeyV3", "lastActiveOrg"),
+            ("sessionKeyV2", "lastActiveOrg"),
+            ("sessionKey", "authLastActiveOrg"),
+        ] {
+            let dir = snapshot_dir(config.clone(), Some(org));
+            let db = cookie_db(&dir, true).unwrap();
+            db.execute(
+                "UPDATE cookies SET name=?1 WHERE host_key='.claude.ai' AND name='sessionKey'",
+                [session],
+            )
+            .unwrap();
+            db.execute(
+                "UPDATE cookies SET name=?1 WHERE name='lastActiveOrg'",
+                [organization],
+            )
+            .unwrap();
+            drop(db);
+            let (snapshot, read_org) = read_signed_in(&dir, uuid).unwrap();
+            assert_eq!(read_org, org);
+            assert!(fingerprint(&snapshot).is_some());
+            std::fs::remove_dir_all(&dir).unwrap();
+        }
+    }
+
+    #[test]
+    fn clearing_a_sign_in_keeps_everything_else_on_the_device() {
+        let uuid = "11111111-1111-4111-8111-111111111111";
+        let org = "22222222-2222-4222-8222-222222222222";
+        let dir = snapshot_dir(
+            json!({"locale": "ja", "lastKnownAccountUuid": uuid, "oauth:tokenCache": "a", "oauth:tokenCacheV2": "b"}),
+            Some(org),
+        );
+        clear_sign_in(&dir).unwrap();
+        let config = native_config(&dir).unwrap();
+        assert_eq!(config, json!({"locale": "ja"}));
+        assert!(signed_in_account(&config).is_none());
+        let db = cookie_db(&dir, false).unwrap();
+        let left: Vec<String> = db
+            .prepare("SELECT host_key||'/'||name FROM cookies ORDER BY 1")
+            .unwrap()
+            .query_map([], |row| row.get(0))
+            .unwrap()
+            .collect::<Result<_, _>>()
+            .unwrap();
+        assert_eq!(left, [".claude.ai/theme", "example.test/sessionKey"]);
+        drop(db);
+        std::fs::remove_dir_all(&dir).unwrap();
     }
 }
