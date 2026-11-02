@@ -102,7 +102,9 @@ pub struct LoginPoll {
 /// Claude Desktop's data folder. The Microsoft Store app kept it in its
 /// package folder and, since October 2026, keeps it in
 /// `%LOCALAPPDATA%\Claude-Data\claude_<publisher>`; the direct download uses
-/// `%APPDATA%\Claude`. The folder whose config.json changed last is in use.
+/// `%APPDATA%\Claude`. Old folders can stay behind without a web session, so
+/// among folders with a cookie store, the one whose config.json changed last
+/// is in use.
 pub(crate) fn data_dir() -> Result<PathBuf, String> {
     let default = dirs::config_dir()
         .map(|p| p.join("Claude"))
@@ -123,7 +125,13 @@ pub(crate) fn data_dir() -> Result<PathBuf, String> {
         }
     }
     candidates.push(default.clone());
-    Ok(newest_config_dir(candidates).unwrap_or(default))
+    Ok(usable_data_dir(candidates).unwrap_or(default))
+}
+fn usable_data_dir(candidates: Vec<PathBuf>) -> Option<PathBuf> {
+    let (signed_in, others): (Vec<_>, Vec<_>) = candidates
+        .into_iter()
+        .partition(|dir| cookie_path(dir).is_ok());
+    newest_config_dir(signed_in).or_else(|| newest_config_dir(others))
 }
 fn newest_config_dir(candidates: Vec<PathBuf>) -> Option<PathBuf> {
     candidates
@@ -438,18 +446,25 @@ fn auth_config(config: &Value) -> BTreeMap<String, Value> {
         })
         .collect()
 }
-/// Saves the account Claude Desktop is signed in to and changes nothing else.
-/// Its cookie store is locked while it runs, so the user closes it first.
+/// Saves the account Claude Desktop is signed in to. Its identity is checked
+/// first, while Claude Desktop may still run. Its cookie store is locked while
+/// it runs, so Claude Desktop is then quit and stays closed.
 pub async fn start_login() -> Result<LoginStart, String> {
     let dir = data_dir()?;
     cookie_path(&dir)?;
-    let uuid = signed_in_account(&native_config(&dir)?).ok_or("accountError.noAccount")?;
-    if super::process_manager::desktop_tool_is_running("claudedesktop").await? {
-        return Err("accountError.closeClient".into());
-    }
-    let (snapshot, org) = read_signed_in(&dir, &uuid)?;
-    let token = oauth::access_token(&dir, &snapshot.config, &uuid, &org)?;
+    let config = native_config(&dir)?;
+    let uuid = signed_in_account(&config).ok_or("accountError.noAccount")?;
+    let token = oauth::access_token(&dir, &auth_config(&config), &uuid, "")?;
     let profile = oauth::profile(&token).await?;
+    super::process_manager::quit_desktop_for_account("claudedesktop").await?;
+    let (snapshot, org) = read_signed_in(&dir, &uuid)?;
+    // The token may belong to another of the account's organizations;
+    // describe the organization the session uses.
+    let profile = if profile["organization"]["uuid"].as_str() == Some(org.as_str()) {
+        profile
+    } else {
+        oauth::profile(&oauth::access_token(&dir, &snapshot.config, &uuid, &org)?).await?
+    };
     let account = {
         let _guard = ACCOUNT_LOCK.lock().await;
         store_snapshot(&store_path()?, &uuid, &org, snapshot, &profile)?
@@ -1230,6 +1245,14 @@ mod tests {
             Some(new.clone())
         );
         assert_eq!(newest_config_dir(vec![empty.clone()]), None);
+        // A newer config.json without a web session is a folder left behind.
+        std::fs::create_dir(old.join("Network")).unwrap();
+        std::fs::write(old.join("Network/Cookies"), "").unwrap();
+        assert_eq!(
+            usable_data_dir(vec![new.clone(), old.clone()]),
+            Some(old.clone())
+        );
+        assert_eq!(usable_data_dir(vec![new.clone()]), Some(new.clone()));
         std::fs::remove_dir_all(&root).unwrap();
     }
 
