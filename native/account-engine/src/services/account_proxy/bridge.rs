@@ -33,6 +33,10 @@ use tokio_util::sync::CancellationToken;
 use super::protocol::{ChatDecoder, WireProtocol};
 use super::{json_response, stream_response, ProxyError};
 
+const WARM_UP_MODEL: &str = "haiku";
+const WARM_UP_PROMPT: &str = "hi";
+const WARM_UP_TIMEOUT: Duration = Duration::from_secs(60);
+
 type Registry = BTreeMap<String, Weak<Run>>;
 static RUNS: OnceLock<Mutex<Registry>> = OnceLock::new();
 fn runs() -> &'static Mutex<Registry> {
@@ -329,7 +333,11 @@ fn command(credentials: &Value, dir: &TempDir) -> Result<tokio::process::Command
                 "Install Claude Code before using its account proxy",
             )
         })?;
-    let mut command = crate::utils::process::async_command(&executable);
+    Ok(client_command(&executable, credentials, dir))
+}
+
+fn client_command(executable: &str, credentials: &Value, dir: &TempDir) -> tokio::process::Command {
+    let mut command = crate::utils::process::async_command(executable);
     command
         .current_dir(&dir.0)
         .env("CLAUDE_CONFIG_DIR", &dir.0)
@@ -375,7 +383,60 @@ fn command(credentials: &Value, dir: &TempDir) -> Result<tokio::process::Command
         "",
         "--no-session-persistence",
     ]);
-    Ok(command)
+    command
+}
+
+/// Whether a finished warm-up turn counts, as an account error key on failure.
+fn warm_up_result(value: &Value) -> Result<(), String> {
+    if !value["is_error"].as_bool().unwrap_or(false) {
+        return Ok(());
+    }
+    Err(match value["api_error_status"].as_u64() {
+        Some(401) => "accountError.loginRequired|HTTP 401".into(),
+        Some(403) => "accountError.denied|HTTP 403".into(),
+        Some(429) => "accountError.rateLimited|HTTP 429".into(),
+        Some(status @ 500..=599) => format!("accountError.unavailable|HTTP {status}"),
+        _ => "accountError.failed".into(),
+    })
+}
+
+/// Sends one short message through the official client so the subscription
+/// starts its usage window. The temporary profile leaves the signed-in client alone.
+pub(super) async fn warm_up(credentials: &Value, executable: &str) -> Result<(), String> {
+    fn failed(_: impl std::fmt::Debug) -> String {
+        "accountError.failed".into()
+    }
+    owner(credentials).map_err(|_| "accountError.loginRequired".to_string())?;
+    let dir = TempDir::new().map_err(failed)?;
+    let mut command = client_command(executable, credentials, &dir);
+    command.args([
+        "--model",
+        WARM_UP_MODEL,
+        "--max-turns",
+        "1",
+        "--mcp-config",
+        "{\"mcpServers\":{}}",
+    ]);
+    let mut child = OwnedChild::new(command.spawn().map_err(failed)?).map_err(failed)?;
+    let mut stdin = child.stdin.take().expect("piped stdin");
+    let prompt = json!({"type":"user","message":{"role":"user","content":WARM_UP_PROMPT},"parent_tool_use_id":null});
+    let sent = stdin.write_all(format!("{prompt}\n").as_bytes()).await;
+    let mut stdout = BufReader::new(child.stdout.take().expect("piped stdout")).lines();
+    let read = async {
+        sent.map_err(failed)?;
+        while let Some(line) = stdout.next_line().await.map_err(failed)? {
+            let value: Value = serde_json::from_str(&line).map_err(failed)?;
+            if value["type"] == "result" {
+                return warm_up_result(&value);
+            }
+        }
+        Err("accountError.failed".to_string())
+    };
+    let result = tokio::time::timeout(WARM_UP_TIMEOUT, read)
+        .await
+        .unwrap_or_else(|_| Err("accountError.network".into()));
+    child.stop().await;
+    result
 }
 
 pub(super) async fn list_models(credentials: Value) -> Result<Vec<String>, ProxyError> {
@@ -1755,6 +1816,35 @@ mod tests {
     #[tokio::test]
     async fn dropped_continuation_cancels_delivered_handoff_while_waiting_for_ack() {
         failed_control_fixture(true).await;
+    }
+
+    #[test]
+    fn warm_up_reads_the_outcome_from_the_is_error_field() {
+        let success = json!({"type":"result","subtype":"success","is_error":false});
+        assert!(warm_up_result(&success).is_ok());
+        // A failed turn still reports the success subtype.
+        let cases = [
+            (401, "accountError.loginRequired|HTTP 401"),
+            (403, "accountError.denied|HTTP 403"),
+            (429, "accountError.rateLimited|HTTP 429"),
+            (529, "accountError.unavailable|HTTP 529"),
+        ];
+        for (status, expected) in cases {
+            let failed = json!({"subtype":"success","is_error":true,"api_error_status":status});
+            assert_eq!(warm_up_result(&failed).unwrap_err(), expected);
+        }
+        assert_eq!(
+            warm_up_result(&json!({"is_error":true})).unwrap_err(),
+            "accountError.failed"
+        );
+    }
+
+    #[tokio::test]
+    async fn warm_up_without_a_token_never_starts_the_client() {
+        let error = warm_up(&json!({"accountId":"fixture"}), "fixture-never-executed")
+            .await
+            .unwrap_err();
+        assert_eq!(error, "accountError.loginRequired");
     }
 
     #[tokio::test]

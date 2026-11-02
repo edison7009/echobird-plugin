@@ -187,6 +187,16 @@ pub(crate) async fn dispatch(host: &Host, request: &Value) -> Result<Response, P
             }
             _ => response(doubao::refresh(doubao_edition, id).await.map_err(failure)?),
         },
+        "account.warmup" => {
+            let executable = text(input, "executable")?;
+            match host.provider.as_str() {
+                "claudecode" => response(code::warm_up(id, executable).await.map_err(failure)?),
+                "claudedesktop" => {
+                    response(desktop::warm_up(id, executable).await.map_err(failure)?)
+                }
+                _ => Err(failure("accountError.unavailable".into())),
+            }
+        }
         "account.claim" => match host.provider.as_str() {
             "trae" | "traecn" => {
                 response(trae::claim_daily(trae_edition, id).await.map_err(failure)?)

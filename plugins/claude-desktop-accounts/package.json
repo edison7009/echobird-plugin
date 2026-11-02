@@ -41,6 +41,7 @@
             "login.poll",
             "login.cancel",
             "account.refresh",
+            "account.warmup",
             "account.apply",
             "account.remove",
             "history.merge"

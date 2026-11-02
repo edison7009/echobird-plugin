@@ -11,6 +11,8 @@ const LOGIN_REQUIRED: &str = "accountError.loginRequired";
 const TOKEN_URL: &str = "https://platform.claude.com/v1/oauth/token";
 const LOCK_STALE: Duration = Duration::from_secs(60);
 const LOCK_WAIT: Duration = Duration::from_secs(10);
+const WARM_UP_CONFIRMATIONS: usize = 3;
+const WARM_UP_PAUSE: Duration = Duration::from_secs(2);
 pub(super) static ACCOUNT_LOCK: tokio::sync::Mutex<()> = tokio::sync::Mutex::const_new(());
 
 /// The directory locks Claude Code holds while it rotates tokens. Refresh tokens
@@ -617,6 +619,55 @@ pub async fn refresh(id: &str) -> Result<ClaudeCodeAccount, String> {
     Ok(account.summary)
 }
 
+fn window_running(account: &ClaudeCodeAccount) -> bool {
+    account
+        .five_hour
+        .as_ref()
+        .and_then(|window| window.reset_at)
+        .is_some_and(|reset_at| reset_at > chrono::Utc::now().timestamp())
+}
+
+/// Shared by Claude Code and Claude Desktop accounts: both draw on one subscription.
+pub(super) async fn warm_up_with<R, RF, S, SF>(
+    refresh: R,
+    send: S,
+    pause: Duration,
+) -> Result<ClaudeCodeAccount, String>
+where
+    R: Fn() -> RF,
+    RF: std::future::Future<Output = Result<ClaudeCodeAccount, String>>,
+    S: FnOnce() -> SF,
+    SF: std::future::Future<Output = Result<(), String>>,
+{
+    // A running window keeps its end time, so a message would only spend quota.
+    let mut latest = refresh().await;
+    if latest.as_ref().is_ok_and(window_running) {
+        return latest;
+    }
+    send().await?;
+    // Usage can lag behind the message that started the window.
+    for _ in 0..WARM_UP_CONFIRMATIONS {
+        tokio::time::sleep(pause).await;
+        latest = refresh().await.or(latest);
+        if latest.as_ref().is_ok_and(window_running) {
+            break;
+        }
+    }
+    latest
+}
+
+pub async fn warm_up(id: &str, executable: &str) -> Result<ClaudeCodeAccount, String> {
+    warm_up_with(
+        || refresh(id),
+        || async {
+            let credentials = proxy_credentials(id, false).await?;
+            super::account_proxy::warm_up_claude(&credentials, executable).await
+        },
+        WARM_UP_PAUSE,
+    )
+    .await
+}
+
 pub async fn delete(id: &str) -> Result<(), String> {
     let _guard = ACCOUNT_LOCK.lock().await;
     let path = account_path(&store()?, id)?;
@@ -629,6 +680,102 @@ pub async fn delete(id: &str) -> Result<(), String> {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    fn warm_up_fixture(reset_at: Option<i64>) -> ClaudeCodeAccount {
+        ClaudeCodeAccount {
+            id: "fixture".into(),
+            email: "fixture@example.test".into(),
+            plan: Some("Max".into()),
+            five_hour: Some(ClaudeCodeQuota {
+                remaining_percent: 100,
+                reset_at,
+            }),
+            seven_day: None,
+            active: false,
+        }
+    }
+
+    /// Runs a warm-up against scripted usage reads; returns the outcome, the
+    /// number of reads and whether a message was sent.
+    async fn warm_up_run(
+        reads: Vec<Result<ClaudeCodeAccount, String>>,
+        send: Result<(), String>,
+    ) -> (Result<ClaudeCodeAccount, String>, usize, bool) {
+        let reads = std::sync::Mutex::new(reads);
+        let count = std::sync::atomic::AtomicUsize::new(0);
+        let sent = std::sync::atomic::AtomicBool::new(false);
+        let result = warm_up_with(
+            || {
+                count.fetch_add(1, std::sync::atomic::Ordering::SeqCst);
+                let next = reads.lock().unwrap().remove(0);
+                async move { next }
+            },
+            || {
+                sent.store(true, std::sync::atomic::Ordering::SeqCst);
+                async move { send }
+            },
+            Duration::ZERO,
+        )
+        .await;
+        (result, count.into_inner(), sent.into_inner())
+    }
+
+    #[tokio::test]
+    async fn warming_a_running_window_sends_nothing() {
+        let running = chrono::Utc::now().timestamp() + 3600;
+        let (result, reads, sent) =
+            warm_up_run(vec![Ok(warm_up_fixture(Some(running)))], Ok(())).await;
+        assert_eq!(result.unwrap().five_hour.unwrap().reset_at, Some(running));
+        assert_eq!(reads, 1);
+        assert!(!sent);
+    }
+
+    #[tokio::test]
+    async fn warming_an_idle_account_waits_for_the_window_to_appear() {
+        let started = chrono::Utc::now().timestamp() + 18_000;
+        let (result, reads, sent) = warm_up_run(
+            vec![
+                Ok(warm_up_fixture(None)),
+                Ok(warm_up_fixture(None)),
+                Ok(warm_up_fixture(Some(started))),
+            ],
+            Ok(()),
+        )
+        .await;
+        assert_eq!(result.unwrap().five_hour.unwrap().reset_at, Some(started));
+        assert_eq!(reads, 3);
+        assert!(sent);
+    }
+
+    #[tokio::test]
+    async fn a_finished_window_counts_as_idle() {
+        let ended = chrono::Utc::now().timestamp() - 60;
+        let (_, _, sent) = warm_up_run(
+            vec![
+                Ok(warm_up_fixture(Some(ended))),
+                Ok(warm_up_fixture(None)),
+                Ok(warm_up_fixture(None)),
+                Ok(warm_up_fixture(None)),
+            ],
+            Ok(()),
+        )
+        .await;
+        assert!(sent);
+    }
+
+    #[tokio::test]
+    async fn unreadable_usage_still_warms_and_a_failed_message_is_reported() {
+        let error = || Err::<ClaudeCodeAccount, _>("accountError.rateLimited|HTTP 429".to_string());
+        let started = chrono::Utc::now().timestamp() + 18_000;
+        let (result, _, sent) =
+            warm_up_run(vec![error(), Ok(warm_up_fixture(Some(started)))], Ok(())).await;
+        assert!(sent);
+        assert!(result.is_ok());
+        let (result, reads, _) =
+            warm_up_run(vec![error()], Err("accountError.failed".into())).await;
+        assert_eq!(result.err().unwrap(), "accountError.failed");
+        assert_eq!(reads, 1);
+    }
 
     #[tokio::test]
     async fn proxy_reads_only_saved_credentials_and_serializes_own_store_rotation() {

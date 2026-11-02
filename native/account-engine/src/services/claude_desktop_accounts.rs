@@ -33,6 +33,7 @@ const AUTH_CONFIG: &[&str] = &[
     "oauth:tokenCacheV2",
 ];
 static ACCOUNT_LOCK: tokio::sync::Mutex<()> = tokio::sync::Mutex::const_new(());
+const WARM_UP_PAUSE: std::time::Duration = std::time::Duration::from_secs(2);
 /// A finished snapshot waiting for the next poll of its attempt.
 static PENDING: std::sync::Mutex<Option<(String, LoginPoll)>> = std::sync::Mutex::new(None);
 
@@ -723,7 +724,8 @@ fn remember_live(store: &mut Store, target: &str, live: Option<(String, String, 
         }
     }
 }
-pub async fn refresh(id: &str) -> Result<Account, String> {
+/// The account's identity and a token from its newest sign-in.
+async fn saved_token(id: &str) -> Result<(String, String, String), String> {
     let (dir, config, uuid, org) = {
         let _guard = ACCOUNT_LOCK.lock().await;
         let store = load_store()?;
@@ -748,6 +750,10 @@ pub async fn refresh(id: &str) -> Result<Account, String> {
             error
         }
     })?;
+    Ok((uuid, org, token))
+}
+pub async fn refresh(id: &str) -> Result<Account, String> {
+    let (uuid, org, token) = saved_token(id).await?;
     let mut account = oauth::account_from_profile(&oauth::profile(&token).await?, &uuid, &org)?;
     if account.id != id {
         return Err("accountError.authResponse".into());
@@ -760,6 +766,41 @@ pub async fn refresh(id: &str) -> Result<Account, String> {
     saved.account = account.clone();
     write(&store_path()?, &store)?;
     Ok(account)
+}
+/// Saved sign-ins are never renewed here, so one left idle has no live token. The
+/// same account saved for Claude Code shares its id and keeps a renewable one.
+async fn warm_up_refresh(id: &str) -> Result<Account, String> {
+    let error = match refresh(id).await {
+        Ok(account) => return Ok(account),
+        Err(error) => error,
+    };
+    let usage = super::claude_code_accounts::refresh(id)
+        .await
+        .map_err(|_| error)?;
+    let _guard = ACCOUNT_LOCK.lock().await;
+    let mut store = load_store()?;
+    let saved = store.get_mut(id).ok_or("accountError.invalidAccount")?;
+    saved.account.five_hour = usage.five_hour;
+    saved.account.seven_day = usage.seven_day;
+    let account = saved.account.clone();
+    write(&store_path()?, &store)?;
+    Ok(account)
+}
+pub async fn warm_up(id: &str, executable: &str) -> Result<Account, String> {
+    super::claude_code_accounts::warm_up_with(
+        || warm_up_refresh(id),
+        || async {
+            let credentials = match saved_token(id).await {
+                Ok((_, _, token)) => json!({"accessToken":token,"accountId":id}),
+                Err(error) => super::claude_code_accounts::proxy_credentials(id, false)
+                    .await
+                    .map_err(|_| error)?,
+            };
+            super::account_proxy::warm_up_claude(&credentials, executable).await
+        },
+        WARM_UP_PAUSE,
+    )
+    .await
 }
 pub async fn delete(id: &str) -> Result<(), String> {
     let _guard = ACCOUNT_LOCK.lock().await;

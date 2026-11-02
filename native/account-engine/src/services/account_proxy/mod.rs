@@ -199,6 +199,9 @@ pub async fn route(
         _ => providers::route(provider, credentials, model, body, client).await,
     }
 }
+pub(crate) async fn warm_up_claude(credentials: &Value, executable: &str) -> Result<(), String> {
+    bridge::warm_up(credentials, executable).await
+}
 pub async fn list_models(
     provider: AccountProvider,
     credentials: Value,

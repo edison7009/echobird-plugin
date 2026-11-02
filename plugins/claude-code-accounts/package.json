@@ -41,6 +41,7 @@
             "login.complete",
             "login.cancel",
             "account.refresh",
+            "account.warmup",
             "account.apply",
             "account.remove",
             "models",
