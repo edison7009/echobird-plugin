@@ -1066,6 +1066,8 @@ mod tests {
             .is_empty());
     }
 
+    // macOS keeps these credentials in the login keychain, which a test must not touch.
+    #[cfg(not(target_os = "macos"))]
     #[tokio::test]
     async fn signed_in_account_shares_one_token_with_the_client() {
         use axum::{http::StatusCode, routing::any, Json, Router};
