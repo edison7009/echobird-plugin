@@ -20,6 +20,7 @@ for (const platform of ["windows", "macos", "linux"]) {
         : "bin/echobird-account-engine";
     assert.equal(manifest.version, `0.1.0-preview.4.${platform}.x64`);
     assert.deepEqual(manifest.echobird.platforms, [platform]);
+    assert.deepEqual(manifest.echobird.architectures, ["x64"]);
     assert.equal(manifest.echobird.worker.entry, entry);
     assert.ok(Buffer.from(files[entry]).equals(readFileSync(binary)));
     assert.deepEqual(

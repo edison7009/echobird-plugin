@@ -8,14 +8,17 @@ validated source through **Validate registry**.
 The artifact contains `windows-x64`, `macos-arm64`, `macos-x64`, `linux-arm64` and
 `linux-x64` folders. Use the folder matching the test computer. Versions append
 the platform and architecture, for example `0.1.0-preview.11.macos.arm64`.
-Each manifest declares only its target OS. Windows uses
+Each manifest declares its target OS and `echobird.architectures` (`x64` or
+`arm64`). Windows uses
 `bin/echobird-account-engine.exe`; macOS and Linux use
 `bin/echobird-account-engine`.
 
 The universal macOS executable currently exceeds the client's 20 MiB expanded
 package limit, so previews contain separate Apple silicon and Intel binaries.
-The client registry currently filters by OS, not CPU architecture. Do not merge
-both architectures into the public registry until selection is supported.
+These manifests require the EchoBird client with architecture filtering. Earlier
+clients reject the unknown extension field and skip these releases. Do not merge
+the new packages into the public registry until that client and the native
+verification are available.
 
 ## Test on a Mac
 

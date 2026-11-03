@@ -84,6 +84,13 @@
             "enum": ["windows", "macos", "linux"]
           }
         },
+        "architectures": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 2,
+          "uniqueItems": true,
+          "items": { "enum": ["x64", "arm64"] }
+        },
         "permissions": {
           "type": "array",
           "uniqueItems": true,
