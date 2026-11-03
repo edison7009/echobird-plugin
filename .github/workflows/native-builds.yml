@@ -1,0 +1,81 @@
+name: Native account module builds
+
+# Builds the account module for every desktop target EchoBird ships. The
+# binaries are workflow artifacts only: nothing here packages, indexes or
+# publishes a release, and the GitCode mirror does not wait for this workflow.
+on:
+  push:
+    branches: [main]
+    paths:
+      - "native/account-engine/**"
+      - ".github/workflows/native-builds.yml"
+  pull_request:
+    paths:
+      - "native/account-engine/**"
+      - ".github/workflows/native-builds.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: Build (${{ matrix.name }})
+    runs-on: ${{ matrix.runner }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: windows-x64
+            runner: windows-latest
+            target: x86_64-pc-windows-msvc
+          - name: macos-arm64
+            runner: macos-latest
+            target: aarch64-apple-darwin
+          - name: macos-x64
+            runner: macos-15-intel
+            target: x86_64-apple-darwin
+          - name: linux-x64
+            runner: ubuntu-24.04
+            target: x86_64-unknown-linux-gnu
+          - name: linux-arm64
+            runner: ubuntu-24.04-arm
+            target: aarch64-unknown-linux-gnu
+    env:
+      MANIFEST: native/account-engine/Cargo.toml
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
+        with:
+          persist-credentials: false
+      - run: rustup toolchain install 1.93 --profile minimal --component clippy --target ${{ matrix.target }}
+      - name: Install Linux build dependencies
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends libwebkit2gtk-4.1-dev libayatana-appindicator3-dev librsvg2-dev libssl-dev libgtk-3-dev libxkbcommon-dev
+      - name: Build
+        shell: bash
+        run: cargo +1.93 build --locked --release --manifest-path "$MANIFEST" --target ${{ matrix.target }}
+      - name: Collect binary
+        shell: bash
+        run: |
+          dir="native/account-engine/target/${{ matrix.target }}/release"
+          name=echobird-account-engine
+          if [ "$RUNNER_OS" = Windows ]; then name="$name.exe"; fi
+          mkdir -p dist
+          cp "$dir/$name" "dist/$name"
+          ls -l dist
+          if command -v sha256sum >/dev/null; then sha256sum "dist/$name"; else shasum -a 256 "dist/$name"; fi
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
+        with:
+          name: echobird-account-engine-${{ matrix.name }}
+          path: dist/
+          if-no-files-found: error
+          retention-days: 14
+      # Windows already runs clippy and tests in check.yml.
+      - name: Clippy
+        if: runner.os != 'Windows'
+        run: cargo +1.93 clippy --locked --manifest-path "$MANIFEST" --all-targets --all-features -- -D warnings
+      - name: Test
+        if: runner.os != 'Windows'
+        run: cargo +1.93 test --locked --manifest-path "$MANIFEST"
