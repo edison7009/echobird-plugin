@@ -1,17 +1,23 @@
 name: Native account module builds
 
 # Builds the account module for every desktop target EchoBird ships. The
-# binaries are workflow artifacts only: nothing here packages, indexes or
-# publishes a release, and the GitCode mirror does not wait for this workflow.
+# platform packages remain preview artifacts until native client verification.
+# The GitCode and CNB mirrors receive validated main through check.yml.
 on:
   push:
     branches: [main]
     paths:
       - "native/account-engine/**"
+      - "plugins/**"
+      - "scripts/package-*.mjs"
+      - "package-lock.json"
       - ".github/workflows/native-builds.yml"
   pull_request:
     paths:
       - "native/account-engine/**"
+      - "plugins/**"
+      - "scripts/package-*.mjs"
+      - "package-lock.json"
       - ".github/workflows/native-builds.yml"
   workflow_dispatch:
 
@@ -79,6 +85,38 @@ jobs:
       - name: Test
         if: runner.os != 'Windows'
         run: cargo +1.93 test --locked --manifest-path "$MANIFEST"
+
+  package-preview:
+    name: Package native account plugin previews
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38
+        with:
+          node-version: "24"
+          cache: npm
+      - run: npm ci --ignore-scripts --no-audit --no-fund
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333
+        with:
+          pattern: echobird-account-engine-*
+          path: artifacts
+      - name: Build platform packages
+        run: |
+          node scripts/package-native-plugins.mjs --platform windows --binary artifacts/echobird-account-engine-windows-x64/echobird-account-engine.exe --architecture x64
+          for platform in macos linux; do
+            for architecture in x64 arm64; do
+              node scripts/package-native-plugins.mjs --platform "$platform" --binary "artifacts/echobird-account-engine-$platform-$architecture/echobird-account-engine" --architecture "$architecture"
+            done
+          done
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
+        with:
+          name: echobird-native-account-plugin-previews
+          path: out/native-previews/
+          if-no-files-found: error
+          retention-days: 14
 
   # One macOS binary for Apple silicon and Intel Macs, since a package
   # declares an OS but not a CPU architecture.

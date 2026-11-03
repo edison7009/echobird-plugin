@@ -10,10 +10,19 @@ import { createHash } from "node:crypto";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { zipSync } from "fflate";
-import { validateLocalManifest, portablePath } from "./validate.mjs";
+import {
+  validateLocalManifest,
+  validateManifest,
+  portablePath,
+} from "./validate.mjs";
 
-export function packagePlugin(directory) {
-  const manifest = validateLocalManifest(path.join(directory, "package.json"));
+export function packagePlugin(directory, options = {}) {
+  const sourceManifest = validateLocalManifest(
+    path.join(directory, "package.json"),
+  );
+  const manifest = validateManifest(options.manifest ?? sourceManifest);
+  const replacements = options.replacements ?? new Map();
+  const omitted = options.omitted ?? new Set();
   const files = {};
   let total = 0;
   const walk = (folder, prefix = "") => {
@@ -27,6 +36,7 @@ export function packagePlugin(directory) {
         throw new Error("Plugin packages cannot contain links");
       if (stat.isDirectory()) walk(filename, relative + "/");
       else if (stat.isFile()) {
+        if (omitted.has(relative) || replacements.has(relative)) continue;
         let bytes = new Uint8Array(readFileSync(filename));
         if (
           /\.(?:html|css|js|mjs|json|svg|md|txt|ts)$/iu.test(name) ||
@@ -43,6 +53,14 @@ export function packagePlugin(directory) {
     }
   };
   walk(directory);
+  for (const [relative, content] of replacements) {
+    if (!portablePath(relative)) throw new Error("Non-portable package path");
+    const bytes = new Uint8Array(content);
+    total += bytes.length;
+    if (total > 20 * 1024 * 1024 || Object.keys(files).length >= 2000)
+      throw new Error("Plugin package exceeds runtime limits");
+    files[relative] = [bytes, { mtime: new Date(2020, 0, 1) }];
+  }
   const bytes = zipSync(files, { level: 9 });
   return {
     manifest,

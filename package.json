@@ -14,6 +14,7 @@
     "validate": "node scripts/validate.mjs",
     "build:index": "node scripts/build-index.mjs",
     "pack:reversi": "node scripts/package-plugin.mjs plugins/reversi",
+    "pack:native": "node scripts/package-native-plugins.mjs",
     "index:check": "node scripts/build-index.mjs --check",
     "test": "node --test",
     "check": "npm run format:check && npm run validate && npm run index:check && npm test",
