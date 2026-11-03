@@ -70,6 +70,11 @@ function checkSchema(name, value) {
 
 export function validateManifest(manifest) {
   checkSchema("plugin-manifest", manifest);
+  if (
+    (manifest.echobird.manifestVersion === 2) !==
+    (manifest.architectures !== undefined)
+  )
+    throw new Error("Architecture-specific packages require manifestVersion 2");
   const worker = manifest.echobird.worker;
   if (worker && worker.runtime !== "native" && !worker.entry.endsWith(".mjs"))
     throw new Error("Node account code entry must end in .mjs");

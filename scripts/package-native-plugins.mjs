@@ -26,7 +26,8 @@ export function packageNativePlugin(
     throw new Error("Unsupported architecture");
   manifest.version = `${source.version}.${platform}.${architecture}`;
   manifest.echobird.platforms = [platform];
-  manifest.echobird.architectures = [architecture];
+  manifest.architectures = [architecture];
+  manifest.echobird.manifestVersion = 2;
   manifest.echobird.worker.entry = entry;
   validateManifest(manifest);
   return packagePlugin(directory, {
