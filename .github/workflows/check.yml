@@ -77,3 +77,41 @@ jobs:
           git -c credential.helper= -c http.extraHeader= push \
             https://gitcode.com/edison7009/echobird-plugin.git \
             HEAD:refs/heads/main
+
+  mirror-cnb:
+    name: Mirror main to CNB
+    needs: [validate, native]
+    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    concurrency:
+      group: cnb-main
+      cancel-in-progress: false
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Push validated main
+        env:
+          CNB_TOKEN: ${{ secrets.CNB_TOKEN }}
+          GIT_TERMINAL_PROMPT: "0"
+        shell: bash
+        run: |
+          if [ -z "$CNB_TOKEN" ]; then
+            echo '::warning::Configure the CNB_TOKEN repository secret to mirror main to CNB.'
+            exit 0
+          fi
+          export GIT_ASKPASS="$RUNNER_TEMP/echobird-cnb-askpass.sh"
+          trap 'rm -f "$GIT_ASKPASS"' EXIT
+          cat > "$GIT_ASKPASS" <<'ASKPASS'
+          #!/bin/sh
+          case "$1" in
+            *Username*) printf '%s\n' 'cnb' ;;
+            *Password*) printf '%s\n' "$CNB_TOKEN" ;;
+            *) exit 1 ;;
+          esac
+          ASKPASS
+          chmod 700 "$GIT_ASKPASS"
+          git -c credential.helper= -c http.extraHeader= push \
+            https://cnb.cool/echobird/echobird-plugin.git \
+            HEAD:refs/heads/main

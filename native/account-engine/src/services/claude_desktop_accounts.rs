@@ -112,23 +112,29 @@ pub(crate) fn data_dir() -> Result<PathBuf, String> {
     let default = dirs::config_dir()
         .map(|p| p.join("Claude"))
         .ok_or("accountError.home")?;
-    #[allow(unused_mut)]
-    let mut candidates = Vec::new();
-    #[cfg(windows)]
-    {
-        if let Some(dir) = super::tool_manager::get_tool_launch_uri("claudedesktop")
-            .and_then(|uri| super::msix::roaming_data_dir(&uri, "Claude"))
-        {
-            candidates.push(dir);
-        }
-        if let Some(moved) = dirs::data_local_dir().map(|dir| dir.join("Claude-Data")) {
-            if let Ok(entries) = std::fs::read_dir(moved) {
-                candidates.extend(entries.flatten().map(|entry| entry.path()));
-            }
-        }
-    }
+    let mut candidates = store_data_dirs();
     candidates.push(default.clone());
     Ok(usable_data_dir(candidates).unwrap_or(default))
+}
+/// The Microsoft Store app's current and earlier data folders.
+#[cfg(windows)]
+fn store_data_dirs() -> Vec<PathBuf> {
+    let mut candidates = Vec::new();
+    if let Some(dir) = super::tool_manager::get_tool_launch_uri("claudedesktop")
+        .and_then(|uri| super::msix::roaming_data_dir(&uri, "Claude"))
+    {
+        candidates.push(dir);
+    }
+    if let Some(moved) = dirs::data_local_dir().map(|dir| dir.join("Claude-Data")) {
+        if let Ok(entries) = std::fs::read_dir(moved) {
+            candidates.extend(entries.flatten().map(|entry| entry.path()));
+        }
+    }
+    candidates
+}
+#[cfg(not(windows))]
+fn store_data_dirs() -> Vec<PathBuf> {
+    Vec::new()
 }
 fn usable_data_dir(candidates: Vec<PathBuf>) -> Option<PathBuf> {
     let (signed_in, others): (Vec<_>, Vec<_>) = candidates
