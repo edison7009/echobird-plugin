@@ -8,6 +8,276 @@
         "$schema": "https://raw.githubusercontent.com/edison7009/echobird-plugin/main/schemas/plugin-manifest.schema.json",
         "name": "dola-accounts",
         "publisher": "echobird-community",
+        "version": "0.1.0-preview.2.linux.x64",
+        "displayName": "Dola",
+        "description": "Dola 账号登录、切换及已有账号能力。Account capabilities for Dola.",
+        "license": "MIT",
+        "repository": "https://github.com/edison7009/echobird-plugin",
+        "icon": "icon.png",
+        "category": "account",
+        "echobird": {
+          "manifestVersion": 2,
+          "apiVersion": "0.1-draft",
+          "platforms": ["linux"],
+          "permissions": ["account.code"],
+          "worker": {
+            "runtime": "native",
+            "entry": "bin/echobird-account-engine"
+          },
+          "contributes": {
+            "pages": [],
+            "providers": [
+              {
+                "id": "dola",
+                "title": "Dola",
+                "applications": ["dola"],
+                "searchTerms": ["Dola", "dola"],
+                "operations": [
+                  "accounts",
+                  "login.start",
+                  "login.poll",
+                  "login.cancel",
+                  "account.refresh",
+                  "account.claim",
+                  "account.apply",
+                  "account.remove",
+                  "models",
+                  "proxy"
+                ]
+              }
+            ]
+          }
+        },
+        "architectures": ["x64"]
+      },
+      "commit": "59fb8b2dc62dea2cec25b372c5922808dc073b2f",
+      "sha256": "525ed6b3c82f7666d0d50cfc5dc0e489228e7a5e357b2d572269230768aac03d",
+      "downloads": {
+        "international": "https://raw.githubusercontent.com/edison7009/echobird-plugin/59fb8b2dc62dea2cec25b372c5922808dc073b2f/packages/echobird-community.dola-accounts-0.1.0-preview.2.linux.x64.zip",
+        "china": "https://api.gitcode.com/api/v5/repos/edison7009/echobird-plugin/raw/packages/echobird-community.dola-accounts-0.1.0-preview.2.linux.x64.zip"
+      }
+    },
+    {
+      "manifest": {
+        "$schema": "https://raw.githubusercontent.com/edison7009/echobird-plugin/main/schemas/plugin-manifest.schema.json",
+        "name": "dola-accounts",
+        "publisher": "echobird-community",
+        "version": "0.1.0-preview.2.linux.arm64",
+        "displayName": "Dola",
+        "description": "Dola 账号登录、切换及已有账号能力。Account capabilities for Dola.",
+        "license": "MIT",
+        "repository": "https://github.com/edison7009/echobird-plugin",
+        "icon": "icon.png",
+        "category": "account",
+        "echobird": {
+          "manifestVersion": 2,
+          "apiVersion": "0.1-draft",
+          "platforms": ["linux"],
+          "permissions": ["account.code"],
+          "worker": {
+            "runtime": "native",
+            "entry": "bin/echobird-account-engine"
+          },
+          "contributes": {
+            "pages": [],
+            "providers": [
+              {
+                "id": "dola",
+                "title": "Dola",
+                "applications": ["dola"],
+                "searchTerms": ["Dola", "dola"],
+                "operations": [
+                  "accounts",
+                  "login.start",
+                  "login.poll",
+                  "login.cancel",
+                  "account.refresh",
+                  "account.claim",
+                  "account.apply",
+                  "account.remove",
+                  "models",
+                  "proxy"
+                ]
+              }
+            ]
+          }
+        },
+        "architectures": ["arm64"]
+      },
+      "commit": "59fb8b2dc62dea2cec25b372c5922808dc073b2f",
+      "sha256": "e62f3fef51958f4a399fc34480ea8d773429d21b39b06023fcb2a9ad1445e9a3",
+      "downloads": {
+        "international": "https://raw.githubusercontent.com/edison7009/echobird-plugin/59fb8b2dc62dea2cec25b372c5922808dc073b2f/packages/echobird-community.dola-accounts-0.1.0-preview.2.linux.arm64.zip",
+        "china": "https://api.gitcode.com/api/v5/repos/edison7009/echobird-plugin/raw/packages/echobird-community.dola-accounts-0.1.0-preview.2.linux.arm64.zip"
+      }
+    },
+    {
+      "manifest": {
+        "$schema": "https://raw.githubusercontent.com/edison7009/echobird-plugin/main/schemas/plugin-manifest.schema.json",
+        "name": "dola-accounts",
+        "publisher": "echobird-community",
+        "version": "0.1.0-preview.2.macos.x64",
+        "displayName": "Dola",
+        "description": "Dola 账号登录、切换及已有账号能力。Account capabilities for Dola.",
+        "license": "MIT",
+        "repository": "https://github.com/edison7009/echobird-plugin",
+        "icon": "icon.png",
+        "category": "account",
+        "echobird": {
+          "manifestVersion": 2,
+          "apiVersion": "0.1-draft",
+          "platforms": ["macos"],
+          "permissions": ["account.code"],
+          "worker": {
+            "runtime": "native",
+            "entry": "bin/echobird-account-engine"
+          },
+          "contributes": {
+            "pages": [],
+            "providers": [
+              {
+                "id": "dola",
+                "title": "Dola",
+                "applications": ["dola"],
+                "searchTerms": ["Dola", "dola"],
+                "operations": [
+                  "accounts",
+                  "login.start",
+                  "login.poll",
+                  "login.cancel",
+                  "account.refresh",
+                  "account.claim",
+                  "account.apply",
+                  "account.remove",
+                  "models",
+                  "proxy"
+                ]
+              }
+            ]
+          }
+        },
+        "architectures": ["x64"]
+      },
+      "commit": "59fb8b2dc62dea2cec25b372c5922808dc073b2f",
+      "sha256": "d5c6a00a004c43b38ea945aee39f1651e0207e26d5e3f1576f199e2efefbd747",
+      "downloads": {
+        "international": "https://raw.githubusercontent.com/edison7009/echobird-plugin/59fb8b2dc62dea2cec25b372c5922808dc073b2f/packages/echobird-community.dola-accounts-0.1.0-preview.2.macos.x64.zip",
+        "china": "https://api.gitcode.com/api/v5/repos/edison7009/echobird-plugin/raw/packages/echobird-community.dola-accounts-0.1.0-preview.2.macos.x64.zip"
+      }
+    },
+    {
+      "manifest": {
+        "$schema": "https://raw.githubusercontent.com/edison7009/echobird-plugin/main/schemas/plugin-manifest.schema.json",
+        "name": "dola-accounts",
+        "publisher": "echobird-community",
+        "version": "0.1.0-preview.2.macos.arm64",
+        "displayName": "Dola",
+        "description": "Dola 账号登录、切换及已有账号能力。Account capabilities for Dola.",
+        "license": "MIT",
+        "repository": "https://github.com/edison7009/echobird-plugin",
+        "icon": "icon.png",
+        "category": "account",
+        "echobird": {
+          "manifestVersion": 2,
+          "apiVersion": "0.1-draft",
+          "platforms": ["macos"],
+          "permissions": ["account.code"],
+          "worker": {
+            "runtime": "native",
+            "entry": "bin/echobird-account-engine"
+          },
+          "contributes": {
+            "pages": [],
+            "providers": [
+              {
+                "id": "dola",
+                "title": "Dola",
+                "applications": ["dola"],
+                "searchTerms": ["Dola", "dola"],
+                "operations": [
+                  "accounts",
+                  "login.start",
+                  "login.poll",
+                  "login.cancel",
+                  "account.refresh",
+                  "account.claim",
+                  "account.apply",
+                  "account.remove",
+                  "models",
+                  "proxy"
+                ]
+              }
+            ]
+          }
+        },
+        "architectures": ["arm64"]
+      },
+      "commit": "59fb8b2dc62dea2cec25b372c5922808dc073b2f",
+      "sha256": "7b2740d4d45b6cc563396ad2b9410d6a2a766b41e8506027171af841a7a40804",
+      "downloads": {
+        "international": "https://raw.githubusercontent.com/edison7009/echobird-plugin/59fb8b2dc62dea2cec25b372c5922808dc073b2f/packages/echobird-community.dola-accounts-0.1.0-preview.2.macos.arm64.zip",
+        "china": "https://api.gitcode.com/api/v5/repos/edison7009/echobird-plugin/raw/packages/echobird-community.dola-accounts-0.1.0-preview.2.macos.arm64.zip"
+      }
+    },
+    {
+      "manifest": {
+        "$schema": "https://raw.githubusercontent.com/edison7009/echobird-plugin/main/schemas/plugin-manifest.schema.json",
+        "name": "dola-accounts",
+        "publisher": "echobird-community",
+        "version": "0.1.0-preview.2.windows.x64",
+        "displayName": "Dola",
+        "description": "Dola 账号登录、切换及已有账号能力。Account capabilities for Dola.",
+        "license": "MIT",
+        "repository": "https://github.com/edison7009/echobird-plugin",
+        "icon": "icon.png",
+        "category": "account",
+        "echobird": {
+          "manifestVersion": 2,
+          "apiVersion": "0.1-draft",
+          "platforms": ["windows"],
+          "permissions": ["account.code"],
+          "worker": {
+            "runtime": "native",
+            "entry": "bin/echobird-account-engine.exe"
+          },
+          "contributes": {
+            "pages": [],
+            "providers": [
+              {
+                "id": "dola",
+                "title": "Dola",
+                "applications": ["dola"],
+                "searchTerms": ["Dola", "dola"],
+                "operations": [
+                  "accounts",
+                  "login.start",
+                  "login.poll",
+                  "login.cancel",
+                  "account.refresh",
+                  "account.claim",
+                  "account.apply",
+                  "account.remove",
+                  "models",
+                  "proxy"
+                ]
+              }
+            ]
+          }
+        },
+        "architectures": ["x64"]
+      },
+      "commit": "59fb8b2dc62dea2cec25b372c5922808dc073b2f",
+      "sha256": "a325fe347a143248c96c70f49256363379d75439689fc39a114c93a959ba79e0",
+      "downloads": {
+        "international": "https://raw.githubusercontent.com/edison7009/echobird-plugin/59fb8b2dc62dea2cec25b372c5922808dc073b2f/packages/echobird-community.dola-accounts-0.1.0-preview.2.windows.x64.zip",
+        "china": "https://api.gitcode.com/api/v5/repos/edison7009/echobird-plugin/raw/packages/echobird-community.dola-accounts-0.1.0-preview.2.windows.x64.zip"
+      }
+    },
+    {
+      "manifest": {
+        "$schema": "https://raw.githubusercontent.com/edison7009/echobird-plugin/main/schemas/plugin-manifest.schema.json",
+        "name": "dola-accounts",
+        "publisher": "echobird-community",
         "version": "0.1.0-preview.1.linux.x64",
         "displayName": "Dola",
         "description": "Dola 账号登录、切换及已有账号能力。Account capabilities for Dola.",

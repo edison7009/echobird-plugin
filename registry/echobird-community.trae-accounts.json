@@ -8,6 +8,281 @@
         "$schema": "https://raw.githubusercontent.com/edison7009/echobird-plugin/main/schemas/plugin-manifest.schema.json",
         "name": "trae-accounts",
         "publisher": "echobird-community",
+        "version": "0.1.0-preview.3.linux.x64",
+        "displayName": "Trae",
+        "description": "Trae 账号登录、切换、智能接入和语音接入。Account capabilities for Trae.",
+        "license": "MIT",
+        "repository": "https://github.com/edison7009/echobird-plugin",
+        "icon": "icon.svg",
+        "category": "account",
+        "echobird": {
+          "manifestVersion": 2,
+          "apiVersion": "0.1-draft",
+          "platforms": ["linux"],
+          "permissions": ["account.code"],
+          "worker": {
+            "runtime": "native",
+            "entry": "bin/echobird-account-engine"
+          },
+          "contributes": {
+            "pages": [],
+            "providers": [
+              {
+                "id": "trae",
+                "title": "Trae",
+                "applications": ["trae"],
+                "searchTerms": ["Trae", "trae"],
+                "operations": [
+                  "accounts",
+                  "login.start",
+                  "login.poll",
+                  "login.cancel",
+                  "account.refresh",
+                  "account.claim",
+                  "account.apply",
+                  "account.remove",
+                  "models",
+                  "proxy",
+                  "voice"
+                ]
+              }
+            ]
+          }
+        },
+        "architectures": ["x64"]
+      },
+      "commit": "59fb8b2dc62dea2cec25b372c5922808dc073b2f",
+      "sha256": "f5be817c10af8cfdd6e9d42ca7d954d5b520f8ec0041c1206fbf835e80cbfad8",
+      "downloads": {
+        "international": "https://raw.githubusercontent.com/edison7009/echobird-plugin/59fb8b2dc62dea2cec25b372c5922808dc073b2f/packages/echobird-community.trae-accounts-0.1.0-preview.3.linux.x64.zip",
+        "china": "https://api.gitcode.com/api/v5/repos/edison7009/echobird-plugin/raw/packages/echobird-community.trae-accounts-0.1.0-preview.3.linux.x64.zip"
+      }
+    },
+    {
+      "manifest": {
+        "$schema": "https://raw.githubusercontent.com/edison7009/echobird-plugin/main/schemas/plugin-manifest.schema.json",
+        "name": "trae-accounts",
+        "publisher": "echobird-community",
+        "version": "0.1.0-preview.3.linux.arm64",
+        "displayName": "Trae",
+        "description": "Trae 账号登录、切换、智能接入和语音接入。Account capabilities for Trae.",
+        "license": "MIT",
+        "repository": "https://github.com/edison7009/echobird-plugin",
+        "icon": "icon.svg",
+        "category": "account",
+        "echobird": {
+          "manifestVersion": 2,
+          "apiVersion": "0.1-draft",
+          "platforms": ["linux"],
+          "permissions": ["account.code"],
+          "worker": {
+            "runtime": "native",
+            "entry": "bin/echobird-account-engine"
+          },
+          "contributes": {
+            "pages": [],
+            "providers": [
+              {
+                "id": "trae",
+                "title": "Trae",
+                "applications": ["trae"],
+                "searchTerms": ["Trae", "trae"],
+                "operations": [
+                  "accounts",
+                  "login.start",
+                  "login.poll",
+                  "login.cancel",
+                  "account.refresh",
+                  "account.claim",
+                  "account.apply",
+                  "account.remove",
+                  "models",
+                  "proxy",
+                  "voice"
+                ]
+              }
+            ]
+          }
+        },
+        "architectures": ["arm64"]
+      },
+      "commit": "59fb8b2dc62dea2cec25b372c5922808dc073b2f",
+      "sha256": "0224e9400176a810f5af50cc30db646406a03403df190db8c5c8be1a0ecf5dbc",
+      "downloads": {
+        "international": "https://raw.githubusercontent.com/edison7009/echobird-plugin/59fb8b2dc62dea2cec25b372c5922808dc073b2f/packages/echobird-community.trae-accounts-0.1.0-preview.3.linux.arm64.zip",
+        "china": "https://api.gitcode.com/api/v5/repos/edison7009/echobird-plugin/raw/packages/echobird-community.trae-accounts-0.1.0-preview.3.linux.arm64.zip"
+      }
+    },
+    {
+      "manifest": {
+        "$schema": "https://raw.githubusercontent.com/edison7009/echobird-plugin/main/schemas/plugin-manifest.schema.json",
+        "name": "trae-accounts",
+        "publisher": "echobird-community",
+        "version": "0.1.0-preview.3.macos.x64",
+        "displayName": "Trae",
+        "description": "Trae 账号登录、切换、智能接入和语音接入。Account capabilities for Trae.",
+        "license": "MIT",
+        "repository": "https://github.com/edison7009/echobird-plugin",
+        "icon": "icon.svg",
+        "category": "account",
+        "echobird": {
+          "manifestVersion": 2,
+          "apiVersion": "0.1-draft",
+          "platforms": ["macos"],
+          "permissions": ["account.code"],
+          "worker": {
+            "runtime": "native",
+            "entry": "bin/echobird-account-engine"
+          },
+          "contributes": {
+            "pages": [],
+            "providers": [
+              {
+                "id": "trae",
+                "title": "Trae",
+                "applications": ["trae"],
+                "searchTerms": ["Trae", "trae"],
+                "operations": [
+                  "accounts",
+                  "login.start",
+                  "login.poll",
+                  "login.cancel",
+                  "account.refresh",
+                  "account.claim",
+                  "account.apply",
+                  "account.remove",
+                  "models",
+                  "proxy",
+                  "voice"
+                ]
+              }
+            ]
+          }
+        },
+        "architectures": ["x64"]
+      },
+      "commit": "59fb8b2dc62dea2cec25b372c5922808dc073b2f",
+      "sha256": "a1851a25653f2ffadc8755d8a118df4a30192b325da68a2d39c6203bd03d763b",
+      "downloads": {
+        "international": "https://raw.githubusercontent.com/edison7009/echobird-plugin/59fb8b2dc62dea2cec25b372c5922808dc073b2f/packages/echobird-community.trae-accounts-0.1.0-preview.3.macos.x64.zip",
+        "china": "https://api.gitcode.com/api/v5/repos/edison7009/echobird-plugin/raw/packages/echobird-community.trae-accounts-0.1.0-preview.3.macos.x64.zip"
+      }
+    },
+    {
+      "manifest": {
+        "$schema": "https://raw.githubusercontent.com/edison7009/echobird-plugin/main/schemas/plugin-manifest.schema.json",
+        "name": "trae-accounts",
+        "publisher": "echobird-community",
+        "version": "0.1.0-preview.3.macos.arm64",
+        "displayName": "Trae",
+        "description": "Trae 账号登录、切换、智能接入和语音接入。Account capabilities for Trae.",
+        "license": "MIT",
+        "repository": "https://github.com/edison7009/echobird-plugin",
+        "icon": "icon.svg",
+        "category": "account",
+        "echobird": {
+          "manifestVersion": 2,
+          "apiVersion": "0.1-draft",
+          "platforms": ["macos"],
+          "permissions": ["account.code"],
+          "worker": {
+            "runtime": "native",
+            "entry": "bin/echobird-account-engine"
+          },
+          "contributes": {
+            "pages": [],
+            "providers": [
+              {
+                "id": "trae",
+                "title": "Trae",
+                "applications": ["trae"],
+                "searchTerms": ["Trae", "trae"],
+                "operations": [
+                  "accounts",
+                  "login.start",
+                  "login.poll",
+                  "login.cancel",
+                  "account.refresh",
+                  "account.claim",
+                  "account.apply",
+                  "account.remove",
+                  "models",
+                  "proxy",
+                  "voice"
+                ]
+              }
+            ]
+          }
+        },
+        "architectures": ["arm64"]
+      },
+      "commit": "59fb8b2dc62dea2cec25b372c5922808dc073b2f",
+      "sha256": "e51c06920151446fee43806882be4f502041dcbbde5409ea17153da9af0d6f5c",
+      "downloads": {
+        "international": "https://raw.githubusercontent.com/edison7009/echobird-plugin/59fb8b2dc62dea2cec25b372c5922808dc073b2f/packages/echobird-community.trae-accounts-0.1.0-preview.3.macos.arm64.zip",
+        "china": "https://api.gitcode.com/api/v5/repos/edison7009/echobird-plugin/raw/packages/echobird-community.trae-accounts-0.1.0-preview.3.macos.arm64.zip"
+      }
+    },
+    {
+      "manifest": {
+        "$schema": "https://raw.githubusercontent.com/edison7009/echobird-plugin/main/schemas/plugin-manifest.schema.json",
+        "name": "trae-accounts",
+        "publisher": "echobird-community",
+        "version": "0.1.0-preview.3.windows.x64",
+        "displayName": "Trae",
+        "description": "Trae 账号登录、切换、智能接入和语音接入。Account capabilities for Trae.",
+        "license": "MIT",
+        "repository": "https://github.com/edison7009/echobird-plugin",
+        "icon": "icon.svg",
+        "category": "account",
+        "echobird": {
+          "manifestVersion": 2,
+          "apiVersion": "0.1-draft",
+          "platforms": ["windows"],
+          "permissions": ["account.code"],
+          "worker": {
+            "runtime": "native",
+            "entry": "bin/echobird-account-engine.exe"
+          },
+          "contributes": {
+            "pages": [],
+            "providers": [
+              {
+                "id": "trae",
+                "title": "Trae",
+                "applications": ["trae"],
+                "searchTerms": ["Trae", "trae"],
+                "operations": [
+                  "accounts",
+                  "login.start",
+                  "login.poll",
+                  "login.cancel",
+                  "account.refresh",
+                  "account.claim",
+                  "account.apply",
+                  "account.remove",
+                  "models",
+                  "proxy",
+                  "voice"
+                ]
+              }
+            ]
+          }
+        },
+        "architectures": ["x64"]
+      },
+      "commit": "59fb8b2dc62dea2cec25b372c5922808dc073b2f",
+      "sha256": "5cbde42fd0049b3d6efe4ab5743b4b0e8e735de6e06877cc03208dcf41a87330",
+      "downloads": {
+        "international": "https://raw.githubusercontent.com/edison7009/echobird-plugin/59fb8b2dc62dea2cec25b372c5922808dc073b2f/packages/echobird-community.trae-accounts-0.1.0-preview.3.windows.x64.zip",
+        "china": "https://api.gitcode.com/api/v5/repos/edison7009/echobird-plugin/raw/packages/echobird-community.trae-accounts-0.1.0-preview.3.windows.x64.zip"
+      }
+    },
+    {
+      "manifest": {
+        "$schema": "https://raw.githubusercontent.com/edison7009/echobird-plugin/main/schemas/plugin-manifest.schema.json",
+        "name": "trae-accounts",
+        "publisher": "echobird-community",
         "version": "0.1.0-preview.2.linux.x64",
         "displayName": "Trae",
         "description": "Trae 账号登录、切换、智能接入和语音接入。Account capabilities for Trae.",

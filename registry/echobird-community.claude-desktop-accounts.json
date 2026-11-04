@@ -8,6 +8,271 @@
         "$schema": "https://raw.githubusercontent.com/edison7009/echobird-plugin/main/schemas/plugin-manifest.schema.json",
         "name": "claude-desktop-accounts",
         "publisher": "echobird-community",
+        "version": "0.1.0-preview.12.linux.x64",
+        "displayName": "Claude Desktop",
+        "description": "Claude Desktop 账号登录、切换及已有账号能力。Account capabilities for Claude Desktop.",
+        "license": "MIT",
+        "repository": "https://github.com/edison7009/echobird-plugin",
+        "icon": "icon.svg",
+        "category": "account",
+        "echobird": {
+          "manifestVersion": 2,
+          "apiVersion": "0.1-draft",
+          "platforms": ["linux"],
+          "permissions": ["account.code"],
+          "worker": {
+            "runtime": "native",
+            "entry": "bin/echobird-account-engine"
+          },
+          "contributes": {
+            "pages": [],
+            "providers": [
+              {
+                "id": "claudedesktop",
+                "title": "Claude Desktop",
+                "applications": ["claudedesktop"],
+                "searchTerms": ["Claude Desktop", "claudedesktop"],
+                "operations": [
+                  "accounts",
+                  "login.start",
+                  "login.poll",
+                  "login.cancel",
+                  "account.refresh",
+                  "account.warmup",
+                  "account.apply",
+                  "account.remove",
+                  "history.merge"
+                ]
+              }
+            ]
+          }
+        },
+        "architectures": ["x64"]
+      },
+      "commit": "59fb8b2dc62dea2cec25b372c5922808dc073b2f",
+      "sha256": "0eb3ca21487a3cad5882c5937772f22739dda438c42f321a78ea303ff650fcbf",
+      "downloads": {
+        "international": "https://raw.githubusercontent.com/edison7009/echobird-plugin/59fb8b2dc62dea2cec25b372c5922808dc073b2f/packages/echobird-community.claude-desktop-accounts-0.1.0-preview.12.linux.x64.zip",
+        "china": "https://api.gitcode.com/api/v5/repos/edison7009/echobird-plugin/raw/packages/echobird-community.claude-desktop-accounts-0.1.0-preview.12.linux.x64.zip"
+      }
+    },
+    {
+      "manifest": {
+        "$schema": "https://raw.githubusercontent.com/edison7009/echobird-plugin/main/schemas/plugin-manifest.schema.json",
+        "name": "claude-desktop-accounts",
+        "publisher": "echobird-community",
+        "version": "0.1.0-preview.12.linux.arm64",
+        "displayName": "Claude Desktop",
+        "description": "Claude Desktop 账号登录、切换及已有账号能力。Account capabilities for Claude Desktop.",
+        "license": "MIT",
+        "repository": "https://github.com/edison7009/echobird-plugin",
+        "icon": "icon.svg",
+        "category": "account",
+        "echobird": {
+          "manifestVersion": 2,
+          "apiVersion": "0.1-draft",
+          "platforms": ["linux"],
+          "permissions": ["account.code"],
+          "worker": {
+            "runtime": "native",
+            "entry": "bin/echobird-account-engine"
+          },
+          "contributes": {
+            "pages": [],
+            "providers": [
+              {
+                "id": "claudedesktop",
+                "title": "Claude Desktop",
+                "applications": ["claudedesktop"],
+                "searchTerms": ["Claude Desktop", "claudedesktop"],
+                "operations": [
+                  "accounts",
+                  "login.start",
+                  "login.poll",
+                  "login.cancel",
+                  "account.refresh",
+                  "account.warmup",
+                  "account.apply",
+                  "account.remove",
+                  "history.merge"
+                ]
+              }
+            ]
+          }
+        },
+        "architectures": ["arm64"]
+      },
+      "commit": "59fb8b2dc62dea2cec25b372c5922808dc073b2f",
+      "sha256": "ac7660242c25d36136f6ec7ebea187ccf486da1c5894c2b7da834e9d9f6eee44",
+      "downloads": {
+        "international": "https://raw.githubusercontent.com/edison7009/echobird-plugin/59fb8b2dc62dea2cec25b372c5922808dc073b2f/packages/echobird-community.claude-desktop-accounts-0.1.0-preview.12.linux.arm64.zip",
+        "china": "https://api.gitcode.com/api/v5/repos/edison7009/echobird-plugin/raw/packages/echobird-community.claude-desktop-accounts-0.1.0-preview.12.linux.arm64.zip"
+      }
+    },
+    {
+      "manifest": {
+        "$schema": "https://raw.githubusercontent.com/edison7009/echobird-plugin/main/schemas/plugin-manifest.schema.json",
+        "name": "claude-desktop-accounts",
+        "publisher": "echobird-community",
+        "version": "0.1.0-preview.12.macos.x64",
+        "displayName": "Claude Desktop",
+        "description": "Claude Desktop 账号登录、切换及已有账号能力。Account capabilities for Claude Desktop.",
+        "license": "MIT",
+        "repository": "https://github.com/edison7009/echobird-plugin",
+        "icon": "icon.svg",
+        "category": "account",
+        "echobird": {
+          "manifestVersion": 2,
+          "apiVersion": "0.1-draft",
+          "platforms": ["macos"],
+          "permissions": ["account.code"],
+          "worker": {
+            "runtime": "native",
+            "entry": "bin/echobird-account-engine"
+          },
+          "contributes": {
+            "pages": [],
+            "providers": [
+              {
+                "id": "claudedesktop",
+                "title": "Claude Desktop",
+                "applications": ["claudedesktop"],
+                "searchTerms": ["Claude Desktop", "claudedesktop"],
+                "operations": [
+                  "accounts",
+                  "login.start",
+                  "login.poll",
+                  "login.cancel",
+                  "account.refresh",
+                  "account.warmup",
+                  "account.apply",
+                  "account.remove",
+                  "history.merge"
+                ]
+              }
+            ]
+          }
+        },
+        "architectures": ["x64"]
+      },
+      "commit": "59fb8b2dc62dea2cec25b372c5922808dc073b2f",
+      "sha256": "1a4d58f8f99b1fbb64ac8530ea7a6b37c6ca750f3ff9edaaeb6b9e47af81d535",
+      "downloads": {
+        "international": "https://raw.githubusercontent.com/edison7009/echobird-plugin/59fb8b2dc62dea2cec25b372c5922808dc073b2f/packages/echobird-community.claude-desktop-accounts-0.1.0-preview.12.macos.x64.zip",
+        "china": "https://api.gitcode.com/api/v5/repos/edison7009/echobird-plugin/raw/packages/echobird-community.claude-desktop-accounts-0.1.0-preview.12.macos.x64.zip"
+      }
+    },
+    {
+      "manifest": {
+        "$schema": "https://raw.githubusercontent.com/edison7009/echobird-plugin/main/schemas/plugin-manifest.schema.json",
+        "name": "claude-desktop-accounts",
+        "publisher": "echobird-community",
+        "version": "0.1.0-preview.12.macos.arm64",
+        "displayName": "Claude Desktop",
+        "description": "Claude Desktop 账号登录、切换及已有账号能力。Account capabilities for Claude Desktop.",
+        "license": "MIT",
+        "repository": "https://github.com/edison7009/echobird-plugin",
+        "icon": "icon.svg",
+        "category": "account",
+        "echobird": {
+          "manifestVersion": 2,
+          "apiVersion": "0.1-draft",
+          "platforms": ["macos"],
+          "permissions": ["account.code"],
+          "worker": {
+            "runtime": "native",
+            "entry": "bin/echobird-account-engine"
+          },
+          "contributes": {
+            "pages": [],
+            "providers": [
+              {
+                "id": "claudedesktop",
+                "title": "Claude Desktop",
+                "applications": ["claudedesktop"],
+                "searchTerms": ["Claude Desktop", "claudedesktop"],
+                "operations": [
+                  "accounts",
+                  "login.start",
+                  "login.poll",
+                  "login.cancel",
+                  "account.refresh",
+                  "account.warmup",
+                  "account.apply",
+                  "account.remove",
+                  "history.merge"
+                ]
+              }
+            ]
+          }
+        },
+        "architectures": ["arm64"]
+      },
+      "commit": "59fb8b2dc62dea2cec25b372c5922808dc073b2f",
+      "sha256": "d0bf5131c3349390125834cf8013d2b6e38b7e6e0248979910217335323771a3",
+      "downloads": {
+        "international": "https://raw.githubusercontent.com/edison7009/echobird-plugin/59fb8b2dc62dea2cec25b372c5922808dc073b2f/packages/echobird-community.claude-desktop-accounts-0.1.0-preview.12.macos.arm64.zip",
+        "china": "https://api.gitcode.com/api/v5/repos/edison7009/echobird-plugin/raw/packages/echobird-community.claude-desktop-accounts-0.1.0-preview.12.macos.arm64.zip"
+      }
+    },
+    {
+      "manifest": {
+        "$schema": "https://raw.githubusercontent.com/edison7009/echobird-plugin/main/schemas/plugin-manifest.schema.json",
+        "name": "claude-desktop-accounts",
+        "publisher": "echobird-community",
+        "version": "0.1.0-preview.12.windows.x64",
+        "displayName": "Claude Desktop",
+        "description": "Claude Desktop 账号登录、切换及已有账号能力。Account capabilities for Claude Desktop.",
+        "license": "MIT",
+        "repository": "https://github.com/edison7009/echobird-plugin",
+        "icon": "icon.svg",
+        "category": "account",
+        "echobird": {
+          "manifestVersion": 2,
+          "apiVersion": "0.1-draft",
+          "platforms": ["windows"],
+          "permissions": ["account.code"],
+          "worker": {
+            "runtime": "native",
+            "entry": "bin/echobird-account-engine.exe"
+          },
+          "contributes": {
+            "pages": [],
+            "providers": [
+              {
+                "id": "claudedesktop",
+                "title": "Claude Desktop",
+                "applications": ["claudedesktop"],
+                "searchTerms": ["Claude Desktop", "claudedesktop"],
+                "operations": [
+                  "accounts",
+                  "login.start",
+                  "login.poll",
+                  "login.cancel",
+                  "account.refresh",
+                  "account.warmup",
+                  "account.apply",
+                  "account.remove",
+                  "history.merge"
+                ]
+              }
+            ]
+          }
+        },
+        "architectures": ["x64"]
+      },
+      "commit": "59fb8b2dc62dea2cec25b372c5922808dc073b2f",
+      "sha256": "cd72989440031ed51b984def8655d2e2746102b18c9308580c8481eedfc86bdb",
+      "downloads": {
+        "international": "https://raw.githubusercontent.com/edison7009/echobird-plugin/59fb8b2dc62dea2cec25b372c5922808dc073b2f/packages/echobird-community.claude-desktop-accounts-0.1.0-preview.12.windows.x64.zip",
+        "china": "https://api.gitcode.com/api/v5/repos/edison7009/echobird-plugin/raw/packages/echobird-community.claude-desktop-accounts-0.1.0-preview.12.windows.x64.zip"
+      }
+    },
+    {
+      "manifest": {
+        "$schema": "https://raw.githubusercontent.com/edison7009/echobird-plugin/main/schemas/plugin-manifest.schema.json",
+        "name": "claude-desktop-accounts",
+        "publisher": "echobird-community",
         "version": "0.1.0-preview.11.linux.x64",
         "displayName": "Claude Desktop",
         "description": "Claude Desktop 账号登录、切换及已有账号能力。Account capabilities for Claude Desktop.",

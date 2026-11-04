@@ -8,6 +8,281 @@
         "$schema": "https://raw.githubusercontent.com/edison7009/echobird-plugin/main/schemas/plugin-manifest.schema.json",
         "name": "workbuddy-accounts",
         "publisher": "echobird-community",
+        "version": "0.1.0-preview.3.linux.x64",
+        "displayName": "WorkBuddy",
+        "description": "WorkBuddy 账号登录、切换及已有账号能力。Account capabilities for WorkBuddy.",
+        "license": "MIT",
+        "repository": "https://github.com/edison7009/echobird-plugin",
+        "icon": "icon.png",
+        "category": "account",
+        "echobird": {
+          "manifestVersion": 2,
+          "apiVersion": "0.1-draft",
+          "platforms": ["linux"],
+          "permissions": ["account.code"],
+          "worker": {
+            "runtime": "native",
+            "entry": "bin/echobird-account-engine"
+          },
+          "contributes": {
+            "pages": [],
+            "providers": [
+              {
+                "id": "workbuddy",
+                "title": "WorkBuddy",
+                "applications": ["workbuddy"],
+                "searchTerms": ["WorkBuddy", "workbuddy"],
+                "operations": [
+                  "accounts",
+                  "login.start",
+                  "login.poll",
+                  "login.cancel",
+                  "account.refresh",
+                  "account.claim",
+                  "account.apply",
+                  "account.remove",
+                  "models",
+                  "proxy",
+                  "voice"
+                ]
+              }
+            ]
+          }
+        },
+        "architectures": ["x64"]
+      },
+      "commit": "59fb8b2dc62dea2cec25b372c5922808dc073b2f",
+      "sha256": "be811b9424943f7514ca7e56c50b03ab5be3994fa7a35306f01ea0562f002a7f",
+      "downloads": {
+        "international": "https://raw.githubusercontent.com/edison7009/echobird-plugin/59fb8b2dc62dea2cec25b372c5922808dc073b2f/packages/echobird-community.workbuddy-accounts-0.1.0-preview.3.linux.x64.zip",
+        "china": "https://api.gitcode.com/api/v5/repos/edison7009/echobird-plugin/raw/packages/echobird-community.workbuddy-accounts-0.1.0-preview.3.linux.x64.zip"
+      }
+    },
+    {
+      "manifest": {
+        "$schema": "https://raw.githubusercontent.com/edison7009/echobird-plugin/main/schemas/plugin-manifest.schema.json",
+        "name": "workbuddy-accounts",
+        "publisher": "echobird-community",
+        "version": "0.1.0-preview.3.linux.arm64",
+        "displayName": "WorkBuddy",
+        "description": "WorkBuddy 账号登录、切换及已有账号能力。Account capabilities for WorkBuddy.",
+        "license": "MIT",
+        "repository": "https://github.com/edison7009/echobird-plugin",
+        "icon": "icon.png",
+        "category": "account",
+        "echobird": {
+          "manifestVersion": 2,
+          "apiVersion": "0.1-draft",
+          "platforms": ["linux"],
+          "permissions": ["account.code"],
+          "worker": {
+            "runtime": "native",
+            "entry": "bin/echobird-account-engine"
+          },
+          "contributes": {
+            "pages": [],
+            "providers": [
+              {
+                "id": "workbuddy",
+                "title": "WorkBuddy",
+                "applications": ["workbuddy"],
+                "searchTerms": ["WorkBuddy", "workbuddy"],
+                "operations": [
+                  "accounts",
+                  "login.start",
+                  "login.poll",
+                  "login.cancel",
+                  "account.refresh",
+                  "account.claim",
+                  "account.apply",
+                  "account.remove",
+                  "models",
+                  "proxy",
+                  "voice"
+                ]
+              }
+            ]
+          }
+        },
+        "architectures": ["arm64"]
+      },
+      "commit": "59fb8b2dc62dea2cec25b372c5922808dc073b2f",
+      "sha256": "1040e41b1ce265541e656ec35420a912a601fe4b21e5c661d8311d898b420fc0",
+      "downloads": {
+        "international": "https://raw.githubusercontent.com/edison7009/echobird-plugin/59fb8b2dc62dea2cec25b372c5922808dc073b2f/packages/echobird-community.workbuddy-accounts-0.1.0-preview.3.linux.arm64.zip",
+        "china": "https://api.gitcode.com/api/v5/repos/edison7009/echobird-plugin/raw/packages/echobird-community.workbuddy-accounts-0.1.0-preview.3.linux.arm64.zip"
+      }
+    },
+    {
+      "manifest": {
+        "$schema": "https://raw.githubusercontent.com/edison7009/echobird-plugin/main/schemas/plugin-manifest.schema.json",
+        "name": "workbuddy-accounts",
+        "publisher": "echobird-community",
+        "version": "0.1.0-preview.3.macos.x64",
+        "displayName": "WorkBuddy",
+        "description": "WorkBuddy 账号登录、切换及已有账号能力。Account capabilities for WorkBuddy.",
+        "license": "MIT",
+        "repository": "https://github.com/edison7009/echobird-plugin",
+        "icon": "icon.png",
+        "category": "account",
+        "echobird": {
+          "manifestVersion": 2,
+          "apiVersion": "0.1-draft",
+          "platforms": ["macos"],
+          "permissions": ["account.code"],
+          "worker": {
+            "runtime": "native",
+            "entry": "bin/echobird-account-engine"
+          },
+          "contributes": {
+            "pages": [],
+            "providers": [
+              {
+                "id": "workbuddy",
+                "title": "WorkBuddy",
+                "applications": ["workbuddy"],
+                "searchTerms": ["WorkBuddy", "workbuddy"],
+                "operations": [
+                  "accounts",
+                  "login.start",
+                  "login.poll",
+                  "login.cancel",
+                  "account.refresh",
+                  "account.claim",
+                  "account.apply",
+                  "account.remove",
+                  "models",
+                  "proxy",
+                  "voice"
+                ]
+              }
+            ]
+          }
+        },
+        "architectures": ["x64"]
+      },
+      "commit": "59fb8b2dc62dea2cec25b372c5922808dc073b2f",
+      "sha256": "a6aab700557c8fcf802d62a704c55fc0ecd7f052d753da67edaa4dba92820a4a",
+      "downloads": {
+        "international": "https://raw.githubusercontent.com/edison7009/echobird-plugin/59fb8b2dc62dea2cec25b372c5922808dc073b2f/packages/echobird-community.workbuddy-accounts-0.1.0-preview.3.macos.x64.zip",
+        "china": "https://api.gitcode.com/api/v5/repos/edison7009/echobird-plugin/raw/packages/echobird-community.workbuddy-accounts-0.1.0-preview.3.macos.x64.zip"
+      }
+    },
+    {
+      "manifest": {
+        "$schema": "https://raw.githubusercontent.com/edison7009/echobird-plugin/main/schemas/plugin-manifest.schema.json",
+        "name": "workbuddy-accounts",
+        "publisher": "echobird-community",
+        "version": "0.1.0-preview.3.macos.arm64",
+        "displayName": "WorkBuddy",
+        "description": "WorkBuddy 账号登录、切换及已有账号能力。Account capabilities for WorkBuddy.",
+        "license": "MIT",
+        "repository": "https://github.com/edison7009/echobird-plugin",
+        "icon": "icon.png",
+        "category": "account",
+        "echobird": {
+          "manifestVersion": 2,
+          "apiVersion": "0.1-draft",
+          "platforms": ["macos"],
+          "permissions": ["account.code"],
+          "worker": {
+            "runtime": "native",
+            "entry": "bin/echobird-account-engine"
+          },
+          "contributes": {
+            "pages": [],
+            "providers": [
+              {
+                "id": "workbuddy",
+                "title": "WorkBuddy",
+                "applications": ["workbuddy"],
+                "searchTerms": ["WorkBuddy", "workbuddy"],
+                "operations": [
+                  "accounts",
+                  "login.start",
+                  "login.poll",
+                  "login.cancel",
+                  "account.refresh",
+                  "account.claim",
+                  "account.apply",
+                  "account.remove",
+                  "models",
+                  "proxy",
+                  "voice"
+                ]
+              }
+            ]
+          }
+        },
+        "architectures": ["arm64"]
+      },
+      "commit": "59fb8b2dc62dea2cec25b372c5922808dc073b2f",
+      "sha256": "e44a39bb8a85b91f8886c70cb523bfce7068423045abbe54c3ed8454914c0780",
+      "downloads": {
+        "international": "https://raw.githubusercontent.com/edison7009/echobird-plugin/59fb8b2dc62dea2cec25b372c5922808dc073b2f/packages/echobird-community.workbuddy-accounts-0.1.0-preview.3.macos.arm64.zip",
+        "china": "https://api.gitcode.com/api/v5/repos/edison7009/echobird-plugin/raw/packages/echobird-community.workbuddy-accounts-0.1.0-preview.3.macos.arm64.zip"
+      }
+    },
+    {
+      "manifest": {
+        "$schema": "https://raw.githubusercontent.com/edison7009/echobird-plugin/main/schemas/plugin-manifest.schema.json",
+        "name": "workbuddy-accounts",
+        "publisher": "echobird-community",
+        "version": "0.1.0-preview.3.windows.x64",
+        "displayName": "WorkBuddy",
+        "description": "WorkBuddy 账号登录、切换及已有账号能力。Account capabilities for WorkBuddy.",
+        "license": "MIT",
+        "repository": "https://github.com/edison7009/echobird-plugin",
+        "icon": "icon.png",
+        "category": "account",
+        "echobird": {
+          "manifestVersion": 2,
+          "apiVersion": "0.1-draft",
+          "platforms": ["windows"],
+          "permissions": ["account.code"],
+          "worker": {
+            "runtime": "native",
+            "entry": "bin/echobird-account-engine.exe"
+          },
+          "contributes": {
+            "pages": [],
+            "providers": [
+              {
+                "id": "workbuddy",
+                "title": "WorkBuddy",
+                "applications": ["workbuddy"],
+                "searchTerms": ["WorkBuddy", "workbuddy"],
+                "operations": [
+                  "accounts",
+                  "login.start",
+                  "login.poll",
+                  "login.cancel",
+                  "account.refresh",
+                  "account.claim",
+                  "account.apply",
+                  "account.remove",
+                  "models",
+                  "proxy",
+                  "voice"
+                ]
+              }
+            ]
+          }
+        },
+        "architectures": ["x64"]
+      },
+      "commit": "59fb8b2dc62dea2cec25b372c5922808dc073b2f",
+      "sha256": "e7d05ab2bc85a6661e271857be4a7c6b50939690727ff1db253067613a2566d4",
+      "downloads": {
+        "international": "https://raw.githubusercontent.com/edison7009/echobird-plugin/59fb8b2dc62dea2cec25b372c5922808dc073b2f/packages/echobird-community.workbuddy-accounts-0.1.0-preview.3.windows.x64.zip",
+        "china": "https://api.gitcode.com/api/v5/repos/edison7009/echobird-plugin/raw/packages/echobird-community.workbuddy-accounts-0.1.0-preview.3.windows.x64.zip"
+      }
+    },
+    {
+      "manifest": {
+        "$schema": "https://raw.githubusercontent.com/edison7009/echobird-plugin/main/schemas/plugin-manifest.schema.json",
+        "name": "workbuddy-accounts",
+        "publisher": "echobird-community",
         "version": "0.1.0-preview.2.linux.x64",
         "displayName": "WorkBuddy",
         "description": "WorkBuddy 账号登录、切换及已有账号能力。Account capabilities for WorkBuddy.",

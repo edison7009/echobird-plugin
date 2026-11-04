@@ -8,6 +8,281 @@
         "$schema": "https://raw.githubusercontent.com/edison7009/echobird-plugin/main/schemas/plugin-manifest.schema.json",
         "name": "doubao-work-accounts",
         "publisher": "echobird-community",
+        "version": "0.1.0-preview.2.linux.x64",
+        "displayName": "豆包工作",
+        "description": "豆包工作 账号登录、切换及已有账号能力。Account capabilities for 豆包工作.",
+        "license": "MIT",
+        "repository": "https://github.com/edison7009/echobird-plugin",
+        "icon": "icon.png",
+        "category": "account",
+        "echobird": {
+          "manifestVersion": 2,
+          "apiVersion": "0.1-draft",
+          "platforms": ["linux"],
+          "permissions": ["account.code"],
+          "worker": {
+            "runtime": "native",
+            "entry": "bin/echobird-account-engine"
+          },
+          "contributes": {
+            "pages": [],
+            "providers": [
+              {
+                "id": "doubaowork",
+                "title": "豆包工作",
+                "applications": ["doubaowork"],
+                "searchTerms": ["豆包工作", "doubaowork"],
+                "operations": [
+                  "accounts",
+                  "login.start",
+                  "login.poll",
+                  "login.cancel",
+                  "account.refresh",
+                  "account.claim",
+                  "account.apply",
+                  "account.remove",
+                  "models",
+                  "proxy",
+                  "voice"
+                ]
+              }
+            ]
+          }
+        },
+        "architectures": ["x64"]
+      },
+      "commit": "59fb8b2dc62dea2cec25b372c5922808dc073b2f",
+      "sha256": "3c8fa2873e3fdf291c1d197efd90a8ad15613d644b43a8e945a41b8fca04ddde",
+      "downloads": {
+        "international": "https://raw.githubusercontent.com/edison7009/echobird-plugin/59fb8b2dc62dea2cec25b372c5922808dc073b2f/packages/echobird-community.doubao-work-accounts-0.1.0-preview.2.linux.x64.zip",
+        "china": "https://api.gitcode.com/api/v5/repos/edison7009/echobird-plugin/raw/packages/echobird-community.doubao-work-accounts-0.1.0-preview.2.linux.x64.zip"
+      }
+    },
+    {
+      "manifest": {
+        "$schema": "https://raw.githubusercontent.com/edison7009/echobird-plugin/main/schemas/plugin-manifest.schema.json",
+        "name": "doubao-work-accounts",
+        "publisher": "echobird-community",
+        "version": "0.1.0-preview.2.linux.arm64",
+        "displayName": "豆包工作",
+        "description": "豆包工作 账号登录、切换及已有账号能力。Account capabilities for 豆包工作.",
+        "license": "MIT",
+        "repository": "https://github.com/edison7009/echobird-plugin",
+        "icon": "icon.png",
+        "category": "account",
+        "echobird": {
+          "manifestVersion": 2,
+          "apiVersion": "0.1-draft",
+          "platforms": ["linux"],
+          "permissions": ["account.code"],
+          "worker": {
+            "runtime": "native",
+            "entry": "bin/echobird-account-engine"
+          },
+          "contributes": {
+            "pages": [],
+            "providers": [
+              {
+                "id": "doubaowork",
+                "title": "豆包工作",
+                "applications": ["doubaowork"],
+                "searchTerms": ["豆包工作", "doubaowork"],
+                "operations": [
+                  "accounts",
+                  "login.start",
+                  "login.poll",
+                  "login.cancel",
+                  "account.refresh",
+                  "account.claim",
+                  "account.apply",
+                  "account.remove",
+                  "models",
+                  "proxy",
+                  "voice"
+                ]
+              }
+            ]
+          }
+        },
+        "architectures": ["arm64"]
+      },
+      "commit": "59fb8b2dc62dea2cec25b372c5922808dc073b2f",
+      "sha256": "130c0fc99f110eacaf94acc91184528a3a38bcd929e16a8dd59adeb0bb21369c",
+      "downloads": {
+        "international": "https://raw.githubusercontent.com/edison7009/echobird-plugin/59fb8b2dc62dea2cec25b372c5922808dc073b2f/packages/echobird-community.doubao-work-accounts-0.1.0-preview.2.linux.arm64.zip",
+        "china": "https://api.gitcode.com/api/v5/repos/edison7009/echobird-plugin/raw/packages/echobird-community.doubao-work-accounts-0.1.0-preview.2.linux.arm64.zip"
+      }
+    },
+    {
+      "manifest": {
+        "$schema": "https://raw.githubusercontent.com/edison7009/echobird-plugin/main/schemas/plugin-manifest.schema.json",
+        "name": "doubao-work-accounts",
+        "publisher": "echobird-community",
+        "version": "0.1.0-preview.2.macos.x64",
+        "displayName": "豆包工作",
+        "description": "豆包工作 账号登录、切换及已有账号能力。Account capabilities for 豆包工作.",
+        "license": "MIT",
+        "repository": "https://github.com/edison7009/echobird-plugin",
+        "icon": "icon.png",
+        "category": "account",
+        "echobird": {
+          "manifestVersion": 2,
+          "apiVersion": "0.1-draft",
+          "platforms": ["macos"],
+          "permissions": ["account.code"],
+          "worker": {
+            "runtime": "native",
+            "entry": "bin/echobird-account-engine"
+          },
+          "contributes": {
+            "pages": [],
+            "providers": [
+              {
+                "id": "doubaowork",
+                "title": "豆包工作",
+                "applications": ["doubaowork"],
+                "searchTerms": ["豆包工作", "doubaowork"],
+                "operations": [
+                  "accounts",
+                  "login.start",
+                  "login.poll",
+                  "login.cancel",
+                  "account.refresh",
+                  "account.claim",
+                  "account.apply",
+                  "account.remove",
+                  "models",
+                  "proxy",
+                  "voice"
+                ]
+              }
+            ]
+          }
+        },
+        "architectures": ["x64"]
+      },
+      "commit": "59fb8b2dc62dea2cec25b372c5922808dc073b2f",
+      "sha256": "27c68c72fd3303d2897ac17c05c2dfaedbe4976b5acdc077f7f34b2105d233f6",
+      "downloads": {
+        "international": "https://raw.githubusercontent.com/edison7009/echobird-plugin/59fb8b2dc62dea2cec25b372c5922808dc073b2f/packages/echobird-community.doubao-work-accounts-0.1.0-preview.2.macos.x64.zip",
+        "china": "https://api.gitcode.com/api/v5/repos/edison7009/echobird-plugin/raw/packages/echobird-community.doubao-work-accounts-0.1.0-preview.2.macos.x64.zip"
+      }
+    },
+    {
+      "manifest": {
+        "$schema": "https://raw.githubusercontent.com/edison7009/echobird-plugin/main/schemas/plugin-manifest.schema.json",
+        "name": "doubao-work-accounts",
+        "publisher": "echobird-community",
+        "version": "0.1.0-preview.2.macos.arm64",
+        "displayName": "豆包工作",
+        "description": "豆包工作 账号登录、切换及已有账号能力。Account capabilities for 豆包工作.",
+        "license": "MIT",
+        "repository": "https://github.com/edison7009/echobird-plugin",
+        "icon": "icon.png",
+        "category": "account",
+        "echobird": {
+          "manifestVersion": 2,
+          "apiVersion": "0.1-draft",
+          "platforms": ["macos"],
+          "permissions": ["account.code"],
+          "worker": {
+            "runtime": "native",
+            "entry": "bin/echobird-account-engine"
+          },
+          "contributes": {
+            "pages": [],
+            "providers": [
+              {
+                "id": "doubaowork",
+                "title": "豆包工作",
+                "applications": ["doubaowork"],
+                "searchTerms": ["豆包工作", "doubaowork"],
+                "operations": [
+                  "accounts",
+                  "login.start",
+                  "login.poll",
+                  "login.cancel",
+                  "account.refresh",
+                  "account.claim",
+                  "account.apply",
+                  "account.remove",
+                  "models",
+                  "proxy",
+                  "voice"
+                ]
+              }
+            ]
+          }
+        },
+        "architectures": ["arm64"]
+      },
+      "commit": "59fb8b2dc62dea2cec25b372c5922808dc073b2f",
+      "sha256": "dbbca9d67ac32d8682f33c71c3cdeb15531bf68cfaebe9290218c56768d08a85",
+      "downloads": {
+        "international": "https://raw.githubusercontent.com/edison7009/echobird-plugin/59fb8b2dc62dea2cec25b372c5922808dc073b2f/packages/echobird-community.doubao-work-accounts-0.1.0-preview.2.macos.arm64.zip",
+        "china": "https://api.gitcode.com/api/v5/repos/edison7009/echobird-plugin/raw/packages/echobird-community.doubao-work-accounts-0.1.0-preview.2.macos.arm64.zip"
+      }
+    },
+    {
+      "manifest": {
+        "$schema": "https://raw.githubusercontent.com/edison7009/echobird-plugin/main/schemas/plugin-manifest.schema.json",
+        "name": "doubao-work-accounts",
+        "publisher": "echobird-community",
+        "version": "0.1.0-preview.2.windows.x64",
+        "displayName": "豆包工作",
+        "description": "豆包工作 账号登录、切换及已有账号能力。Account capabilities for 豆包工作.",
+        "license": "MIT",
+        "repository": "https://github.com/edison7009/echobird-plugin",
+        "icon": "icon.png",
+        "category": "account",
+        "echobird": {
+          "manifestVersion": 2,
+          "apiVersion": "0.1-draft",
+          "platforms": ["windows"],
+          "permissions": ["account.code"],
+          "worker": {
+            "runtime": "native",
+            "entry": "bin/echobird-account-engine.exe"
+          },
+          "contributes": {
+            "pages": [],
+            "providers": [
+              {
+                "id": "doubaowork",
+                "title": "豆包工作",
+                "applications": ["doubaowork"],
+                "searchTerms": ["豆包工作", "doubaowork"],
+                "operations": [
+                  "accounts",
+                  "login.start",
+                  "login.poll",
+                  "login.cancel",
+                  "account.refresh",
+                  "account.claim",
+                  "account.apply",
+                  "account.remove",
+                  "models",
+                  "proxy",
+                  "voice"
+                ]
+              }
+            ]
+          }
+        },
+        "architectures": ["x64"]
+      },
+      "commit": "59fb8b2dc62dea2cec25b372c5922808dc073b2f",
+      "sha256": "1845decacf8a7c692ea321831274889eb3123c572ee3db50b46ecf4964d10835",
+      "downloads": {
+        "international": "https://raw.githubusercontent.com/edison7009/echobird-plugin/59fb8b2dc62dea2cec25b372c5922808dc073b2f/packages/echobird-community.doubao-work-accounts-0.1.0-preview.2.windows.x64.zip",
+        "china": "https://api.gitcode.com/api/v5/repos/edison7009/echobird-plugin/raw/packages/echobird-community.doubao-work-accounts-0.1.0-preview.2.windows.x64.zip"
+      }
+    },
+    {
+      "manifest": {
+        "$schema": "https://raw.githubusercontent.com/edison7009/echobird-plugin/main/schemas/plugin-manifest.schema.json",
+        "name": "doubao-work-accounts",
+        "publisher": "echobird-community",
         "version": "0.1.0-preview.1.linux.x64",
         "displayName": "豆包工作",
         "description": "豆包工作 账号登录、切换及已有账号能力。Account capabilities for 豆包工作.",

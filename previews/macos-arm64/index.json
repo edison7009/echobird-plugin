@@ -12,7 +12,7 @@
             "$schema": "https://raw.githubusercontent.com/edison7009/echobird-plugin/main/schemas/plugin-manifest.schema.json",
             "name": "claude-code-accounts",
             "publisher": "echobird-community",
-            "version": "0.1.0-preview.4.macos.arm64",
+            "version": "0.1.0-preview.5.macos.arm64",
             "displayName": "Claude Code",
             "description": "Claude Code 账号登录、切换及已有账号能力。Account capabilities for Claude Code.",
             "license": "MIT",
@@ -55,11 +55,11 @@
             },
             "architectures": ["arm64"]
           },
-          "commit": "0c4cc9ba1521fd4eac0bed1bd89bce0a8b07acca",
-          "sha256": "183f9e41589ddb2589a857598fc7e76dcafc3fd8b08dd35a0b4a6db8f321a5fa",
+          "commit": "59fb8b2dc62dea2cec25b372c5922808dc073b2f",
+          "sha256": "12d67b69212400f5a1c872767b96f37e442694deeebf07a1ae260bc5a39d74df",
           "downloads": {
-            "international": "https://raw.githubusercontent.com/edison7009/echobird-plugin/0c4cc9ba1521fd4eac0bed1bd89bce0a8b07acca/packages/echobird-community.claude-code-accounts-0.1.0-preview.4.macos.arm64.zip",
-            "china": "https://api.gitcode.com/api/v5/repos/edison7009/echobird-plugin/raw/packages/echobird-community.claude-code-accounts-0.1.0-preview.4.macos.arm64.zip"
+            "international": "https://raw.githubusercontent.com/edison7009/echobird-plugin/59fb8b2dc62dea2cec25b372c5922808dc073b2f/packages/echobird-community.claude-code-accounts-0.1.0-preview.5.macos.arm64.zip",
+            "china": "https://api.gitcode.com/api/v5/repos/edison7009/echobird-plugin/raw/packages/echobird-community.claude-code-accounts-0.1.0-preview.5.macos.arm64.zip"
           }
         }
       ]
@@ -73,7 +73,7 @@
             "$schema": "https://raw.githubusercontent.com/edison7009/echobird-plugin/main/schemas/plugin-manifest.schema.json",
             "name": "claude-desktop-accounts",
             "publisher": "echobird-community",
-            "version": "0.1.0-preview.11.macos.arm64",
+            "version": "0.1.0-preview.12.macos.arm64",
             "displayName": "Claude Desktop",
             "description": "Claude Desktop 账号登录、切换及已有账号能力。Account capabilities for Claude Desktop.",
             "license": "MIT",
@@ -114,11 +114,11 @@
             },
             "architectures": ["arm64"]
           },
-          "commit": "0c4cc9ba1521fd4eac0bed1bd89bce0a8b07acca",
-          "sha256": "55d8756582497ce3ac1b117ca147a26e514dbe1366dfe22455494168578bdf61",
+          "commit": "59fb8b2dc62dea2cec25b372c5922808dc073b2f",
+          "sha256": "d0bf5131c3349390125834cf8013d2b6e38b7e6e0248979910217335323771a3",
           "downloads": {
-            "international": "https://raw.githubusercontent.com/edison7009/echobird-plugin/0c4cc9ba1521fd4eac0bed1bd89bce0a8b07acca/packages/echobird-community.claude-desktop-accounts-0.1.0-preview.11.macos.arm64.zip",
-            "china": "https://api.gitcode.com/api/v5/repos/edison7009/echobird-plugin/raw/packages/echobird-community.claude-desktop-accounts-0.1.0-preview.11.macos.arm64.zip"
+            "international": "https://raw.githubusercontent.com/edison7009/echobird-plugin/59fb8b2dc62dea2cec25b372c5922808dc073b2f/packages/echobird-community.claude-desktop-accounts-0.1.0-preview.12.macos.arm64.zip",
+            "china": "https://api.gitcode.com/api/v5/repos/edison7009/echobird-plugin/raw/packages/echobird-community.claude-desktop-accounts-0.1.0-preview.12.macos.arm64.zip"
           }
         }
       ]
@@ -132,7 +132,7 @@
             "$schema": "https://raw.githubusercontent.com/edison7009/echobird-plugin/main/schemas/plugin-manifest.schema.json",
             "name": "dola-accounts",
             "publisher": "echobird-community",
-            "version": "0.1.0-preview.1.macos.arm64",
+            "version": "0.1.0-preview.2.macos.arm64",
             "displayName": "Dola",
             "description": "Dola 账号登录、切换及已有账号能力。Account capabilities for Dola.",
             "license": "MIT",
@@ -174,11 +174,11 @@
             },
             "architectures": ["arm64"]
           },
-          "commit": "0c4cc9ba1521fd4eac0bed1bd89bce0a8b07acca",
-          "sha256": "38a2346a1ce02bf9b498e849c796b3bb6de7f617233cf6f9f0aef955c3652749",
+          "commit": "59fb8b2dc62dea2cec25b372c5922808dc073b2f",
+          "sha256": "7b2740d4d45b6cc563396ad2b9410d6a2a766b41e8506027171af841a7a40804",
           "downloads": {
-            "international": "https://raw.githubusercontent.com/edison7009/echobird-plugin/0c4cc9ba1521fd4eac0bed1bd89bce0a8b07acca/packages/echobird-community.dola-accounts-0.1.0-preview.1.macos.arm64.zip",
-            "china": "https://api.gitcode.com/api/v5/repos/edison7009/echobird-plugin/raw/packages/echobird-community.dola-accounts-0.1.0-preview.1.macos.arm64.zip"
+            "international": "https://raw.githubusercontent.com/edison7009/echobird-plugin/59fb8b2dc62dea2cec25b372c5922808dc073b2f/packages/echobird-community.dola-accounts-0.1.0-preview.2.macos.arm64.zip",
+            "china": "https://api.gitcode.com/api/v5/repos/edison7009/echobird-plugin/raw/packages/echobird-community.dola-accounts-0.1.0-preview.2.macos.arm64.zip"
           }
         }
       ]
@@ -192,7 +192,7 @@
             "$schema": "https://raw.githubusercontent.com/edison7009/echobird-plugin/main/schemas/plugin-manifest.schema.json",
             "name": "doubao-work-accounts",
             "publisher": "echobird-community",
-            "version": "0.1.0-preview.1.macos.arm64",
+            "version": "0.1.0-preview.2.macos.arm64",
             "displayName": "豆包工作",
             "description": "豆包工作 账号登录、切换及已有账号能力。Account capabilities for 豆包工作.",
             "license": "MIT",
@@ -235,11 +235,11 @@
             },
             "architectures": ["arm64"]
           },
-          "commit": "0c4cc9ba1521fd4eac0bed1bd89bce0a8b07acca",
-          "sha256": "abc10df181145f54778510332969585bf4bcfb1847482bd7141c16808c01967b",
+          "commit": "59fb8b2dc62dea2cec25b372c5922808dc073b2f",
+          "sha256": "dbbca9d67ac32d8682f33c71c3cdeb15531bf68cfaebe9290218c56768d08a85",
           "downloads": {
-            "international": "https://raw.githubusercontent.com/edison7009/echobird-plugin/0c4cc9ba1521fd4eac0bed1bd89bce0a8b07acca/packages/echobird-community.doubao-work-accounts-0.1.0-preview.1.macos.arm64.zip",
-            "china": "https://api.gitcode.com/api/v5/repos/edison7009/echobird-plugin/raw/packages/echobird-community.doubao-work-accounts-0.1.0-preview.1.macos.arm64.zip"
+            "international": "https://raw.githubusercontent.com/edison7009/echobird-plugin/59fb8b2dc62dea2cec25b372c5922808dc073b2f/packages/echobird-community.doubao-work-accounts-0.1.0-preview.2.macos.arm64.zip",
+            "china": "https://api.gitcode.com/api/v5/repos/edison7009/echobird-plugin/raw/packages/echobird-community.doubao-work-accounts-0.1.0-preview.2.macos.arm64.zip"
           }
         }
       ]
@@ -253,7 +253,7 @@
             "$schema": "https://raw.githubusercontent.com/edison7009/echobird-plugin/main/schemas/plugin-manifest.schema.json",
             "name": "trae-accounts",
             "publisher": "echobird-community",
-            "version": "0.1.0-preview.2.macos.arm64",
+            "version": "0.1.0-preview.3.macos.arm64",
             "displayName": "Trae",
             "description": "Trae 账号登录、切换、智能接入和语音接入。Account capabilities for Trae.",
             "license": "MIT",
@@ -296,11 +296,11 @@
             },
             "architectures": ["arm64"]
           },
-          "commit": "0c4cc9ba1521fd4eac0bed1bd89bce0a8b07acca",
-          "sha256": "a2e8cc999930ce6a08b66a8e6267de9a7dc96a30eed5cbf594b0ac4cd4383fc8",
+          "commit": "59fb8b2dc62dea2cec25b372c5922808dc073b2f",
+          "sha256": "e51c06920151446fee43806882be4f502041dcbbde5409ea17153da9af0d6f5c",
           "downloads": {
-            "international": "https://raw.githubusercontent.com/edison7009/echobird-plugin/0c4cc9ba1521fd4eac0bed1bd89bce0a8b07acca/packages/echobird-community.trae-accounts-0.1.0-preview.2.macos.arm64.zip",
-            "china": "https://api.gitcode.com/api/v5/repos/edison7009/echobird-plugin/raw/packages/echobird-community.trae-accounts-0.1.0-preview.2.macos.arm64.zip"
+            "international": "https://raw.githubusercontent.com/edison7009/echobird-plugin/59fb8b2dc62dea2cec25b372c5922808dc073b2f/packages/echobird-community.trae-accounts-0.1.0-preview.3.macos.arm64.zip",
+            "china": "https://api.gitcode.com/api/v5/repos/edison7009/echobird-plugin/raw/packages/echobird-community.trae-accounts-0.1.0-preview.3.macos.arm64.zip"
           }
         }
       ]
@@ -314,7 +314,7 @@
             "$schema": "https://raw.githubusercontent.com/edison7009/echobird-plugin/main/schemas/plugin-manifest.schema.json",
             "name": "trae-cn-accounts",
             "publisher": "echobird-community",
-            "version": "0.1.0-preview.2.macos.arm64",
+            "version": "0.1.0-preview.3.macos.arm64",
             "displayName": "Trae CN",
             "description": "Trae CN 账号登录、切换、智能接入和语音接入。Account capabilities for Trae CN.",
             "license": "MIT",
@@ -357,11 +357,11 @@
             },
             "architectures": ["arm64"]
           },
-          "commit": "0c4cc9ba1521fd4eac0bed1bd89bce0a8b07acca",
-          "sha256": "60a4dafe940c9c23269690ad8e723e52083e7676f1fa6b1ddad2248ab862d8a4",
+          "commit": "59fb8b2dc62dea2cec25b372c5922808dc073b2f",
+          "sha256": "eba2eae69d79e1e49b3a1728d24ce6fede3f8ae6f15f7f1930236974d0cee2ae",
           "downloads": {
-            "international": "https://raw.githubusercontent.com/edison7009/echobird-plugin/0c4cc9ba1521fd4eac0bed1bd89bce0a8b07acca/packages/echobird-community.trae-cn-accounts-0.1.0-preview.2.macos.arm64.zip",
-            "china": "https://api.gitcode.com/api/v5/repos/edison7009/echobird-plugin/raw/packages/echobird-community.trae-cn-accounts-0.1.0-preview.2.macos.arm64.zip"
+            "international": "https://raw.githubusercontent.com/edison7009/echobird-plugin/59fb8b2dc62dea2cec25b372c5922808dc073b2f/packages/echobird-community.trae-cn-accounts-0.1.0-preview.3.macos.arm64.zip",
+            "china": "https://api.gitcode.com/api/v5/repos/edison7009/echobird-plugin/raw/packages/echobird-community.trae-cn-accounts-0.1.0-preview.3.macos.arm64.zip"
           }
         }
       ]
@@ -375,7 +375,7 @@
             "$schema": "https://raw.githubusercontent.com/edison7009/echobird-plugin/main/schemas/plugin-manifest.schema.json",
             "name": "workbuddy-accounts",
             "publisher": "echobird-community",
-            "version": "0.1.0-preview.2.macos.arm64",
+            "version": "0.1.0-preview.3.macos.arm64",
             "displayName": "WorkBuddy",
             "description": "WorkBuddy 账号登录、切换及已有账号能力。Account capabilities for WorkBuddy.",
             "license": "MIT",
@@ -418,11 +418,11 @@
             },
             "architectures": ["arm64"]
           },
-          "commit": "0c4cc9ba1521fd4eac0bed1bd89bce0a8b07acca",
-          "sha256": "850c33804b4d1c0954107cbb233cf228cf7b55b7361869df415db99825f0aee6",
+          "commit": "59fb8b2dc62dea2cec25b372c5922808dc073b2f",
+          "sha256": "e44a39bb8a85b91f8886c70cb523bfce7068423045abbe54c3ed8454914c0780",
           "downloads": {
-            "international": "https://raw.githubusercontent.com/edison7009/echobird-plugin/0c4cc9ba1521fd4eac0bed1bd89bce0a8b07acca/packages/echobird-community.workbuddy-accounts-0.1.0-preview.2.macos.arm64.zip",
-            "china": "https://api.gitcode.com/api/v5/repos/edison7009/echobird-plugin/raw/packages/echobird-community.workbuddy-accounts-0.1.0-preview.2.macos.arm64.zip"
+            "international": "https://raw.githubusercontent.com/edison7009/echobird-plugin/59fb8b2dc62dea2cec25b372c5922808dc073b2f/packages/echobird-community.workbuddy-accounts-0.1.0-preview.3.macos.arm64.zip",
+            "china": "https://api.gitcode.com/api/v5/repos/edison7009/echobird-plugin/raw/packages/echobird-community.workbuddy-accounts-0.1.0-preview.3.macos.arm64.zip"
           }
         }
       ]
@@ -436,7 +436,7 @@
             "$schema": "https://raw.githubusercontent.com/edison7009/echobird-plugin/main/schemas/plugin-manifest.schema.json",
             "name": "workbuddy-ai-accounts",
             "publisher": "echobird-community",
-            "version": "0.1.0-preview.2.macos.arm64",
+            "version": "0.1.0-preview.3.macos.arm64",
             "displayName": "WorkBuddy AI",
             "description": "WorkBuddy AI 账号登录、切换及已有账号能力。Account capabilities for WorkBuddy AI.",
             "license": "MIT",
@@ -479,11 +479,11 @@
             },
             "architectures": ["arm64"]
           },
-          "commit": "0c4cc9ba1521fd4eac0bed1bd89bce0a8b07acca",
-          "sha256": "932a4127baef321a9060a1fbf836e70b14619649fed61b383a745e247a703e37",
+          "commit": "59fb8b2dc62dea2cec25b372c5922808dc073b2f",
+          "sha256": "1e1dbf058c3ebc6037caa903d6cd86063ba2eb02e05da5d914389c823066fe5b",
           "downloads": {
-            "international": "https://raw.githubusercontent.com/edison7009/echobird-plugin/0c4cc9ba1521fd4eac0bed1bd89bce0a8b07acca/packages/echobird-community.workbuddy-ai-accounts-0.1.0-preview.2.macos.arm64.zip",
-            "china": "https://api.gitcode.com/api/v5/repos/edison7009/echobird-plugin/raw/packages/echobird-community.workbuddy-ai-accounts-0.1.0-preview.2.macos.arm64.zip"
+            "international": "https://raw.githubusercontent.com/edison7009/echobird-plugin/59fb8b2dc62dea2cec25b372c5922808dc073b2f/packages/echobird-community.workbuddy-ai-accounts-0.1.0-preview.3.macos.arm64.zip",
+            "china": "https://api.gitcode.com/api/v5/repos/edison7009/echobird-plugin/raw/packages/echobird-community.workbuddy-ai-accounts-0.1.0-preview.3.macos.arm64.zip"
           }
         }
       ]

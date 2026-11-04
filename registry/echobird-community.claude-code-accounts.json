@@ -8,6 +8,281 @@
         "$schema": "https://raw.githubusercontent.com/edison7009/echobird-plugin/main/schemas/plugin-manifest.schema.json",
         "name": "claude-code-accounts",
         "publisher": "echobird-community",
+        "version": "0.1.0-preview.5.linux.x64",
+        "displayName": "Claude Code",
+        "description": "Claude Code 账号登录、切换及已有账号能力。Account capabilities for Claude Code.",
+        "license": "MIT",
+        "repository": "https://github.com/edison7009/echobird-plugin",
+        "icon": "icon.svg",
+        "category": "account",
+        "echobird": {
+          "manifestVersion": 2,
+          "apiVersion": "0.1-draft",
+          "platforms": ["linux"],
+          "permissions": ["account.code"],
+          "worker": {
+            "runtime": "native",
+            "entry": "bin/echobird-account-engine"
+          },
+          "contributes": {
+            "pages": [],
+            "providers": [
+              {
+                "id": "claudecode",
+                "title": "Claude Code",
+                "applications": ["claudecode"],
+                "searchTerms": ["Claude Code", "claudecode"],
+                "operations": [
+                  "accounts",
+                  "login.start",
+                  "login.complete",
+                  "login.cancel",
+                  "account.refresh",
+                  "account.warmup",
+                  "account.apply",
+                  "account.remove",
+                  "models",
+                  "proxy",
+                  "voice"
+                ]
+              }
+            ]
+          }
+        },
+        "architectures": ["x64"]
+      },
+      "commit": "59fb8b2dc62dea2cec25b372c5922808dc073b2f",
+      "sha256": "d230803210f0ddee0501576709aaab1c9618328c24ce48538d24bc4075b4d66a",
+      "downloads": {
+        "international": "https://raw.githubusercontent.com/edison7009/echobird-plugin/59fb8b2dc62dea2cec25b372c5922808dc073b2f/packages/echobird-community.claude-code-accounts-0.1.0-preview.5.linux.x64.zip",
+        "china": "https://api.gitcode.com/api/v5/repos/edison7009/echobird-plugin/raw/packages/echobird-community.claude-code-accounts-0.1.0-preview.5.linux.x64.zip"
+      }
+    },
+    {
+      "manifest": {
+        "$schema": "https://raw.githubusercontent.com/edison7009/echobird-plugin/main/schemas/plugin-manifest.schema.json",
+        "name": "claude-code-accounts",
+        "publisher": "echobird-community",
+        "version": "0.1.0-preview.5.linux.arm64",
+        "displayName": "Claude Code",
+        "description": "Claude Code 账号登录、切换及已有账号能力。Account capabilities for Claude Code.",
+        "license": "MIT",
+        "repository": "https://github.com/edison7009/echobird-plugin",
+        "icon": "icon.svg",
+        "category": "account",
+        "echobird": {
+          "manifestVersion": 2,
+          "apiVersion": "0.1-draft",
+          "platforms": ["linux"],
+          "permissions": ["account.code"],
+          "worker": {
+            "runtime": "native",
+            "entry": "bin/echobird-account-engine"
+          },
+          "contributes": {
+            "pages": [],
+            "providers": [
+              {
+                "id": "claudecode",
+                "title": "Claude Code",
+                "applications": ["claudecode"],
+                "searchTerms": ["Claude Code", "claudecode"],
+                "operations": [
+                  "accounts",
+                  "login.start",
+                  "login.complete",
+                  "login.cancel",
+                  "account.refresh",
+                  "account.warmup",
+                  "account.apply",
+                  "account.remove",
+                  "models",
+                  "proxy",
+                  "voice"
+                ]
+              }
+            ]
+          }
+        },
+        "architectures": ["arm64"]
+      },
+      "commit": "59fb8b2dc62dea2cec25b372c5922808dc073b2f",
+      "sha256": "6c75151b0e606eddb63baa526a41e192b8a6417a45d5869767ea8f9033fbb614",
+      "downloads": {
+        "international": "https://raw.githubusercontent.com/edison7009/echobird-plugin/59fb8b2dc62dea2cec25b372c5922808dc073b2f/packages/echobird-community.claude-code-accounts-0.1.0-preview.5.linux.arm64.zip",
+        "china": "https://api.gitcode.com/api/v5/repos/edison7009/echobird-plugin/raw/packages/echobird-community.claude-code-accounts-0.1.0-preview.5.linux.arm64.zip"
+      }
+    },
+    {
+      "manifest": {
+        "$schema": "https://raw.githubusercontent.com/edison7009/echobird-plugin/main/schemas/plugin-manifest.schema.json",
+        "name": "claude-code-accounts",
+        "publisher": "echobird-community",
+        "version": "0.1.0-preview.5.macos.x64",
+        "displayName": "Claude Code",
+        "description": "Claude Code 账号登录、切换及已有账号能力。Account capabilities for Claude Code.",
+        "license": "MIT",
+        "repository": "https://github.com/edison7009/echobird-plugin",
+        "icon": "icon.svg",
+        "category": "account",
+        "echobird": {
+          "manifestVersion": 2,
+          "apiVersion": "0.1-draft",
+          "platforms": ["macos"],
+          "permissions": ["account.code"],
+          "worker": {
+            "runtime": "native",
+            "entry": "bin/echobird-account-engine"
+          },
+          "contributes": {
+            "pages": [],
+            "providers": [
+              {
+                "id": "claudecode",
+                "title": "Claude Code",
+                "applications": ["claudecode"],
+                "searchTerms": ["Claude Code", "claudecode"],
+                "operations": [
+                  "accounts",
+                  "login.start",
+                  "login.complete",
+                  "login.cancel",
+                  "account.refresh",
+                  "account.warmup",
+                  "account.apply",
+                  "account.remove",
+                  "models",
+                  "proxy",
+                  "voice"
+                ]
+              }
+            ]
+          }
+        },
+        "architectures": ["x64"]
+      },
+      "commit": "59fb8b2dc62dea2cec25b372c5922808dc073b2f",
+      "sha256": "5d82969214570f581a79457236d3e5152ea926909963cfa8f62e29a5f3cbe960",
+      "downloads": {
+        "international": "https://raw.githubusercontent.com/edison7009/echobird-plugin/59fb8b2dc62dea2cec25b372c5922808dc073b2f/packages/echobird-community.claude-code-accounts-0.1.0-preview.5.macos.x64.zip",
+        "china": "https://api.gitcode.com/api/v5/repos/edison7009/echobird-plugin/raw/packages/echobird-community.claude-code-accounts-0.1.0-preview.5.macos.x64.zip"
+      }
+    },
+    {
+      "manifest": {
+        "$schema": "https://raw.githubusercontent.com/edison7009/echobird-plugin/main/schemas/plugin-manifest.schema.json",
+        "name": "claude-code-accounts",
+        "publisher": "echobird-community",
+        "version": "0.1.0-preview.5.macos.arm64",
+        "displayName": "Claude Code",
+        "description": "Claude Code 账号登录、切换及已有账号能力。Account capabilities for Claude Code.",
+        "license": "MIT",
+        "repository": "https://github.com/edison7009/echobird-plugin",
+        "icon": "icon.svg",
+        "category": "account",
+        "echobird": {
+          "manifestVersion": 2,
+          "apiVersion": "0.1-draft",
+          "platforms": ["macos"],
+          "permissions": ["account.code"],
+          "worker": {
+            "runtime": "native",
+            "entry": "bin/echobird-account-engine"
+          },
+          "contributes": {
+            "pages": [],
+            "providers": [
+              {
+                "id": "claudecode",
+                "title": "Claude Code",
+                "applications": ["claudecode"],
+                "searchTerms": ["Claude Code", "claudecode"],
+                "operations": [
+                  "accounts",
+                  "login.start",
+                  "login.complete",
+                  "login.cancel",
+                  "account.refresh",
+                  "account.warmup",
+                  "account.apply",
+                  "account.remove",
+                  "models",
+                  "proxy",
+                  "voice"
+                ]
+              }
+            ]
+          }
+        },
+        "architectures": ["arm64"]
+      },
+      "commit": "59fb8b2dc62dea2cec25b372c5922808dc073b2f",
+      "sha256": "12d67b69212400f5a1c872767b96f37e442694deeebf07a1ae260bc5a39d74df",
+      "downloads": {
+        "international": "https://raw.githubusercontent.com/edison7009/echobird-plugin/59fb8b2dc62dea2cec25b372c5922808dc073b2f/packages/echobird-community.claude-code-accounts-0.1.0-preview.5.macos.arm64.zip",
+        "china": "https://api.gitcode.com/api/v5/repos/edison7009/echobird-plugin/raw/packages/echobird-community.claude-code-accounts-0.1.0-preview.5.macos.arm64.zip"
+      }
+    },
+    {
+      "manifest": {
+        "$schema": "https://raw.githubusercontent.com/edison7009/echobird-plugin/main/schemas/plugin-manifest.schema.json",
+        "name": "claude-code-accounts",
+        "publisher": "echobird-community",
+        "version": "0.1.0-preview.5.windows.x64",
+        "displayName": "Claude Code",
+        "description": "Claude Code 账号登录、切换及已有账号能力。Account capabilities for Claude Code.",
+        "license": "MIT",
+        "repository": "https://github.com/edison7009/echobird-plugin",
+        "icon": "icon.svg",
+        "category": "account",
+        "echobird": {
+          "manifestVersion": 2,
+          "apiVersion": "0.1-draft",
+          "platforms": ["windows"],
+          "permissions": ["account.code"],
+          "worker": {
+            "runtime": "native",
+            "entry": "bin/echobird-account-engine.exe"
+          },
+          "contributes": {
+            "pages": [],
+            "providers": [
+              {
+                "id": "claudecode",
+                "title": "Claude Code",
+                "applications": ["claudecode"],
+                "searchTerms": ["Claude Code", "claudecode"],
+                "operations": [
+                  "accounts",
+                  "login.start",
+                  "login.complete",
+                  "login.cancel",
+                  "account.refresh",
+                  "account.warmup",
+                  "account.apply",
+                  "account.remove",
+                  "models",
+                  "proxy",
+                  "voice"
+                ]
+              }
+            ]
+          }
+        },
+        "architectures": ["x64"]
+      },
+      "commit": "59fb8b2dc62dea2cec25b372c5922808dc073b2f",
+      "sha256": "5a1a3caf384662ec82d76856200f772c652d1cba15d41661b73d9842aab09b1b",
+      "downloads": {
+        "international": "https://raw.githubusercontent.com/edison7009/echobird-plugin/59fb8b2dc62dea2cec25b372c5922808dc073b2f/packages/echobird-community.claude-code-accounts-0.1.0-preview.5.windows.x64.zip",
+        "china": "https://api.gitcode.com/api/v5/repos/edison7009/echobird-plugin/raw/packages/echobird-community.claude-code-accounts-0.1.0-preview.5.windows.x64.zip"
+      }
+    },
+    {
+      "manifest": {
+        "$schema": "https://raw.githubusercontent.com/edison7009/echobird-plugin/main/schemas/plugin-manifest.schema.json",
+        "name": "claude-code-accounts",
+        "publisher": "echobird-community",
         "version": "0.1.0-preview.4.linux.x64",
         "displayName": "Claude Code",
         "description": "Claude Code 账号登录、切换及已有账号能力。Account capabilities for Claude Code.",
