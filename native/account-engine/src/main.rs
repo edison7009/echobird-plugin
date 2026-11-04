@@ -186,6 +186,11 @@ fn main() {
         })
         .build(tauri::generate_context!());
     if let Ok(app) = app {
+        // Workers may open windows, but must never become separate Dock apps.
+        #[cfg(target_os = "macos")]
+        let mut app = app;
+        #[cfg(target_os = "macos")]
+        app.set_activation_policy(tauri::ActivationPolicy::Accessory);
         app.run(|_, event| {
             if let tauri::RunEvent::ExitRequested {
                 code: None, api, ..

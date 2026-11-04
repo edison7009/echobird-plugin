@@ -18,7 +18,7 @@ for (const platform of ["windows", "macos", "linux"]) {
       platform === "windows"
         ? "bin/echobird-account-engine.exe"
         : "bin/echobird-account-engine";
-    assert.equal(manifest.version, `0.1.0-preview.4.${platform}.x64`);
+    assert.equal(manifest.version, `0.1.0-preview.5.${platform}.x64`);
     assert.deepEqual(manifest.echobird.platforms, [platform]);
     assert.deepEqual(manifest.architectures, ["x64"]);
     assert.equal(manifest.echobird.manifestVersion, 2);

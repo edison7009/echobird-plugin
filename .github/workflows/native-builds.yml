@@ -62,6 +62,10 @@ jobs:
       - name: Build
         shell: bash
         run: cargo +1.93 build --locked --release --manifest-path "$MANIFEST" --target ${{ matrix.target }}
+      - name: Verify macOS workers stay out of the Dock
+        if: runner.os == 'macOS'
+        timeout-minutes: 5
+        run: python3 scripts/check-macos-workers.py native/account-engine/target/${{ matrix.target }}/release/echobird-account-engine
       - name: Collect binary
         shell: bash
         run: |
