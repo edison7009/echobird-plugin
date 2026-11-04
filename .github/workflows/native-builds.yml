@@ -89,6 +89,10 @@ jobs:
       - name: Test
         if: runner.os != 'Windows'
         run: cargo +1.93 test --locked --manifest-path "$MANIFEST"
+      - name: Verify native macOS credential lookup
+        if: runner.os == 'macOS'
+        timeout-minutes: 5
+        run: bash scripts/check-macos-keychain.sh
 
   package-preview:
     name: Package native account plugin previews
